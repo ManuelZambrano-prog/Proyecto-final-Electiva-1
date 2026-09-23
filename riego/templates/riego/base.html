@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Riego</title>
+    <link rel="stylesheet" href="{% static 'riego/css/styles.css' %}">
+</head>
+<body>
+    <div class="app-shell {% if user.is_authenticated %}app-shell--dashboard{% endif %}">
+        {% if user.is_authenticated %}
+            <aside class="sidebar">
+                <div class="sidebar-brand">
+                    <span class="brand-mark">🌿</span>
+                    <span>Proyecto Riego</span>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Navegación principal">
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'panel' %}is-active{% endif %}" href="{% url 'panel' %}">
+                        <span>🏠</span>
+                        <span>Panel</span>
+                    </a>
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'nueva_planta' %}is-active{% endif %}" href="{% url 'nueva_planta' %}">
+                        <span>🌱</span>
+                        <span>Agregar planta</span>
+                    </a>
+                    {% if user.is_staff %}
+                        <a class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}is-active{% endif %}" href="{% url 'admin_dashboard' %}">
+                            <span>🛠️</span>
+                            <span>Administración</span>
+                        </a>
+                        <a class="sidebar-link {% if request.resolver_match.url_name == 'admin_crear_usuario' %}is-active{% endif %}" href="{% url 'admin_crear_usuario' %}">
+                            <span>👤</span>
+                            <span>Crear usuario</span>
+                        </a>
+                        <a class="sidebar-link {% if request.resolver_match.url_name == 'admin_horarios' %}is-active{% endif %}" href="{% url 'admin_horarios' %}">
+                            <span>🗓️</span>
+                            <span>Horarios</span>
+                        </a>
+                    {% endif %}
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="user-pill">
+                        <span class="user-dot"></span>
+                        <span>{{ user.username }}</span>
+                    </div>
+                    <form class="logout-form" method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button class="btn btn-secondary" type="submit">Cerrar Sesión</button>
+                    </form>
+                </div>
+            </aside>
+
+            <div class="main-panel">
+                <header class="content-topbar">
+                    <div>
+                        <span class="section-tag">Sistema de riego</span>
+                    </div>
+                    <div class="content-topbar__meta">
+                        <span>Hola, {{ user.username }}</span>
+                    </div>
+                </header>
+        {% else %}
+            <nav class="topbar">
+                <div class="topbar-inner">
+                    <div class="brand">
+                        <span class="brand-mark">🌿</span>
+                        <span>Proyecto Riego</span>
+                    </div>
+
+                    <div class="navbar">
+                        <a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a>
+                        <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
+                    </div>
+                </div>
+            </nav>
+        {% endif %}
+
+        <main class="{% if user.is_authenticated %}page-content page-content--compact app-content-auth{% else %}page-content{% endif %}">
+            {% block contenido %}{% endblock %}
+        </main>
+
+        {% if user.is_authenticated %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

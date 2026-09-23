@@ -1,0 +1,17 @@
+{% extends 'riego/base.html' %}
+
+{% block contenido %}
+    <div class="auth-shell">
+        <div class="auth-card">
+            <h2>Iniciar sesión</h2>
+            <form method="post" class="form-layout">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit">Entrar</button>
+                </div>
+            </form>
+            <p style="text-align: center; margin-top: 18px;">¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
+        </div>
+    </div>
+{% endblock %}

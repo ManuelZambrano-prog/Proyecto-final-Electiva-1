@@ -1,0 +1,45 @@
+{% extends 'riego/base.html' %}
+
+{% block contenido %}
+    <div class="page-card">
+        <div class="page-header">
+            <h2>Horarios disponibles</h2>
+        </div>
+
+        <div class="auth-shell" style="min-height: auto; place-items: start; padding: 0 0 24px;">
+            <div class="auth-card" style="width: min(100%, 560px);">
+                <form method="post" class="form-layout">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Guardar horario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <h3 class="section-title">Horarios registrados</h3>
+        {% if horarios %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Disponible</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for horario in horarios %}
+                        <tr>
+                            <td>{{ horario.fecha|date:"Y-m-d" }}</td>
+                            <td>{{ horario.hora|time:"H:i:s" }}</td>
+                            <td>{{ horario.disponible|yesno:'Sí,No' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">Aún no hay horarios registrados.</div>
+        {% endif %}
+    </div>
+{% endblock %}

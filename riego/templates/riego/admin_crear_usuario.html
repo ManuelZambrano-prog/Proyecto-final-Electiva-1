@@ -1,0 +1,16 @@
+{% extends 'riego/base.html' %}
+
+{% block contenido %}
+    <div class="auth-shell">
+        <div class="auth-card" style="width: min(100%, 560px);">
+            <h2>Crear usuario</h2>
+            <form method="post" class="form-layout">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit">Guardar usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

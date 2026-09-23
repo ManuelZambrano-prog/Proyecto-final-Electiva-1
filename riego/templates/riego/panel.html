@@ -1,0 +1,39 @@
+{% extends 'riego/base.html' %}
+
+{% block contenido %}
+    <div class="page-card">
+        <div class="page-header">
+            <h2>Mis plantas</h2>
+            <div class="page-actions">
+                <a class="btn btn-primary" href="{% url 'nueva_planta' %}">Solicitar nueva planta</a>
+            </div>
+        </div>
+
+        {% if plantas %}
+            <div class="plants-grid">
+                {% for planta in plantas %}
+                    <div class="plant-card">
+                        <h3>{{ planta.apodo|default:planta.especie.nombre }}</h3>
+                        <div class="plant-meta">
+                            <div><strong>Humedad actual:</strong> {{ planta.humedad_actual }}%</div>
+                            <div><strong>Temperatura actual:</strong> {{ planta.temperatura_actual }}°C</div>
+                            <div><strong>Límite de agua:</strong> {{ planta.especie.agua_por_riego_ml }} ml</div>
+                            <div><strong>Estado del riego:</strong> {% if planta.riego_activo %}Activo{% else %}Inactivo{% endif %}</div>
+                        </div>
+
+                        <form method="post" action="{% url 'toggle_riego' planta.id %}">
+                            {% csrf_token %}
+                            <button
+                                type="submit"
+                                class="btn btn-toggle {% if planta.riego_activo %}is-active{% else %}is-inactive{% endif %}">
+                                {% if planta.riego_activo %}Desactivar riego{% else %}Activar riego{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">Aún no tienes plantas registradas en el sistema.</div>
+        {% endif %}
+    </div>
+{% endblock %}
