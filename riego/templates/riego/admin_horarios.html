@@ -6,10 +6,17 @@
             <h2>Horarios disponibles</h2>
         </div>
 
+        {% if messages %}
+            {% for message in messages %}
+                <p class="status-badge {% if message.tags == 'error' %}rejected{% else %}approved{% endif %}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
         <div class="auth-shell" style="min-height: auto; place-items: start; padding: 0 0 24px;">
             <div class="auth-card" style="width: min(100%, 560px);">
                 <form method="post" class="form-layout">
                     {% csrf_token %}
+                    <input type="hidden" name="accion" value="guardar">
                     {{ form.as_p }}
                     <div class="form-actions">
                         <button class="btn btn-primary" type="submit">Guardar horario</button>
@@ -26,6 +33,7 @@
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Disponible</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,6 +42,24 @@
                             <td>{{ horario.fecha|date:"Y-m-d" }}</td>
                             <td>{{ horario.hora|time:"H:i:s" }}</td>
                             <td>{{ horario.disponible|yesno:'Sí,No' }}</td>
+                            <td>
+                                <div class="page-actions">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="accion" value="cambiar_disponibilidad">
+                                        <input type="hidden" name="horario_id" value="{{ horario.id }}">
+                                        <button class="btn btn-secondary" type="submit">
+                                            {% if horario.disponible %}Marcar no disponible{% else %}Marcar disponible{% endif %}
+                                        </button>
+                                    </form>
+                                    <form method="post" onsubmit="return confirm('¿Eliminar este horario?');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="accion" value="eliminar">
+                                        <input type="hidden" name="horario_id" value="{{ horario.id }}">
+                                        <button class="btn btn-danger" type="submit">Eliminar</button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

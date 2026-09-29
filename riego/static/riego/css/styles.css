@@ -511,6 +511,45 @@ body:has(.app-shell--dashboard) .page-content--compact {
     color: var(--green-900);
 }
 
+.plant-photo {
+    display: block;
+    width: 148px;
+    height: 148px;
+    object-fit: cover;
+    border: 5px solid var(--green-800);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    background: var(--mist);
+}
+
+.catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.catalog-item {
+    min-width: 0;
+    color: var(--slate);
+}
+
+.catalog-item .plant-photo {
+    width: 112px;
+    height: 112px;
+    margin-bottom: 8px;
+}
+
+.admin-plant-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 32px;
+    margin-bottom: 32px;
+}
+
+.admin-plant-columns section {
+    min-width: 0;
+}
+
 .plant-meta {
     display: grid;
     gap: 8px;

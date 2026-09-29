@@ -10,10 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -108,6 +111,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = "static/"
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / 'media'
+
+MQTT_HOST = os.environ.get('MQTT_HOST', '77cae45651464ec6b519132c94c7919b.s1.eu.hivemq.cloud')
+MQTT_PORT = int(os.environ.get('MQTT_PORT', '8883'))
+MQTT_USERNAME = os.environ.get('MQTT_USERNAME', '')
+MQTT_PASSWORD = os.environ.get('MQTT_PASSWORD', '')
+MQTT_COMMAND_TOPIC = os.environ.get('MQTT_COMMAND_TOPIC', 'riego/plantas/{plant_id}/comandos')
+MQTT_SENSOR_TOPIC = os.environ.get('MQTT_SENSOR_TOPIC', 'riego/plantas/{plant_id}/sensores')
 
 
 # Email

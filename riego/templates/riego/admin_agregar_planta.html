@@ -1,0 +1,75 @@
+{% extends 'riego/base.html' %}
+
+{% block contenido %}
+    <div class="page-card dashboard-shell">
+        <div class="page-header">
+            <div>
+                <span class="section-tag">Administración</span>
+                <h2>Agregar planta</h2>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="status-badge {% if message.tags == 'error' %}rejected{% else %}approved{% endif %}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <div class="admin-plant-columns">
+            <section>
+                <h3 class="section-title">Asignar planta a un cliente</h3>
+                <form method="post" class="form-layout">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="asignar">
+                    {{ asignar_form.as_p }}
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Asignar planta</button>
+                    </div>
+                </form>
+            </section>
+
+            <section>
+                <h3 class="section-title">Agregar especie al catálogo</h3>
+                <form method="post" enctype="multipart/form-data" class="form-layout">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="crear_especie">
+                    {{ especie_form.as_p }}
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Guardar especie</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <h3 class="section-title">Especies del catálogo</h3>
+        {% if especies %}
+            <div class="catalog-grid">
+                {% for especie in especies %}
+                    <div class="catalog-item">
+                        {% if especie.foto %}
+                            <img class="plant-photo" src="{{ especie.foto.url }}" alt="{{ especie.nombre }}" width="112" height="112">
+                        {% else %}
+                            <div class="empty-state">Sin foto</div>
+                        {% endif %}
+                        <strong>{{ especie.nombre }}</strong><br>
+                        <form method="post" enctype="multipart/form-data" class="form-layout">
+                            {% csrf_token %}
+                            <input type="hidden" name="accion" value="actualizar_foto">
+                            <input type="hidden" name="especie_id" value="{{ especie.id }}">
+                            {{ foto_form.as_p }}
+                            <button class="btn btn-secondary" type="submit">Guardar foto</button>
+                        </form>
+                        <form method="post" onsubmit="return confirm('¿Eliminar esta especie del catálogo y su foto?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="accion" value="eliminar_especie">
+                            <input type="hidden" name="especie_id" value="{{ especie.id }}">
+                            <button class="btn btn-danger" type="submit">Eliminar especie</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">Aún no hay especies en el catálogo.</div>
+        {% endif %}
+    </div>
+{% endblock %}

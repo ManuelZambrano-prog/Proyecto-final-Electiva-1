@@ -2,6 +2,11 @@
 
 {% block contenido %}
     <div class="page-card">
+        {% if messages %}
+            {% for message in messages %}
+                <p class="status-badge {% if message.tags == 'error' %}rejected{% else %}approved{% endif %}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
         <div class="page-header">
             <h2>Mis plantas</h2>
             <div class="page-actions">
@@ -13,11 +18,13 @@
             <div class="plants-grid">
                 {% for planta in plantas %}
                     <div class="plant-card">
+                        {% if planta.especie.foto %}
+                            <img class="plant-photo" src="{{ planta.especie.foto.url }}" alt="{{ planta.especie.nombre }}" width="148" height="148">
+                        {% endif %}
                         <h3>{{ planta.apodo|default:planta.especie.nombre }}</h3>
                         <div class="plant-meta">
                             <div><strong>Humedad actual:</strong> {{ planta.humedad_actual }}%</div>
                             <div><strong>Temperatura actual:</strong> {{ planta.temperatura_actual }}°C</div>
-                            <div><strong>Límite de agua:</strong> {{ planta.especie.agua_por_riego_ml }} ml</div>
                             <div><strong>Estado del riego:</strong> {% if planta.riego_activo %}Activo{% else %}Inactivo{% endif %}</div>
                         </div>
 

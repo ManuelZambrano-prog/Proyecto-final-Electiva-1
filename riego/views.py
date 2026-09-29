@@ -1,12 +1,25 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LogoutView
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
+from django.db import transaction
+from django.middleware.csrf import rotate_token
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_POST
 
-from .forms import HorarioDisponibleForm, NuevaPlantaForm, RegistroForm, UsuarioAdminForm
-from .models import Electrovalvula, HorarioDisponible, PerfilUsuario, Planta, SolicitudPlanta
+from .forms import AsignarPlantaForm, EspecieForm, FotoEspecieForm, HorarioDisponibleForm, NuevaPlantaForm, RegistroForm, UsuarioAdminForm
+from .models import Electrovalvula, Especie, HorarioDisponible, PerfilUsuario, Planta, SolicitudPlanta
+from .mqtt import MQTTError, publish_plant_command
+
+
+class CsrfRefreshLogoutView(LogoutView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        rotate_token(request)
+        return response
 
 
 @login_required
@@ -16,6 +29,7 @@ def home(request):
     return redirect('panel')
 
 
+@never_cache
 def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -30,6 +44,7 @@ def registro(request):
 
 
 @login_required
+@never_cache
 def panel_usuario(request):
     if request.user.is_staff:
         return redirect('admin_dashboard')
@@ -38,36 +53,55 @@ def panel_usuario(request):
 
 
 @login_required
+@never_cache
 def nueva_planta(request):
     if request.user.is_staff:
         return redirect('admin_dashboard')
     if request.method == 'POST':
         form = NuevaPlantaForm(request.POST)
         if form.is_valid():
-            solicitud = form.save(commit=False)
-            solicitud.usuario = request.user
-            solicitud.estado = SolicitudPlanta.Estado.PENDIENTE
-            solicitud.save()
+            horario_seleccionado = form.cleaned_data['horario_disponible']
+            with transaction.atomic():
+                slot_reservado = HorarioDisponible.objects.filter(
+                    pk=horario_seleccionado.pk,
+                    disponible=True,
+                ).update(disponible=False)
+                if slot_reservado:
+                    solicitud = form.save(commit=False)
+                    solicitud.usuario = request.user
+                    solicitud.estado = SolicitudPlanta.Estado.PENDIENTE
+                    solicitud.save()
+                else:
+                    form.add_error(None, 'Ese horario acaba de ser reservado. Elige otro horario disponible.')
 
-            slot = HorarioDisponible.objects.get(fecha=form.cleaned_data['fecha_cita'], hora=form.cleaned_data['hora_cita'])
-            slot.disponible = False
-            slot.save()
-
-            messages.success(request, 'Tu solicitud para agregar la planta fue enviada correctamente.')
-            return redirect('panel')
+            if slot_reservado:
+                messages.success(request, 'Tu solicitud para agregar la planta fue enviada correctamente.')
+                return redirect('panel')
     else:
         form = NuevaPlantaForm()
 
-    return render(request, 'riego/nueva_planta.html', {'form': form})
+    hay_horarios_disponibles = form.fields['horario_disponible'].queryset.exists()
+    return render(request, 'riego/nueva_planta.html', {
+        'form': form,
+        'hay_horarios_disponibles': hay_horarios_disponibles,
+    })
 
 
 @login_required
+@require_POST
 def toggle_riego(request, planta_id):
     if request.user.is_staff:
         return redirect('admin_dashboard')
     planta = get_object_or_404(Planta, pk=planta_id, usuario=request.user)
-    planta.riego_activo = not planta.riego_activo
-    planta.save()
+    nuevo_estado = not planta.riego_activo
+    try:
+        publish_plant_command(planta, nuevo_estado)
+    except MQTTError as error:
+        messages.error(request, f'No se pudo enviar la orden al controlador: {error}')
+        return redirect('panel')
+
+    planta.riego_activo = nuevo_estado
+    planta.save(update_fields=['riego_activo'])
 
     electrovalvula, created = Electrovalvula.objects.get_or_create(
         numero_pin=planta.id,
@@ -83,6 +117,7 @@ def toggle_riego(request, planta_id):
 
 
 @staff_member_required
+@never_cache
 def admin_dashboard(request):
     usuarios = User.objects.filter(is_staff=False).order_by('username')
     solicitudes = SolicitudPlanta.objects.select_related('usuario', 'especie').order_by('-created_at')
@@ -92,13 +127,30 @@ def admin_dashboard(request):
         solicitudes = solicitudes.filter(usuario_id=usuario_filtro)
 
     if request.method == 'POST':
+        accion = request.POST.get('accion', 'cambiar_estado')
         solicitud_id = request.POST.get('solicitud_id')
+        if solicitud_id and accion == 'asignar_planta':
+            solicitud = get_object_or_404(SolicitudPlanta, pk=solicitud_id)
+            apodo = solicitud.apodo or solicitud.especie.nombre
+            planta, creada = Planta.objects.get_or_create(
+                usuario=solicitud.usuario,
+                especie=solicitud.especie,
+                apodo=apodo,
+                defaults={'humedad_actual': 0.0, 'temperatura_actual': 0.0},
+            )
+            solicitud.estado = SolicitudPlanta.Estado.APROBADA
+            solicitud.save()
+            if creada:
+                messages.success(request, f'{apodo} fue asignada a {solicitud.usuario.username}.')
+            else:
+                messages.info(request, f'{apodo} ya estaba asignada a {solicitud.usuario.username}.')
+            return redirect('admin_dashboard')
+
         nueva_estado = request.POST.get('estado')
         if solicitud_id and nueva_estado:
             solicitud = get_object_or_404(SolicitudPlanta, pk=solicitud_id)
             solicitud.estado = nueva_estado
             solicitud.save()
-
             if nueva_estado == SolicitudPlanta.Estado.APROBADA:
                 Planta.objects.get_or_create(
                     usuario=solicitud.usuario,
@@ -123,6 +175,7 @@ def admin_dashboard(request):
 
 
 @staff_member_required
+@never_cache
 def admin_crear_usuario(request):
     if request.method == 'POST':
         form = UsuarioAdminForm(request.POST)
@@ -136,15 +189,97 @@ def admin_crear_usuario(request):
 
 
 @staff_member_required
+@never_cache
 def admin_horarios(request):
+    form = HorarioDisponibleForm()
     if request.method == 'POST':
+        accion = request.POST.get('accion', 'guardar')
+        if accion == 'cambiar_disponibilidad':
+            horario = get_object_or_404(HorarioDisponible, pk=request.POST.get('horario_id'))
+            nueva_disponibilidad = not horario.disponible
+            tiene_reserva = SolicitudPlanta.objects.filter(
+                fecha_cita=horario.fecha,
+                hora_cita=horario.hora,
+                estado__in=[SolicitudPlanta.Estado.PENDIENTE, SolicitudPlanta.Estado.APROBADA],
+            ).exists()
+            if nueva_disponibilidad and tiene_reserva:
+                messages.error(request, 'No se puede habilitar un horario con una reserva pendiente o aprobada.')
+            else:
+                horario.disponible = nueva_disponibilidad
+                horario.save(update_fields=['disponible'])
+                messages.success(request, 'Disponibilidad del horario actualizada.')
+            return redirect('admin_horarios')
+
+        if accion == 'eliminar':
+            horario = get_object_or_404(HorarioDisponible, pk=request.POST.get('horario_id'))
+            tiene_reserva = SolicitudPlanta.objects.filter(
+                fecha_cita=horario.fecha,
+                hora_cita=horario.hora,
+                estado__in=[SolicitudPlanta.Estado.PENDIENTE, SolicitudPlanta.Estado.APROBADA],
+            ).exists()
+            if tiene_reserva:
+                messages.error(request, 'No se puede eliminar un horario con una reserva pendiente o aprobada.')
+            else:
+                horario.delete()
+                messages.success(request, 'Horario eliminado correctamente.')
+            return redirect('admin_horarios')
+
         form = HorarioDisponibleForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Horario disponible registrado correctamente.')
             return redirect('admin_horarios')
-    else:
-        form = HorarioDisponibleForm()
 
     horarios = HorarioDisponible.objects.order_by('fecha', 'hora')
     return render(request, 'riego/admin_horarios.html', {'form': form, 'horarios': horarios})
+
+
+@staff_member_required
+@never_cache
+def admin_agregar_planta(request):
+    asignar_form = AsignarPlantaForm(prefix='asignar')
+    especie_form = EspecieForm(prefix='especie')
+    foto_form = FotoEspecieForm()
+
+    if request.method == 'POST':
+        if request.POST.get('accion') == 'asignar':
+            asignar_form = AsignarPlantaForm(request.POST, prefix='asignar')
+            if asignar_form.is_valid():
+                planta = asignar_form.save()
+                messages.success(request, f'{planta} fue agregada correctamente.')
+                return redirect('admin_agregar_planta')
+        elif request.POST.get('accion') == 'crear_especie':
+            especie_form = EspecieForm(request.POST, request.FILES, prefix='especie')
+            if especie_form.is_valid():
+                especie_form.save()
+                messages.success(request, 'La especie y su foto fueron agregadas al catálogo.')
+                return redirect('admin_agregar_planta')
+        elif request.POST.get('accion') == 'actualizar_foto':
+            foto_form = FotoEspecieForm(request.POST, request.FILES)
+            especie = get_object_or_404(Especie, pk=request.POST.get('especie_id'))
+            if foto_form.is_valid():
+                especie.foto = foto_form.cleaned_data['foto']
+                especie.save(update_fields=['foto'])
+                messages.success(request, f'La foto de {especie.nombre} fue guardada.')
+                return redirect('admin_agregar_planta')
+        elif request.POST.get('accion') == 'eliminar_especie':
+            especie = get_object_or_404(Especie, pk=request.POST.get('especie_id'))
+            tiene_plantas = Planta.objects.filter(especie=especie).exists()
+            tiene_solicitudes = SolicitudPlanta.objects.filter(especie=especie).exists()
+            if tiene_plantas or tiene_solicitudes:
+                messages.error(request, f'No se puede eliminar {especie.nombre}: tiene plantas o solicitudes asociadas.')
+            else:
+                foto = especie.foto
+                nombre = especie.nombre
+                especie.delete()
+                if foto:
+                    foto.delete(save=False)
+                messages.success(request, f'{nombre} fue eliminada del catálogo.')
+                return redirect('admin_agregar_planta')
+
+    return render(request, 'riego/admin_agregar_planta.html', {
+        'asignar_form': asignar_form,
+        'especie_form': especie_form,
+        'foto_form': foto_form,
+        'especies': Especie.objects.order_by('nombre'),
+    })

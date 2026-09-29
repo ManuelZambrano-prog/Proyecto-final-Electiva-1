@@ -11,11 +11,14 @@
                 {% endfor %}
             {% endif %}
 
+            {% if not hay_horarios_disponibles %}
+                <div class="empty-state">El proveedor no ha publicado horarios disponibles. Vuelve a consultar más tarde.</div>
+            {% endif %}
             <form method="post" class="form-layout">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <div class="form-actions">
-                    <button class="btn btn-primary" type="submit">Enviar solicitud</button>
+                    <button class="btn btn-primary" type="submit" {% if not hay_horarios_disponibles %}disabled{% endif %}>Enviar solicitud</button>
                 </div>
             </form>
         </div>

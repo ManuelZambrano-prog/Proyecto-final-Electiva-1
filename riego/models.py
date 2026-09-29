@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.text import slugify
 
 
 class PerfilUsuario(models.Model):
@@ -13,7 +14,7 @@ class PerfilUsuario(models.Model):
 
 class Especie(models.Model):
     nombre = models.CharField(max_length=100, help_text="Ej: Tomate, Lechuga")
-    agua_por_riego_ml = models.IntegerField(help_text="Límite máximo de agua por riego en mililitros")
+    foto = models.ImageField(upload_to='especies/', blank=True)
 
     def __str__(self):
         return self.nombre
@@ -22,11 +23,26 @@ class Especie(models.Model):
 class Planta(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     especie = models.ForeignKey(Especie, on_delete=models.SET_NULL, null=True, blank=True)
+    mqtt_id = models.CharField(max_length=180, unique=True, editable=False, null=True, blank=True)
     apodo = models.CharField(max_length=100, blank=True, help_text="Ej: Tomates de la ventana")
     humedad_actual = models.FloatField(default=0.0)
     temperatura_actual = models.FloatField(default=0.0)
     riego_activo = models.BooleanField(default=False)
     fecha_agregada = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.mqtt_id and self.usuario_id:
+            perfil = getattr(self.usuario, 'perfil', None)
+            nombre_visible = (perfil.nombre if perfil and perfil.nombre else self.usuario.first_name) or self.usuario.username
+            nombre_usuario = slugify(nombre_visible.split()[0]).replace('-', '')[:80].capitalize() or 'Usuario'
+            nombre_especie = self.especie.nombre.split('(')[0].strip() if self.especie_id else 'Planta'
+            nombre_especie = slugify(nombre_especie).replace('-', '')[:80].capitalize() or 'Planta'
+            base_id = f'{nombre_usuario}{nombre_especie}'
+            numero = 1
+            while type(self).objects.filter(mqtt_id=f'{base_id}{numero}').exclude(pk=self.pk).exists():
+                numero += 1
+            self.mqtt_id = f'{base_id}{numero}'
+        super().save(*args, **kwargs)
 
     def __str__(self):
         nombre_mostrar = self.apodo if self.apodo else (self.especie.nombre if self.especie else "Planta sin especie")

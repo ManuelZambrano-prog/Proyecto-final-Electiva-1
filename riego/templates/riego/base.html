@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Riego</title>
-    <link rel="stylesheet" href="{% static 'riego/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'riego/css/styles.css' %}?v=2">
 </head>
 <body>
     <div class="app-shell {% if user.is_authenticated %}app-shell--dashboard{% endif %}">
@@ -21,7 +21,7 @@
                         <span>🏠</span>
                         <span>Panel</span>
                     </a>
-                    <a class="sidebar-link {% if request.resolver_match.url_name == 'nueva_planta' %}is-active{% endif %}" href="{% url 'nueva_planta' %}">
+                    <a class="sidebar-link {% if request.resolver_match.url_name == 'nueva_planta' or request.resolver_match.url_name == 'admin_agregar_planta' %}is-active{% endif %}" href="{% if user.is_staff %}{% url 'admin_agregar_planta' %}{% else %}{% url 'nueva_planta' %}{% endif %}">
                         <span>🌱</span>
                         <span>Agregar planta</span>
                     </a>

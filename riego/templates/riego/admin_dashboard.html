@@ -13,6 +13,12 @@
             </div>
         </div>
 
+        {% if messages %}
+            {% for message in messages %}
+                <p class="status-badge {% if message.tags == 'error' %}rejected{% else %}approved{% endif %}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
         <div class="stats-grid">
             <div class="stat-card stat-card-green">
                 <div class="stat-icon">👥</div>
@@ -85,14 +91,21 @@
                                 <form method="post" class="form-layout">
                                     {% csrf_token %}
                                     <input type="hidden" name="solicitud_id" value="{{ solicitud.id }}">
+                                    <input type="hidden" name="accion" value="cambiar_estado">
                                     <select name="estado">
                                         <option value="pendiente" {% if solicitud.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
                                         <option value="aprobada" {% if solicitud.estado == 'aprobada' %}selected{% endif %}>Aprobada</option>
                                         <option value="rechazada" {% if solicitud.estado == 'rechazada' %}selected{% endif %}>Rechazada</option>
                                     </select>
                                     <div style="margin-top: 10px;">
-                                        <button class="btn btn-primary" type="submit">Guardar</button>
+                                        <button class="btn btn-secondary" type="submit">Guardar estado</button>
                                     </div>
+                                </form>
+                                <form method="post" style="margin-top: 10px;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="solicitud_id" value="{{ solicitud.id }}">
+                                    <input type="hidden" name="accion" value="asignar_planta">
+                                    <button class="btn btn-primary" type="submit">Asignar planta al cliente</button>
                                 </form>
                             </td>
                         </tr>

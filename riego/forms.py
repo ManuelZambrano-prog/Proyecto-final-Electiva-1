@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import HorarioDisponible, PerfilUsuario, SolicitudPlanta
+from .models import Especie, HorarioDisponible, PerfilUsuario, Planta, SolicitudPlanta
 
 
 class RegistroForm(UserCreationForm):
@@ -57,26 +57,65 @@ class HorarioDisponibleForm(forms.ModelForm):
         fields = ('fecha', 'hora', 'disponible')
 
 
+class EspecieForm(forms.ModelForm):
+    foto = forms.ImageField(label='Foto de la especie', required=True)
+
+    class Meta:
+        model = Especie
+        fields = ('nombre', 'foto')
+        labels = {
+            'nombre': 'Nombre de la especie',
+        }
+
+
+class FotoEspecieForm(forms.Form):
+    foto = forms.ImageField(label='Foto de la especie', required=True)
+
+
+class AsignarPlantaForm(forms.ModelForm):
+    class Meta:
+        model = Planta
+        fields = ('usuario', 'especie', 'apodo')
+        labels = {
+            'usuario': 'Cliente',
+            'especie': 'Especie del catálogo',
+            'apodo': 'Nombre de la planta',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['usuario'].queryset = get_user_model().objects.filter(is_staff=False).order_by('username')
+        self.fields['especie'].queryset = Especie.objects.order_by('nombre')
+
+
+class HorarioDisponibleChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, horario):
+        return f'{horario.fecha:%d/%m/%Y} - {horario.hora:%H:%M}'
+
+
 class NuevaPlantaForm(forms.ModelForm):
-    fecha_cita = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label='Fecha disponible')
-    hora_cita = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}), label='Hora disponible')
+    horario_disponible = HorarioDisponibleChoiceField(
+        queryset=HorarioDisponible.objects.none(),
+        label='Selecciona un horario disponible',
+        empty_label='Selecciona fecha y hora',
+    )
 
     class Meta:
         model = SolicitudPlanta
-        fields = ('especie', 'apodo', 'fecha_cita', 'hora_cita')
+        fields = ('especie', 'apodo')
 
-    def clean(self):
-        cleaned_data = super().clean()
-        fecha = cleaned_data.get('fecha_cita')
-        hora = cleaned_data.get('hora_cita')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['horario_disponible'].queryset = HorarioDisponible.objects.filter(
+            disponible=True,
+        ).order_by('fecha', 'hora')
 
-        if fecha and hora:
-            existe_disponible = HorarioDisponible.objects.filter(
-                fecha=fecha,
-                hora=hora,
-                disponible=True,
-            ).exists()
-            if not existe_disponible:
-                raise forms.ValidationError('La fecha y hora seleccionadas no están disponibles para agendar la instalación.')
-
-        return cleaned_data
+    def save(self, commit=True):
+        solicitud = super().save(commit=False)
+        horario = self.cleaned_data['horario_disponible']
+        solicitud.fecha_cita = horario.fecha
+        solicitud.hora_cita = horario.hora
+        if commit:
+            solicitud.save()
+            self.save_m2m()
+        return solicitud

@@ -5,7 +5,7 @@ from .models import Electrovalvula, Especie, HorarioDisponible, Planta, Solicitu
 
 @admin.register(Especie)
 class EspecieAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'agua_por_riego_ml')
+    list_display = ('nombre',)
     search_fields = ('nombre',)
 
 
