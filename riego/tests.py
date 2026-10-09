@@ -1,4 +1,5 @@
 import json
+import re
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from django.contrib.sessions.models import Session
@@ -34,6 +35,11 @@ class RiegoFlowTests(TestCase):
         )
         self.especie = Especie.objects.create(nombre='Tomate')
 
+    def csrf_token_from(self, response):
+        match = re.search(rb'name="csrfmiddlewaretoken" value="([^"]+)"', response.content)
+        self.assertIsNotNone(match, 'The response should contain a CSRF token field.')
+        return match.group(1).decode()
+
     def test_user_can_register(self):
         response = self.client.post(
             reverse('register'),
@@ -42,10 +48,56 @@ class RiegoFlowTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(get_user_model().objects.filter(username='nuevo').exists())
 
+    def test_login_does_not_show_registration_link(self):
+        response = self.client.get(reverse('login'))
+        self.assertNotContains(response, 'Registrarse')
+        self.assertNotContains(response, 'Regístrate aquí')
+        self.assertEqual(response.content.decode().count('Iniciar sesión'), 1)
+        self.assertContains(response, '>Entrar</button>')
+
+    def test_users_with_same_password_can_log_in_independently(self):
+        shared_password = '1005814855'
+        manuel = get_user_model().objects.create_user(
+            username='manuel',
+            password=shared_password,
+        )
+        self.admin_user.set_password(shared_password)
+        self.admin_user.save(update_fields=['password'])
+        host = 'localhost:8000'
+        origin = 'http://localhost:8000'
+
+        for username, expected_url in (
+            ('manuel', reverse('panel')),
+            ('admin', reverse('admin_dashboard')),
+        ):
+            client = Client(enforce_csrf_checks=True)
+            response = client.get(reverse('login'), HTTP_HOST=host)
+            csrf_token = self.csrf_token_from(response)
+            response = client.post(
+                reverse('login'),
+                {
+                    'username': username,
+                    'password': shared_password,
+                    'csrfmiddlewaretoken': csrf_token,
+                },
+                HTTP_HOST=host,
+                HTTP_ORIGIN=origin,
+                follow=True,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.request['PATH_INFO'], expected_url)
+            self.assertEqual(
+                int(client.session['_auth_user_id']),
+                manuel.pk if username == 'manuel' else self.admin_user.pk,
+            )
+
     def test_registration_accepts_csrf_origin_on_port_8000(self):
         client = Client(enforce_csrf_checks=True)
         host = 'localhost:8000'
         response = client.get(reverse('register'), HTTP_HOST=host)
+        self.assertIn(settings.CSRF_COOKIE_NAME, response.cookies)
+        self.assertEqual(settings.CSRF_COOKIE_NAME, 'proyecto_riego_csrf_v2')
+        client.cookies['csrftoken'] = 'obsolete-token-from-an-old-cookie'
         csrf_token = response.cookies[settings.CSRF_COOKIE_NAME].value
         response = client.post(
             reverse('register'),
@@ -68,20 +120,67 @@ class RiegoFlowTests(TestCase):
         login_endpoint = reverse('login')
 
         response = client.get(login_endpoint, HTTP_HOST=host)
+        csrf_token = self.csrf_token_from(response)
+        response = client.post(
+            login_endpoint,
+            {'username': 'admin', 'password': '12345678', 'csrfmiddlewaretoken': csrf_token},
+            HTTP_HOST=host,
+            HTTP_ORIGIN=origin,
+        )
+        self.assertEqual(response.status_code, 302)
+
+        response = client.get(reverse('admin_dashboard'), HTTP_HOST=host)
+        self.assertEqual(response.status_code, 200)
+        csrf_token = self.csrf_token_from(response)
+        session_key = client.session.session_key
+        csrf_token_before_logout = csrf_token
+        response = client.post(
+            reverse('logout'),
+            {'csrfmiddlewaretoken': csrf_token},
+            HTTP_HOST=host,
+            HTTP_ORIGIN=origin,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Session.objects.filter(session_key=session_key).exists())
+        self.assertEqual(
+            response.cookies[settings.SESSION_COOKIE_NAME]['max-age'],
+            0,
+        )
+        self.assertNotEqual(
+            client.cookies[settings.CSRF_COOKIE_NAME].value,
+            csrf_token_before_logout,
+        )
+        response = client.get(login_endpoint, HTTP_HOST=host)
+        self.assertEqual(response.status_code, 200)
+        csrf_token = self.csrf_token_from(response)
+        response = client.post(
+            login_endpoint,
+            {'username': 'admin', 'password': '12345678', 'csrfmiddlewaretoken': csrf_token},
+            HTTP_HOST=host,
+            HTTP_ORIGIN=origin,
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_switching_from_user_to_admin_keeps_csrf_valid(self):
+        client = Client(enforce_csrf_checks=True)
+        host = 'localhost:8000'
+        origin = 'http://localhost:8000'
+        login_endpoint = reverse('login')
+
+        response = client.get(login_endpoint, HTTP_HOST=host)
         csrf_token = client.cookies[settings.CSRF_COOKIE_NAME].value
         response = client.post(
             login_endpoint,
-            {'username': 'admin', 'password': '12345678'},
+            {'username': 'maria', 'password': '12345678'},
             HTTP_HOST=host,
             HTTP_ORIGIN=origin,
             HTTP_X_CSRFTOKEN=csrf_token,
         )
         self.assertEqual(response.status_code, 302)
 
-        response = client.get(reverse('admin_dashboard'), HTTP_HOST=host)
+        response = client.get(reverse('panel'), HTTP_HOST=host)
         self.assertEqual(response.status_code, 200)
         csrf_token = client.cookies[settings.CSRF_COOKIE_NAME].value
-        csrf_token_before_logout = csrf_token
         response = client.post(
             reverse('logout'),
             {},
@@ -90,10 +189,6 @@ class RiegoFlowTests(TestCase):
             HTTP_X_CSRFTOKEN=csrf_token,
         )
         self.assertEqual(response.status_code, 302)
-        self.assertNotEqual(
-            client.cookies[settings.CSRF_COOKIE_NAME].value,
-            csrf_token_before_logout,
-        )
 
         response = client.get(login_endpoint, HTTP_HOST=host)
         self.assertEqual(response.status_code, 200)
@@ -106,6 +201,8 @@ class RiegoFlowTests(TestCase):
             HTTP_X_CSRFTOKEN=csrf_token,
         )
         self.assertEqual(response.status_code, 302)
+        response = client.get(reverse('admin_dashboard'), HTTP_HOST=host)
+        self.assertEqual(response.status_code, 200)
 
     @patch('riego.views.publish_plant_command')
     def test_user_can_water_after_csrf_protected_login(self, publish_command):
@@ -327,14 +424,21 @@ class RiegoFlowTests(TestCase):
     def test_session_cleanup_removes_stale_sessions(self):
         from django.contrib.sessions.backends.db import SessionStore
 
-        session = SessionStore()
-        session['test'] = 'value'
-        session.save()
-        self.assertEqual(Session.objects.count(), 1)
+        stale_session = SessionStore()
+        stale_session['test'] = 'stale'
+        stale_session.save()
+        Session.objects.filter(session_key=stale_session.session_key).update(
+            expire_date=timezone.now() - timedelta(seconds=1),
+        )
 
+        active_session = SessionStore()
+        active_session['test'] = 'active'
+        active_session.save()
+        self.assertEqual(Session.objects.count(), 2)
         clear_stale_sessions()
 
-        self.assertEqual(Session.objects.count(), 0)
+        self.assertEqual(Session.objects.count(), 1)
+        self.assertTrue(Session.objects.filter(session_key=active_session.session_key).exists())
 
     def test_admin_can_create_user_with_name_and_cedula(self):
         self.client.login(username='admin', password='12345678')
@@ -439,27 +543,29 @@ class RiegoFlowTests(TestCase):
         host = 'localhost:8000'
         login_endpoint = reverse('login')
         response = client.get(login_endpoint, HTTP_HOST=host)
-        csrf_token = client.cookies[settings.CSRF_COOKIE_NAME].value
+        csrf_token = self.csrf_token_from(response)
         response = client.post(
             login_endpoint,
-            {'username': 'admin', 'password': '12345678'},
+            {'username': 'admin', 'password': '12345678', 'csrfmiddlewaretoken': csrf_token},
             HTTP_HOST=host,
             HTTP_ORIGIN='http://localhost:8000',
-            HTTP_X_CSRFTOKEN=csrf_token,
         )
         self.assertEqual(response.status_code, 302)
 
         endpoint = reverse('admin_dashboard')
         response = client.get(endpoint, HTTP_HOST=host)
         self.assertEqual(response.status_code, 200)
-        csrf_token = client.cookies[settings.CSRF_COOKIE_NAME].value
+        csrf_token = self.csrf_token_from(response)
 
         response = client.post(
             endpoint,
-            {'accion': 'asignar_planta', 'solicitud_id': solicitud.id},
+            {
+                'accion': 'asignar_planta',
+                'solicitud_id': solicitud.id,
+                'csrfmiddlewaretoken': csrf_token,
+            },
             HTTP_HOST=host,
             HTTP_ORIGIN='http://localhost:8000',
-            HTTP_X_CSRFTOKEN=csrf_token,
         )
 
         self.assertEqual(response.status_code, 302)

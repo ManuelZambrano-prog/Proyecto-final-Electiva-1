@@ -148,4 +148,5 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.app.github.dev',
 ]
 CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_NAME = 'proyecto_riego_csrf_v2'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

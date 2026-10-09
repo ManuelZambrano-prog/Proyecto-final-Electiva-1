@@ -59,15 +59,14 @@ button, input, select, textarea {
 
 .app-shell--dashboard {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 260px minmax(0, 1fr);
     min-height: 100vh;
     width: 100%;
 }
 
 .app-content-auth {
     margin: 0;
-    width: calc(100% - 260px);
-    margin-left: 260px;
+    width: 100%;
     padding: 20px 24px 40px;
     box-sizing: border-box;
     flex: 1;
@@ -79,6 +78,11 @@ body:has(.app-shell--dashboard) .page-content--compact {
 }
 
 .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 260px;
+    height: 100vh;
+    overflow-y: auto;
     background: linear-gradient(180deg, #123c2d 0%, #174c38 100%);
     color: #f4faf6;
     padding: 22px 18px;
@@ -148,8 +152,10 @@ body:has(.app-shell--dashboard) .page-content--compact {
 }
 
 .main-panel {
+    grid-column: 2;
     background: linear-gradient(180deg, #f5faf7 0%, #edf5f0 100%);
     min-height: 100vh;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -683,7 +689,15 @@ body:has(.app-shell--dashboard) .page-content--compact {
     }
 
     .sidebar {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow-y: visible;
         padding-bottom: 18px;
+    }
+
+    .main-panel {
+        grid-column: auto;
     }
 }
 

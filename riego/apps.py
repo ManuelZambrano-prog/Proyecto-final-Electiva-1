@@ -1,9 +1,11 @@
 from django.apps import AppConfig
+from django.utils import timezone
 
 
 def clear_stale_sessions():
     from django.contrib.sessions.models import Session
-    Session.objects.all().delete()
+
+    Session.objects.filter(expire_date__lt=timezone.now()).delete()
 
 
 class RiegoConfig(AppConfig):
