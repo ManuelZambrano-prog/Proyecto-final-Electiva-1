@@ -32,7 +32,10 @@ class Planta(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.mqtt_id and self.usuario_id:
-            perfil = getattr(self.usuario, 'perfil', None)
+            try:
+                perfil = self.usuario.perfil
+            except Exception:
+                perfil = None
             nombre_visible = (perfil.nombre if perfil and perfil.nombre else self.usuario.first_name) or self.usuario.username
             nombre_usuario = slugify(nombre_visible.split()[0]).replace('-', '')[:80].capitalize() or 'Usuario'
             nombre_especie = self.especie.nombre.split('(')[0].strip() if self.especie_id else 'Planta'

@@ -1,11 +1,9 @@
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LogoutView
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.middleware.csrf import rotate_token
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
@@ -15,14 +13,8 @@ from .models import Electrovalvula, Especie, HorarioDisponible, PerfilUsuario, P
 from .mqtt import MQTTError, publish_plant_command
 
 
-class CsrfRefreshLogoutView(LogoutView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        rotate_token(request)
-        return response
-
-
 @login_required
+@never_cache
 def home(request):
     if request.user.is_staff:
         return redirect('admin_dashboard')

@@ -17,6 +17,10 @@ class RegistroForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
+            PerfilUsuario.objects.get_or_create(
+                user=user,
+                defaults={'nombre': user.username, 'cedula': ''},
+            )
         return user
 
 
