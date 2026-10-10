@@ -149,4 +149,5 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_NAME = 'proyecto_riego_csrf_v2'
+CSRF_FAILURE_VIEW = 'riego.views.csrf_fallo'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

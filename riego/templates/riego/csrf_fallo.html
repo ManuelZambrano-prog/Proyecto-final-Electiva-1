@@ -1,0 +1,21 @@
+{% extends 'riego/base.html' %}
+
+{% block contenido %}
+    <div class="auth-shell">
+        <div class="auth-card">
+            <h2>Sesión desactualizada (403)</h2>
+            <p>El formulario que enviaste tenía un token de seguridad viejo. Pasa cuando
+               inicias sesión en otra pestaña, te registras (eso inicia sesión solo) o usas
+               el botón atrás después de entrar.</p>
+            <p>No es un error de tu usuario ni de tu clave. Recarga la página de ingreso
+               para obtener un token nuevo e intenta de nuevo.</p>
+            {% if reason %}
+                <p><small>Motivo técnico: {{ reason }}</small></p>
+            {% endif %}
+            <div class="form-actions">
+                <a class="btn btn-primary" href="{% url 'login' %}">Ir al ingreso</a>
+                <a class="btn btn-secondary" href="{% url 'register' %}">Ir al registro</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

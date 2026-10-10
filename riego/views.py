@@ -22,6 +22,11 @@ def home(request):
 
 
 @never_cache
+def csrf_fallo(request, reason=''):
+    return render(request, 'riego/csrf_fallo.html', {'reason': reason}, status=403)
+
+
+@never_cache
 def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
