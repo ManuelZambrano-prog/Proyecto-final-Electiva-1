@@ -430,6 +430,26 @@ body:has(.app-shell--dashboard) .page-content--compact {
     padding: 32px 20px;
 }
 
+.auth-shell--login {
+    background: url('../img/login-fondo.jpg') center / cover no-repeat, linear-gradient(180deg, #edf7f1 0%, #f8fbf9 100%);
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-shell--login::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(18, 60, 45, 0.45);
+}
+
+.auth-shell--login .auth-card {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.94);
+}
+
 .auth-card {
     width: min(100%, 480px);
     background: rgba(255,255,255,0.92);
