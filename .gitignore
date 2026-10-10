@@ -1,2 +1,7 @@
 .env
 /media/
+__pycache__/
+*.py[cod]
+*$py.class
+/staticfiles/
+/db.sqlite3-journal
