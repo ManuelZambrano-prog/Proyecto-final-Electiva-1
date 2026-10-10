@@ -431,7 +431,10 @@ body:has(.app-shell--dashboard) .page-content--compact {
 }
 
 .auth-shell--login {
-    background: url('../img/login-fondo.jpg') center / cover no-repeat, linear-gradient(180deg, #edf7f1 0%, #f8fbf9 100%);
+    background-color: #edf7f1;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     border-radius: 24px;
     position: relative;
     overflow: hidden;

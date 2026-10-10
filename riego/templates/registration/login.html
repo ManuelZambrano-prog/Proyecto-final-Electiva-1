@@ -1,7 +1,8 @@
 {% extends 'riego/base.html' %}
+{% load static %}
 
 {% block contenido %}
-    <div class="auth-shell auth-shell--login">
+    <div class="auth-shell auth-shell--login" style="background-image: url('{% static 'riego/img/login-fondo.jpg' %}');">
         <div class="auth-card">
             <h2>Iniciar sesión</h2>
             <form method="post" class="form-layout">
