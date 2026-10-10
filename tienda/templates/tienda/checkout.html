@@ -1,0 +1,149 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}Comprar Kit de Riego | Proyecto Riego - Pedido Seguro{% endblock %}
+
+{% block contenido %}
+<div class="container section" style="padding-top: 40px;">
+    <div class="text-center" style="margin-bottom: 30px;">
+        <span class="section-tag">🛍️ Finalizar tu Pedido</span>
+        <h1 class="section-title">Automatiza el Riego de tus Plantas Hoy</h1>
+        <p class="section-subtitle">
+            Completa tus datos de entrega. Aceptamos pago contra entrega en ciudades principales o transferencia bancaria segura.
+        </p>
+    </div>
+
+    <form method="post" action="{% url 'checkout' %}" id="checkout-form">
+        {% csrf_token %}
+
+        <div class="checkout-grid">
+            <!-- Formulario de Envío y Datos -->
+            <div class="checkout-form-card">
+                <h3 style="margin: 0 0 20px; color: var(--green-900); font-size: 1.4rem;">1. Selecciona tu Kit y Opciones</h3>
+
+                <div class="form-group">
+                    <label class="form-label" for="id_kit">Kit de Riego Deseado:</label>
+                    {{ form.kit }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="id_plantas_en_casa">¿Cuántas plantas tienes en casa?</label>
+                        {{ form.plantas_en_casa }}
+                    </div>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <label class="checkbox-label" style="margin-bottom: 10px;">
+                        {{ form.tanque_extra }}
+                        <span>Agregar Tanque de Mayor Capacidad (+ $35.000 COP)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        {{ form.sensores_extra }}
+                        <span>Agregar Sensores de Suelo Adicionales (+ $28.000 COP)</span>
+                    </label>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: var(--green-900); font-size: 1.4rem;">2. Datos de Envío y Contacto</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Nombre y Apellidos:</label>
+                    {{ form.nombre_completo }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Correo Electrónico:</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono Móvil (WhatsApp):</label>
+                        {{ form.telefono }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Ciudad / Municipio:</label>
+                        {{ form.ciudad }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Barrio:</label>
+                        {{ form.barrio }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Dirección Completa de Entrega:</label>
+                    {{ form.direccion }}
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: var(--green-900); font-size: 1.4rem;">3. Método de Pago</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Selecciona tu forma de pago preferida:</label>
+                    {{ form.metodo_pago }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notas o Comentarios Adicionales (Opcional):</label>
+                    {{ form.notas }}
+                </div>
+            </div>
+
+            <!-- Resumen del Pedido -->
+            <div class="checkout-summary-card">
+                <h3 style="margin: 0 0 20px; color: var(--green-900); font-size: 1.35rem;">Resumen de tu Compra</h3>
+
+                <div class="summary-line">
+                    <span id="summary-kit-name">{{ kit_inicial.nombre|default:"Kit Hogar Verde Pro" }}</span>
+                    <strong id="summary-kit-price">${{ kit_inicial.precio|default:249000|floatformat:"0" }}</strong>
+                </div>
+
+                <div id="summary-extra-tanque" class="summary-line" style="display: none;">
+                    <span>Tanque de Mayor Capacidad</span>
+                    <strong>$35.000</strong>
+                </div>
+
+                <div id="summary-extra-sensores" class="summary-line" style="display: none;">
+                    <span>Sensores Adicionales</span>
+                    <strong>$28.000</strong>
+                </div>
+
+                <div class="summary-line">
+                    <span>Envío Nacional Asegurado</span>
+                    <strong style="color: var(--primary);">¡GRATIS!</strong>
+                </div>
+
+                <div class="summary-line">
+                    <span>Acceso de por vida a la App Web</span>
+                    <strong style="color: var(--primary);">INCLUIDO</strong>
+                </div>
+
+                <div class="summary-total">
+                    <span>Total Estimado:</span>
+                    <span id="summary-total-display" style="color: var(--primary);">${{ kit_inicial.precio|default:249000|floatformat:"0" }}</span>
+                </div>
+
+                <div style="background: var(--sage-100); padding: 18px; border-radius: 12px; margin: 24px 0; border: 1px solid var(--line);">
+                    <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                        <span>🛡️</span>
+                        <strong style="font-size: 0.9rem; color: var(--green-900);">Garantía Total de 1 Año</strong>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--slate); line-height: 1.4;">
+                        Cubre electroválvulas, sensores y módulo central IoT. Reemplazo inmediato sin costo.
+                    </p>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-confirmar-pedido">
+                    <span>🌿 Confirmar y Solicitar Kit</span>
+                </button>
+
+                <p style="text-align: center; font-size: 0.82rem; color: var(--slate); margin-top: 14px;">
+                    🔒 Tus datos están protegidos. Un asesor se comunicará por WhatsApp para confirmar fecha de despacho.
+                </p>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

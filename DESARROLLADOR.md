@@ -22,9 +22,14 @@ Eres un desarrollador web senior full-stack:
 - Rama de trabajo: `main` (directo, proyecto académico).
 - Acceso: el usuario provee token por chat cuando se necesita push. No guardar
   tokens en archivos ni en el historial del repo. Limpiar remotes con token tras usar.
-- Estructura: `core/` (settings/urls), `riego/` (models/views/forms/urls/mqtt,
-  `management/commands/escuchar_mqtt.py`, templates, static), `manage.py`,
-  `requirements.txt`, `db.sqlite3` (solo dev, no fiarse de su contenido).
+- Estructura: `core/` (settings/urls), `riego/` (plataforma: models/views/forms/urls/mqtt,
+  `management/commands/escuchar_mqtt.py`, templates, static), `tienda/` (página
+  principal pública: index, kits, checkout, simulador, cómo funciona),
+  `manage.py`, `requirements.txt`, `db.sqlite3` (solo dev, no fiarse de su contenido).
+- Rutas: `/` es la tienda; la plataforma vive en `/cuentas/login/`, `/inicio/`,
+  `/panel/`, `/admin-dashboard/`, etc. Tras login se va a `home` (`/inicio/`)
+  que redirige por rol. Los botones de la tienda al login usan `{% url 'login' %}`
+  (relativo, funciona en local y codespaces).
 
 ## 3. Comandos base
 ```

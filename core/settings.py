@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'riego.apps.RiegoConfig',
+    'tienda.apps.TiendaConfig',
 ]
 
 MIDDLEWARE = [

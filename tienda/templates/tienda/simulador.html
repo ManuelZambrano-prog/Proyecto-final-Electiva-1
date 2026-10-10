@@ -1,0 +1,115 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}Simulador en Vivo de Riego Inteligente | Proyecto Riego{% endblock %}
+
+{% block contenido %}
+<div class="container section" style="padding-top: 40px;">
+    <div class="text-center" style="margin-bottom: 40px;">
+        <span class="section-tag">🎮 Mesa de Pruebas Virtual</span>
+        <h1 class="section-title">Experimenta Cómo Funciona el Riego en Vivo</h1>
+        <p class="section-subtitle">
+            Ajusta los niveles de humedad en la tierra y la temperatura del entorno para ver cómo la app genera alertas y activa las electroválvulas en tiempo real.
+        </p>
+    </div>
+
+    <div class="simulator-container">
+        <div class="sim-header">
+            <div>
+                <h3>Monitoreo Activo: Monstera Deliciosa (Sala Principal)</h3>
+                <small style="color: var(--slate);">Electroválvula Solenoide #1 • Depósito de 10L con 8.5L restantes</small>
+            </div>
+            <div class="sim-live-badge">
+                <span class="sim-pulse-dot"></span>
+                <span>Transmisión MQTT Conectada</span>
+            </div>
+        </div>
+
+        <div class="sim-grid">
+            <!-- Controles -->
+            <div class="control-panel">
+                <h4 style="margin: 0 0 16px; color: var(--green-900);">Variables Ambientales:</h4>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>🌱 Humedad del Sustrato:</span>
+                        <span id="sim-hum-val" style="color: var(--primary); font-size: 1.15rem; font-weight: 800;">22%</span>
+                    </div>
+                    <input type="range" min="10" max="95" value="22" class="slider" id="sim-humidity">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--slate); margin-top: 4px;">
+                        <span>10% (Muy Seco)</span>
+                        <span>50% (Óptimo)</span>
+                        <span>95% (Saturado)</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>🌡️ Temperatura Ambiental:</span>
+                        <span id="sim-temp-val" style="color: var(--primary); font-size: 1.15rem; font-weight: 800;">26°C</span>
+                    </div>
+                    <input type="range" min="12" max="38" value="26" class="slider" id="sim-temp">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--slate); margin-top: 4px;">
+                        <span>12°C (Frío)</span>
+                        <span>24°C (Templado)</span>
+                        <span>38°C (Cálido)</span>
+                    </div>
+                </div>
+
+                <div style="background: white; padding: 16px; border-radius: 12px; border: 1px solid var(--line); margin-top: 20px;">
+                    <strong style="font-size: 0.85rem; color: var(--slate); text-transform: uppercase;">Diagnóstico del Sensor:</strong>
+                    <div id="sim-plant-status" style="font-size: 1.15rem; font-weight: 800; margin-top: 6px; color: var(--danger);">
+                        🥀 Suelo Seco (Requiere Riego)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizador de Planta -->
+            <div class="plant-monitor-card" id="sim-monitor-card">
+                <div>
+                    <div class="plant-avatar-visual" id="sim-plant-avatar">🥀</div>
+                    <div class="water-droplets">💧 💧 💧</div>
+                    <h4 style="margin: 0; color: var(--green-900); font-size: 1.3rem;">Monstera Deliciosa</h4>
+                    <span style="font-size: 0.85rem; color: var(--slate);">Manguera capilar #1 • Gotero micro-ajustado</span>
+                </div>
+
+                <div class="gauge-row">
+                    <div class="gauge-box">
+                        <span>Litros Dosificados</span>
+                        <strong id="sim-water-dispensed">2.10 L</strong>
+                    </div>
+                    <div class="gauge-box">
+                        <span>Caudal Actual</span>
+                        <strong style="color: var(--primary);">0.25 L/min</strong>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-block btn-lg" id="sim-btn-water">
+                    💧 Habilitar Riego Ahora
+                </button>
+            </div>
+        </div>
+
+        <!-- Alerta Dinámica -->
+        <div id="sim-notification" class="live-notification-box" style="margin-top: 28px; background: #fff8e6; border-color: #d6a71e; color: #7a5e0b;">
+            <div class="notif-icon" style="background: rgba(214, 167, 30, 0.25);">🔔</div>
+            <div class="notif-text">
+                <h4 style="color: #7a5e0b;">¡Mensaje Automático de la Plataforma Web!</h4>
+                <p id="sim-notif-msg" style="color: #5c4709;">
+                    <strong>Alerta:</strong> La humedad de la tierra está en <strong>22%</strong> y la temperatura en <strong>26°C</strong>. Es el momento adecuado para habilitar el riego y prevenir estrés hídrico.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" style="margin-top: 50px;">
+        <h3 style="color: var(--green-900); margin-bottom: 12px;">¿Quieres este control en tus plantas reales?</h3>
+        <p style="color: var(--slate); max-width: 600px; margin: 0 auto 24px;">
+            Adquiere tu kit con electroválvulas, mangueras, tanque y sensores incluidos, listo para enchufar en tu casa.
+        </p>
+        <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg">
+            <span>🛍️ Comprar mi Kit de Riego</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

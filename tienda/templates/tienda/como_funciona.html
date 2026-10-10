@@ -1,0 +1,119 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}Cómo Funciona el Hardware y la App | Proyecto Riego{% endblock %}
+
+{% block contenido %}
+<div class="container section" style="padding-top: 40px;">
+    <div class="text-center" style="margin-bottom: 50px;">
+        <span class="section-tag">🔬 Tecnología & Arquitectura</span>
+        <h1 class="section-title">El Ecosistema Completo de Riego Automatizado</h1>
+        <p class="section-subtitle">
+            Conoce a detalle la integración entre la electrónica física en tus macetas y el panel web de monitoreo y control en tiempo real.
+        </p>
+    </div>
+
+    <!-- Sección 1: El Hardware Físico en Casa -->
+    <div style="background: white; border: 1px solid var(--line); border-radius: 24px; padding: 48px; box-shadow: var(--shadow); margin-bottom: 50px;">
+        <div class="hero-grid" style="align-items: center;">
+            <div>
+                <span class="section-tag">1. Componentes Físicos</span>
+                <h2 style="font-size: 2rem; color: var(--green-900); margin: 10px 0 20px;">Instalación Silenciosa y Precisa en Tus Macetas</h2>
+                <p style="color: var(--slate); line-height: 1.6; margin-bottom: 20px;">
+                    El sistema está compuesto por 4 módulos físicos diseñados para operar de forma confiable, con bajo voltaje seguro (12V) y sin ruido molesto:
+                </p>
+
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <span style="font-size: 1.8rem; background: var(--green-200); padding: 10px; border-radius: 12px;">🔌</span>
+                        <div>
+                            <h4 style="margin: 0; color: var(--green-900);">Electroválvulas Solenoides Independientes</h4>
+                            <p style="margin: 4px 0 0; font-size: 0.92rem; color: var(--slate);">
+                                Cada maceta cuenta con una válvula individual. Si tu Monstera necesita agua pero tu Suculenta todavía tiene tierra húmeda, solo se abrirá la válvula de la Monstera.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <span style="font-size: 1.8rem; background: var(--green-200); padding: 10px; border-radius: 12px;">🚰</span>
+                        <div>
+                            <h4 style="margin: 0; color: var(--green-900);">Almacenamiento de Agua Autónomo (Tanque)</h4>
+                            <p style="margin: 4px 0 0; font-size: 0.92rem; color: var(--slate);">
+                                Un depósito con tapa hermética que guarda de 4 a 20 litros. Permite usar agua reposada libre de cloro y elimina la necesidad de conexiones fijas a grifos.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <span style="font-size: 1.8rem; background: var(--green-200); padding: 10px; border-radius: 12px;">➰</span>
+                        <div>
+                            <h4 style="margin: 0; color: var(--green-900);">Microtuberías Capilares y Goteros Regulables</h4>
+                            <p style="margin: 4px 0 0; font-size: 0.92rem; color: var(--slate);">
+                                Mangueras de silicona negra de grado alimenticio anti-algas que conducen el agua discretamente hasta la base del tallo sin salpicar ni desbordar la maceta.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <span style="font-size: 1.8rem; background: var(--green-200); padding: 10px; border-radius: 12px;">🌡️</span>
+                        <div>
+                            <h4 style="margin: 0; color: var(--green-900);">Sensores de Humedad del Sustrato y Temperatura Ambiente</h4>
+                            <p style="margin: 4px 0 0; font-size: 0.92rem; color: var(--slate);">
+                                La sonda insertada en el sustrato mide la saturación de humedad en porcentaje (%), y el sensor ambiental registra los °C de la habitación para predecir la tasa de evaporación.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-image-wrap" style="height: 440px; border-radius: 20px;">
+                <img src="{% static 'tienda/images/plants-watering.jpg' %}" alt="Gotas de agua y riego en plantas caseras">
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección 2: La Inteligencia y la App Web -->
+    <div style="background: linear-gradient(135deg, #163d2c 0%, #1d4d39 100%); color: white; border-radius: 24px; padding: 48px; box-shadow: var(--shadow-lg); margin-bottom: 50px;">
+        <div class="hero-grid" style="align-items: center;">
+            <div class="hero-image-wrap" style="height: 400px; border-radius: 20px;">
+                <img src="{% static 'tienda/images/smart-garden.jpg' %}" alt="Sistema inteligente de plantas">
+            </div>
+
+            <div>
+                <span class="section-tag" style="background: rgba(127, 224, 165, 0.2); color: #7fe0a5;">2. El Cerebro del Sistema</span>
+                <h2 style="font-size: 2rem; color: white; margin: 10px 0 20px;">Monitoreo de Litros y Alertas Inteligentes en tu Celular</h2>
+                <p style="color: #dff5ea; line-height: 1.6; margin-bottom: 24px;">
+                    A diferencia de los temporizadores tradicionales que riegan ciegamente aunque esté lloviendo o haciendo frío, nuestra plataforma web analiza el estado real de la planta:
+                </p>
+
+                <div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="color: #7fe0a5; margin: 0 0 10px;">El Ciclo de Alerta y Riego:</h4>
+                    <ol style="margin: 0; padding-left: 20px; line-height: 1.7; color: #f4faf6;">
+                        <li><strong>Detección:</strong> El sensor registra que la humedad cayó por debajo del umbral óptimo (ej: 25%) y la temperatura ambiente es cálida.</li>
+                        <li><strong>Notificación:</strong> El sistema emite un aviso en tu panel web: <em>"🌱 Tu planta necesita riego. ¿Proceder a habilitar?"</em></li>
+                        <li><strong>Autorización:</strong> Al confirmar, el servidor activa el pin de la electroválvula correspondiente por MQTT.</li>
+                        <li><strong>Dosificación:</strong> El sistema mide y registra los litros entregados, cerrando el flujo al rehidratar las raíces.</li>
+                    </ol>
+                </div>
+
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <a href="{% url 'simulador' %}" class="btn btn-primary">
+                        <span>🎮 Probar el Simulador en Acción</span>
+                    </a>
+                    <a href="{% url 'login' %}" target="_blank" class="btn btn-secondary">
+                        <span>📱 Ver Panel de Control en Django</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Final -->
+    <div class="text-center" style="margin-top: 40px;">
+        <h3 style="font-size: 1.8rem; color: var(--green-900); margin-bottom: 16px;">¿Listo para cuidar tus plantas como un profesional?</h3>
+        <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg">
+            <span>🛍️ Elegir mi Kit de Riego para el Hogar</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

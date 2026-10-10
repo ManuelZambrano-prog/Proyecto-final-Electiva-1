@@ -1,0 +1,83 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}{{ kit.nombre }} | Proyecto Riego{% endblock %}
+
+{% block contenido %}
+<div class="container section" style="padding-top: 40px;">
+    <div style="margin-bottom: 24px;">
+        <a href="{% url 'index' %}#kits" style="font-weight: 700; color: var(--primary);">← Volver a todos los Kits</a>
+    </div>
+
+    <div class="hero-grid" style="align-items: flex-start; margin-bottom: 60px;">
+        <!-- Card Visual del Kit -->
+        <div>
+            <div class="hero-card" style="padding: 24px;">
+                <div class="hero-image-wrap" style="height: 420px;">
+                    {% if kit.orden == 1 %}
+                        <img src="{% static 'tienda/images/indoor-succulents.jpg' %}" alt="{{ kit.nombre }}">
+                    {% elif kit.orden == 2 %}
+                        <img src="{% static 'tienda/images/monstera-home.jpg' %}" alt="{{ kit.nombre }}">
+                    {% else %}
+                        <img src="{% static 'tienda/images/balcony-garden.jpg' %}" alt="{{ kit.nombre }}">
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Fila de especificaciones clave -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px;">
+                <div style="background: white; border: 1px solid var(--line); border-radius: 14px; padding: 16px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: var(--slate); display: block;">Electroválvulas</span>
+                    <strong style="font-size: 1.3rem; color: var(--green-900);">{{ kit.valvulas_incluidas }} salidas</strong>
+                </div>
+                <div style="background: white; border: 1px solid var(--line); border-radius: 14px; padding: 16px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: var(--slate); display: block;">Tubería Capilar</span>
+                    <strong style="font-size: 1.3rem; color: var(--green-900);">{{ kit.manguera_metros }} metros</strong>
+                </div>
+                <div style="background: white; border: 1px solid var(--line); border-radius: 14px; padding: 16px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: var(--slate); display: block;">Depósito</span>
+                    <strong style="font-size: 1.3rem; color: var(--green-900);">{{ kit.capacidad_tanque }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información y Compra -->
+        <div>
+            <span class="section-tag">{{ kit.icono }} {{ kit.plantas_recomendadas }}</span>
+            <h1 style="font-size: 2.5rem; color: var(--green-900); margin: 8px 0 16px; font-weight: 800;">{{ kit.nombre }}</h1>
+            <p style="font-size: 1.15rem; color: var(--slate); line-height: 1.6; margin-bottom: 24px;">
+                {{ kit.descripcion }}
+            </p>
+
+            <div class="kit-price-wrap" style="justify-content: flex-start; margin-bottom: 24px;">
+                <span class="kit-price" style="font-size: 2.8rem;">${{ kit.precio|floatformat:"0" }}</span>
+                {% if kit.precio_anterior %}
+                    <span class="kit-old-price" style="font-size: 1.3rem;">${{ kit.precio_anterior|floatformat:"0" }}</span>
+                {% endif %}
+                <span style="color: var(--primary); font-weight: 700; margin-left: 10px;">¡Envío Gratis!</span>
+            </div>
+
+            <div style="background: var(--sage-100); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 30px;">
+                <h3 style="margin: 0 0 16px; color: var(--green-900); font-size: 1.15rem;">¿Qué incluye la caja de este Kit?</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% for b in kit.lista_beneficios %}
+                        <li style="display: flex; gap: 10px; margin-bottom: 10px; font-size: 0.95rem; color: var(--text);">
+                            <span style="color: var(--primary); font-weight: 800;">✓</span>
+                            <span>{{ b }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <a href="{% url 'checkout' %}?kit={{ kit.slug }}" class="btn btn-primary btn-lg" style="flex: 1;">
+                    <span>🛍️ Comprar Este Kit Ahora</span>
+                </a>
+                <a href="{% url 'simulador' %}" class="btn btn-secondary btn-lg">
+                    <span>⚡ Probar Simulador</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

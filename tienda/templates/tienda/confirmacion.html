@@ -1,0 +1,68 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+
+{% block title %}¡Pedido Recibido! | Proyecto Riego{% endblock %}
+
+{% block contenido %}
+<div class="container section">
+    <div class="confirm-card">
+        <div class="success-badge">✅</div>
+        <span class="section-tag">¡Gracias por tu compra!</span>
+        <h1 style="font-size: 2.2rem; color: var(--green-900); margin: 10px 0;">¡Tu Kit de Riego Está en Marcha!</h1>
+        <p style="color: var(--slate); font-size: 1.05rem; margin-bottom: 20px;">
+            Hemos recibido correctamente tu solicitud. Tu código de seguimiento es:
+        </p>
+
+        <div class="order-code-pill">{{ pedido.codigo }}</div>
+
+        <div style="background: var(--sage-100); border: 1px solid var(--line); border-radius: 16px; padding: 24px; text-align: left; margin-bottom: 30px;">
+            <h3 style="margin: 0 0 16px; color: var(--green-900); font-size: 1.2rem;">Detalles del Pedido:</h3>
+            
+            <div class="summary-line">
+                <span>Producto:</span>
+                <strong>{{ pedido.kit.nombre }}</strong>
+            </div>
+            <div class="summary-line">
+                <span>Cliente:</span>
+                <strong>{{ pedido.nombre_completo }}</strong>
+            </div>
+            <div class="summary-line">
+                <span>Destino:</span>
+                <strong>{{ pedido.ciudad }} - {{ pedido.direccion }}</strong>
+            </div>
+            <div class="summary-line">
+                <span>Teléfono:</span>
+                <strong>{{ pedido.telefono }}</strong>
+            </div>
+            <div class="summary-line">
+                <span>Método de Pago:</span>
+                <strong>{{ pedido.get_metodo_pago_display }}</strong>
+            </div>
+            <div class="summary-line">
+                <span>Plantas Declaradas:</span>
+                <strong>{{ pedido.plantas_en_casa }} macetas</strong>
+            </div>
+            <div class="summary-total" style="font-size: 1.2rem; margin-top: 12px; padding: 12px 0 0;">
+                <span>Total a Pagar:</span>
+                <span style="color: var(--primary);">${{ pedido.total|floatformat:"0" }} COP</span>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h4 style="color: var(--green-900); margin: 0 0 10px;">¿Qué sigue ahora?</h4>
+            <p style="color: var(--slate); font-size: 0.95rem; line-height: 1.5; margin: 0;">
+                Te contactaremos por WhatsApp al <strong>{{ pedido.telefono }}</strong> para coordinar la entrega y guiarte en el acceso inicial a tu plataforma web de control de riego.
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'index' %}" class="btn btn-secondary">
+                <span>🏠 Volver al Inicio</span>
+            </a>
+            <a href="{% url 'login' %}" target="_blank" class="btn btn-primary">
+                <span>📱 Ir a la Plataforma Web de Riego</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
