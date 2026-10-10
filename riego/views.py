@@ -45,7 +45,20 @@ def registro(request):
 @never_cache
 def panel_usuario(request):
     if request.user.is_staff:
-        return redirect('admin_dashboard')
+        usuarios_info = (
+            User.objects.filter(is_staff=False)
+            .select_related('perfil')
+            .annotate(
+                num_plantas=Count('planta', distinct=True),
+                num_pendientes=Count(
+                    'solicitudes_plantas',
+                    filter=Q(solicitudes_plantas__estado=SolicitudPlanta.Estado.PENDIENTE),
+                    distinct=True,
+                ),
+            )
+            .order_by('username')
+        )
+        return render(request, 'riego/panel_admin.html', {'usuarios_info': usuarios_info})
     plantas_usuario = Planta.objects.filter(usuario=request.user).select_related('especie').order_by('-fecha_agregada')
     return render(request, 'riego/panel.html', {'plantas': plantas_usuario})
 
@@ -136,19 +149,6 @@ def toggle_riego(request, planta_id):
 @never_cache
 def admin_dashboard(request):
     usuarios = User.objects.filter(is_staff=False).order_by('username')
-    usuarios_info = (
-        User.objects.filter(is_staff=False)
-        .select_related('perfil')
-        .annotate(
-            num_plantas=Count('planta', distinct=True),
-            num_pendientes=Count(
-                'solicitudes_plantas',
-                filter=Q(solicitudes_plantas__estado=SolicitudPlanta.Estado.PENDIENTE),
-                distinct=True,
-            ),
-        )
-        .order_by('username')
-    )
     solicitudes = SolicitudPlanta.objects.select_related('usuario', 'especie').order_by('-created_at')
 
     usuario_filtro = request.GET.get('usuario')
@@ -195,7 +195,6 @@ def admin_dashboard(request):
 
     return render(request, 'riego/admin_dashboard.html', {
         'usuarios': usuarios,
-        'usuarios_info': usuarios_info,
         'solicitudes': solicitudes,
         'usuario_filtro': usuario_filtro,
         'total_usuarios': usuarios.count(),

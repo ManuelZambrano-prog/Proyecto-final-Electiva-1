@@ -800,7 +800,7 @@ class PerfilFotoTests(TestCase):
         self.assertContains(response, 'class="plant-photo"')
 
     @override_settings(MEDIA_ROOT='/tmp/riego-test-media')
-    def test_admin_dashboard_shows_user_photo_and_stats(self):
+    def test_staff_panel_shows_user_photo_and_stats(self):
         perfil = PerfilUsuario.objects.create(
             user=self.user, nombre='Maria Lopez', cedula='123', plan='premium',
         )
@@ -815,7 +815,7 @@ class PerfilFotoTests(TestCase):
             estado=SolicitudPlanta.Estado.PENDIENTE,
         )
         self.client.login(username='admin', password='12345678')
-        response = self.client.get(reverse('admin_dashboard'))
+        response = self.client.get(reverse('panel'))
         self.assertContains(response, 'Maria Lopez')
         self.assertContains(response, 'Premium')
         self.assertContains(response, 'class="plant-photo user-photo"')

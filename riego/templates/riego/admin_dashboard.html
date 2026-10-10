@@ -43,42 +43,6 @@
             </div>
         </div>
 
-        <h3 class="section-title">Usuarios</h3>
-        {% if usuarios_info %}
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Foto</th>
-                        <th>Nombre</th>
-                        <th>Usuario</th>
-                        <th>Plan</th>
-                        <th>Plantas instaladas</th>
-                        <th>Solicitudes pendientes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for usuario in usuarios_info %}
-                        <tr>
-                            <td>
-                                {% if usuario.perfil.foto %}
-                                    <img class="plant-photo user-photo" src="{{ usuario.perfil.foto.url }}" alt="Foto de {{ usuario.username }}" width="96" height="96">
-                                {% else %}
-                                    <div class="empty-state">Sin foto</div>
-                                {% endif %}
-                            </td>
-                            <td>{{ usuario.perfil.nombre|default:'Sin nombre' }}</td>
-                            <td>{{ usuario.username }}</td>
-                            <td>{{ usuario.perfil.get_plan_display|default:'Sin plan' }}</td>
-                            <td>{{ usuario.num_plantas }}</td>
-                            <td>{{ usuario.num_pendientes }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <div class="empty-state">No hay usuarios registrados.</div>
-        {% endif %}
-
         <div class="metric-row">
             <div class="card-mini">
                 <form method="get" class="filter-box">
