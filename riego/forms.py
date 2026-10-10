@@ -28,10 +28,11 @@ class UsuarioAdminForm(forms.ModelForm):
     email = forms.EmailField(required=True)
     nombre = forms.CharField(max_length=120, required=True)
     cedula = forms.CharField(max_length=20, required=True)
+    plan = forms.ChoiceField(choices=[('', 'Sin plan')] + list(PerfilUsuario.Plan.choices), required=False)
 
     class Meta:
         model = get_user_model()
-        fields = ('username', 'email', 'nombre', 'cedula')
+        fields = ('username', 'email', 'nombre', 'cedula', 'plan')
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -47,9 +48,20 @@ class UsuarioAdminForm(forms.ModelForm):
                 defaults={
                     'nombre': self.cleaned_data['nombre'],
                     'cedula': self.cleaned_data['cedula'],
+                    'plan': self.cleaned_data.get('plan', ''),
                 },
             )
         return user
+
+
+class PerfilForm(forms.ModelForm):
+    class Meta:
+        model = PerfilUsuario
+        fields = ('nombre', 'foto')
+        labels = {
+            'nombre': 'Nombre',
+            'foto': 'Foto de perfil',
+        }
 
 
 class HorarioDisponibleForm(forms.ModelForm):

@@ -4,11 +4,12 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
-from .forms import AsignarPlantaForm, EspecieForm, FotoEspecieForm, HorarioDisponibleForm, NuevaPlantaForm, RegistroForm, UsuarioAdminForm
+from .forms import AsignarPlantaForm, EspecieForm, FotoEspecieForm, HorarioDisponibleForm, NuevaPlantaForm, PerfilForm, RegistroForm, UsuarioAdminForm
 from .models import Electrovalvula, Especie, HorarioDisponible, PerfilUsuario, Planta, SolicitudPlanta
 from .mqtt import MQTTError, publish_plant_command
 
@@ -47,6 +48,24 @@ def panel_usuario(request):
         return redirect('admin_dashboard')
     plantas_usuario = Planta.objects.filter(usuario=request.user).select_related('especie').order_by('-fecha_agregada')
     return render(request, 'riego/panel.html', {'plantas': plantas_usuario})
+
+
+@login_required
+@never_cache
+def mi_perfil(request):
+    perfil, _ = PerfilUsuario.objects.get_or_create(
+        user=request.user,
+        defaults={'nombre': request.user.username},
+    )
+    if request.method == 'POST':
+        form = PerfilForm(request.POST, request.FILES, instance=perfil)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Tu perfil fue actualizado correctamente.')
+            return redirect('mi_perfil')
+    else:
+        form = PerfilForm(instance=perfil)
+    return render(request, 'riego/perfil.html', {'form': form, 'perfil': perfil})
 
 
 @login_required
@@ -117,6 +136,19 @@ def toggle_riego(request, planta_id):
 @never_cache
 def admin_dashboard(request):
     usuarios = User.objects.filter(is_staff=False).order_by('username')
+    usuarios_info = (
+        User.objects.filter(is_staff=False)
+        .select_related('perfil')
+        .annotate(
+            num_plantas=Count('planta', distinct=True),
+            num_pendientes=Count(
+                'solicitudes_plantas',
+                filter=Q(solicitudes_plantas__estado=SolicitudPlanta.Estado.PENDIENTE),
+                distinct=True,
+            ),
+        )
+        .order_by('username')
+    )
     solicitudes = SolicitudPlanta.objects.select_related('usuario', 'especie').order_by('-created_at')
 
     usuario_filtro = request.GET.get('usuario')
@@ -163,6 +195,7 @@ def admin_dashboard(request):
 
     return render(request, 'riego/admin_dashboard.html', {
         'usuarios': usuarios,
+        'usuarios_info': usuarios_info,
         'solicitudes': solicitudes,
         'usuario_filtro': usuario_filtro,
         'total_usuarios': usuarios.count(),

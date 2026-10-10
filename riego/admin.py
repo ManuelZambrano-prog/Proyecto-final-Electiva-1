@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Electrovalvula, Especie, HorarioDisponible, Planta, SolicitudPlanta
+from .models import Electrovalvula, Especie, HorarioDisponible, PerfilUsuario, Planta, SolicitudPlanta
+
+
+@admin.register(PerfilUsuario)
+class PerfilUsuarioAdmin(admin.ModelAdmin):
+    list_display = ('user', 'nombre', 'cedula', 'plan')
+    list_filter = ('plan',)
+    search_fields = ('user__username', 'nombre', 'cedula')
 
 
 @admin.register(Especie)

@@ -1,0 +1,29 @@
+{% extends 'riego/base.html' %}
+
+{% block contenido %}
+    <div class="auth-shell">
+        <div class="auth-card" style="width: min(100%, 560px);">
+            <h2>Mi perfil</h2>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="status-badge {% if message.tags == 'error' %}rejected{% else %}approved{% endif %}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+
+            {% if perfil.foto %}
+                <img class="plant-photo" src="{{ perfil.foto.url }}" alt="Foto de perfil de {{ user.username }}" width="148" height="148">
+            {% else %}
+                <div class="empty-state">Aún no tienes foto de perfil.</div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="form-layout">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit">Guardar perfil</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

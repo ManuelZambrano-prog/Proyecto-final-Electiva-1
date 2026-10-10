@@ -760,3 +760,78 @@ class RiegoFlowTests(TestCase):
         planta.refresh_from_db()
         self.assertEqual(planta.temperatura_actual, 22)
         self.assertEqual(planta.humedad_actual, 58)
+
+
+class PerfilFotoTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='maria',
+            email='maria@example.com',
+            password='12345678',
+        )
+        self.admin_user = get_user_model().objects.create_user(
+            username='admin',
+            email='admin@example.com',
+            password='12345678',
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.especie = Especie.objects.create(nombre='Tomate')
+
+    def make_image(self, name='perfil.png'):
+        image_bytes = BytesIO()
+        Image.new('RGB', (4, 4), color='blue').save(image_bytes, format='PNG')
+        return SimpleUploadedFile(name, image_bytes.getvalue(), content_type='image/png')
+
+    @override_settings(MEDIA_ROOT='/tmp/riego-test-media')
+    def test_user_can_upload_profile_photo(self):
+        self.client.login(username='maria', password='12345678')
+        response = self.client.post(reverse('mi_perfil'), {
+            'nombre': 'Maria Lopez',
+            'foto': self.make_image(),
+        })
+        self.assertRedirects(response, reverse('mi_perfil'))
+        perfil = PerfilUsuario.objects.get(user=self.user)
+        self.assertEqual(perfil.nombre, 'Maria Lopez')
+        self.assertTrue(perfil.foto)
+        self.assertTrue(default_storage.exists(perfil.foto.name))
+        self.addCleanup(perfil.foto.delete, save=False)
+        response = self.client.get(reverse('mi_perfil'))
+        self.assertContains(response, 'class="plant-photo"')
+
+    @override_settings(MEDIA_ROOT='/tmp/riego-test-media')
+    def test_admin_dashboard_shows_user_photo_and_stats(self):
+        perfil = PerfilUsuario.objects.create(
+            user=self.user, nombre='Maria Lopez', cedula='123', plan='premium',
+        )
+        perfil.foto.save('maria.png', self.make_image('maria.png'))
+        self.addCleanup(perfil.foto.delete, save=False)
+        Planta.objects.create(usuario=self.user, especie=self.especie, apodo='Cocina')
+        SolicitudPlanta.objects.create(
+            usuario=self.user,
+            especie=self.especie,
+            fecha_cita='2026-10-10',
+            hora_cita='08:00:00',
+            estado=SolicitudPlanta.Estado.PENDIENTE,
+        )
+        self.client.login(username='admin', password='12345678')
+        response = self.client.get(reverse('admin_dashboard'))
+        self.assertContains(response, 'Maria Lopez')
+        self.assertContains(response, 'Premium')
+        self.assertContains(response, 'class="plant-photo user-photo"')
+        info = {u.username: u for u in response.context['usuarios_info']}
+        self.assertEqual(info['maria'].num_plantas, 1)
+        self.assertEqual(info['maria'].num_pendientes, 1)
+
+    def test_admin_can_create_user_with_plan(self):
+        self.client.login(username='admin', password='12345678')
+        response = self.client.post(reverse('admin_crear_usuario'), {
+            'username': 'usuario1',
+            'email': 'usuario1@example.com',
+            'nombre': 'Ana Gomez',
+            'cedula': '1234567890',
+            'plan': 'estandar',
+        })
+        self.assertEqual(response.status_code, 302)
+        user = get_user_model().objects.get(username='usuario1')
+        self.assertEqual(user.perfil.plan, 'estandar')

@@ -592,6 +592,12 @@ main:has(.auth-shell--login) {
     margin-bottom: 8px;
 }
 
+.data-table .plant-photo {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto;
+}
+
 .admin-plant-columns {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
