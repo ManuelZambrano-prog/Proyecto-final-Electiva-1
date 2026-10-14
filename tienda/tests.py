@@ -19,6 +19,13 @@ class TiendaLandingTests(TestCase):
         self.assertNotContains(response, '+450 Hogares y Apartamentos')
         self.assertNotContains(response, 'cero raíces ahogadas')
 
+    def test_simulator_removed(self):
+        response = self.client.get(reverse('index'))
+        self.assertNotContains(response, 'Mesa de Pruebas')
+        self.assertNotContains(response, 'Simulador en Vivo')
+        self.assertNotContains(response, 'sim-humidity')
+        self.assertEqual(self.client.get('/simulador/').status_code, 404)
+
     def test_kits_have_one_valve_and_monthly_billing(self):
         response = self.client.get(reverse('index'))
         self.assertContains(response, 'Pago mensual')

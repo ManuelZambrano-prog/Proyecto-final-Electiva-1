@@ -734,67 +734,6 @@ img {
     gap: 10px;
 }
 
-/* ==========================================================================
-   SIMULADOR INTERACTIVO DE RIEGO (WIDGET EN VIVO)
-   ========================================================================== */
-
-.simulator-container {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-xl);
-    padding: 36px;
-    box-shadow: var(--shadow-lg);
-    max-width: 960px;
-    margin: 0 auto;
-}
-
-.sim-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 20px;
-    margin-bottom: 30px;
-}
-
-.sim-header h3 {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--green-900);
-}
-
-.sim-live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    background: var(--green-200);
-    color: var(--green-900);
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-.sim-pulse-dot {
-    width: 8px;
-    height: 8px;
-    background: #0f6c52;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(15, 108, 82, 0.8);
-    animation: blink 1.4s infinite;
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-}
-
-.sim-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 36px;
-}
 
 .control-panel {
     background: var(--sage-100);
@@ -824,82 +763,6 @@ img {
     outline: none;
     accent-color: var(--primary);
     cursor: pointer;
-}
-
-/* Simulated Plant Display */
-.plant-monitor-card {
-    background: #ffffff;
-    border: 2px solid var(--line);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: all 0.3s ease;
-}
-
-.plant-monitor-card.is-watering {
-    border-color: var(--primary);
-    box-shadow: 0 0 24px rgba(91, 179, 138, 0.35);
-}
-
-.plant-avatar-visual {
-    font-size: 4rem;
-    margin: 10px 0;
-    transition: transform 0.3s ease;
-}
-
-.gauge-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin: 16px 0;
-}
-
-.gauge-box {
-    background: var(--mist);
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-}
-
-.gauge-box span {
-    font-size: 0.8rem;
-    color: var(--slate);
-    font-weight: 600;
-    display: block;
-}
-
-.gauge-box strong {
-    font-size: 1.3rem;
-    color: var(--green-900);
-}
-
-.water-counter-box {
-    background: var(--green-200);
-    padding: 12px;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    color: var(--green-900);
-    font-weight: 700;
-}
-
-/* Water drop animation */
-.water-droplets {
-    display: none;
-    font-size: 1.5rem;
-    animation: drip 0.8s infinite;
-}
-
-.is-watering .water-droplets {
-    display: block;
-}
-
-@keyframes drip {
-    0% { transform: translateY(-5px); opacity: 0; }
-    50% { opacity: 1; }
-    100% { transform: translateY(10px); opacity: 0; }
 }
 
 /* ==========================================================================
@@ -1482,7 +1345,7 @@ details[open] .faq-question::after {
         display: none;
     }
 
-    .banners-grid, .components-grid, .steps-row, .testimonials-grid, .sim-grid, .footer-grid {
+    .banners-grid, .components-grid, .steps-row, .testimonials-grid, .footer-grid {
         grid-template-columns: 1fr;
     }
 

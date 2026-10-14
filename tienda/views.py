@@ -154,11 +154,6 @@ def confirmacion(request, codigo):
     })
 
 
-def simulador(request):
-    """Página dedicada para probar interactivamente cómo funciona la alerta y el riego inteligente"""
-    return render(request, 'tienda/simulador.html')
-
-
 def como_funciona(request):
     """Explicación detallada de la tecnología (válvulas, mangueras, sensores, app web)"""
     return render(request, 'tienda/como_funciona.html')

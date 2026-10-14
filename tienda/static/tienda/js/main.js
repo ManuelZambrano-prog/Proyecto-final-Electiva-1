@@ -1,112 +1,11 @@
 /* ==========================================================================
-   INTERACTIVIDAD Y SIMULADOR DE RIEGO INTELIGENTE
+   INTERACTIVIDAD DE LA TIENDA
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-    initSimulator();
     initPlantCalculator();
     initCheckoutCalculator();
 });
-
-/* --------------------------------------------------------------------------
-   1. SIMULADOR EN VIVO DEL SISTEMA DE RIEGO Y NOTIFICACIONES
-   -------------------------------------------------------------------------- */
-function initSimulator() {
-    const humSlider = document.getElementById('sim-humidity');
-    const tempSlider = document.getElementById('sim-temp');
-    const humVal = document.getElementById('sim-hum-val');
-    const tempVal = document.getElementById('sim-temp-val');
-    const plantStatus = document.getElementById('sim-plant-status');
-    const plantAvatar = document.getElementById('sim-plant-avatar');
-    const notifBox = document.getElementById('sim-notification');
-    const notifMsg = document.getElementById('sim-notif-msg');
-    const btnWater = document.getElementById('sim-btn-water');
-    const waterDispensed = document.getElementById('sim-water-dispensed');
-    const monitorCard = document.getElementById('sim-monitor-card');
-
-    if (!humSlider || !btnWater) return;
-
-    let liters = 1.45;
-    let isWatering = false;
-    let waterInterval = null;
-
-    function updateSensors() {
-        const hum = parseInt(humSlider.value, 10);
-        const temp = parseInt(tempSlider.value, 10);
-
-        humVal.textContent = `${hum}%`;
-        tempVal.textContent = `${temp}°C`;
-
-        if (hum < 35) {
-            plantStatus.textContent = '🥀 Suelo Seco (Requiere Riego)';
-            plantStatus.style.color = 'var(--danger)';
-            plantAvatar.textContent = '🥀';
-            notifBox.style.display = 'flex';
-            notifMsg.innerHTML = `<strong>⚠️ ALERTA:</strong> La humedad de tu <em>Monstera Deliciosa</em> cayó a <strong>${hum}%</strong> con temp. de <strong>${temp}°C</strong>. Se recomienda regar 250ml. ¿Deseas habilitar la electroválvula?`;
-            btnWater.classList.remove('btn-secondary');
-            btnWater.classList.add('btn-primary');
-            btnWater.textContent = '💧 Habilitar Riego Ahora';
-        } else if (hum > 75) {
-            plantStatus.textContent = '💧 Suelo Muy Húmedo';
-            plantStatus.style.color = 'var(--info)';
-            plantAvatar.textContent = '🪴';
-            notifBox.style.display = 'none';
-        } else {
-            plantStatus.textContent = '🌿 Nivel Óptimo y Saludable';
-            plantStatus.style.color = 'var(--green-700)';
-            plantAvatar.textContent = '🌿';
-            notifBox.style.display = 'none';
-        }
-    }
-
-    humSlider.addEventListener('input', updateSensors);
-    tempSlider.addEventListener('input', updateSensors);
-
-    btnWater.addEventListener('click', () => {
-        if (isWatering) {
-            // Detener riego manual
-            stopWatering();
-            return;
-        }
-
-        // Iniciar riego
-        isWatering = true;
-        monitorCard.classList.add('is-watering');
-        btnWater.textContent = '⏹️ Detener Riego (Válvula Abierta)';
-        btnWater.classList.remove('btn-primary');
-        btnWater.classList.add('btn-accent');
-
-        waterInterval = setInterval(() => {
-            let currentHum = parseInt(humSlider.value, 10);
-            if (currentHum < 70) {
-                currentHum += 3;
-                humSlider.value = currentHum;
-                liters += 0.05;
-                waterDispensed.textContent = `${liters.toFixed(2)} L`;
-                updateSensors();
-            } else {
-                stopWatering();
-            }
-        }, 400);
-    });
-
-    function stopWatering() {
-        isWatering = false;
-        clearInterval(waterInterval);
-        monitorCard.classList.remove('is-watering');
-        btnWater.textContent = '✅ Riego Completado (+0.25 L)';
-        btnWater.classList.remove('btn-accent');
-        btnWater.classList.add('btn-secondary');
-        setTimeout(() => {
-            btnWater.textContent = '💧 Habilitar Riego Ahora';
-            btnWater.classList.remove('btn-secondary');
-            btnWater.classList.add('btn-primary');
-        }, 2500);
-    }
-
-    // Inicializar valores al cargar
-    updateSensors();
-}
 
 /* --------------------------------------------------------------------------
    2. CALCULADORA Y RECOMENDADOR DE KIT SEGÚN PLANTAS EN CASA

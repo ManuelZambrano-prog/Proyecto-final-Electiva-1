@@ -21,9 +21,6 @@
                     <a href="#kits" class="btn btn-primary btn-lg" id="btn-hero-kits">
                         <span>🌱 Ver Kits y Precios</span>
                     </a>
-                    <a href="#simulador" class="btn btn-secondary btn-lg" id="btn-hero-simulador">
-                        <span>⚡ Probar Simulador en Vivo</span>
-                    </a>
                 </div>
             </div>
 
@@ -239,100 +236,6 @@
 <!-- ========================================================================
      SIMULADOR INTERACTIVO EN VIVO
      ======================================================================== -->
-<section id="simulador" class="section">
-    <div class="container">
-        <div class="text-center">
-            <span class="section-tag">🎮 Demostración en Tiempo Real</span>
-            <h2 class="section-title">Simulador Interactivo de Riego</h2>
-            <p class="section-subtitle">
-                Mueve los controles de humedad y temperatura ambiente para ver cómo reacciona el sistema y cómo se habilitan las electroválvulas.
-            </p>
-        </div>
-
-        <div class="simulator-container">
-            <div class="sim-header">
-                <div>
-                    <h3>Mesa de Pruebas: Monstera Deliciosa</h3>
-                    <small style="color: var(--slate);">Simulador integrado del hardware IoT y la interfaz web</small>
-                </div>
-                <div class="sim-live-badge">
-                    <span class="sim-pulse-dot"></span>
-                    <span>Conexión en Vivo</span>
-                </div>
-            </div>
-
-            <div class="sim-grid">
-                <!-- Panel de Controles / Sliders -->
-                <div class="control-panel">
-                    <h4 style="margin: 0 0 16px; color: var(--green-900);">Ajustar Sensores Ambientales:</h4>
-
-                    <div class="control-group">
-                        <div class="control-label">
-                            <span>🌱 Humedad del Suelo:</span>
-                            <span id="sim-hum-val" style="color: var(--primary); font-size: 1.1rem;">28%</span>
-                        </div>
-                        <input type="range" min="10" max="95" value="28" class="slider" id="sim-humidity">
-                        <small style="color: var(--slate); font-size: 0.8rem;">Desliza hacia la izquierda (<35%) para simular sequedad y activar alerta.</small>
-                    </div>
-
-                    <div class="control-group">
-                        <div class="control-label">
-                            <span>🌡️ Temperatura Ambiente:</span>
-                            <span id="sim-temp-val" style="color: var(--primary); font-size: 1.1rem;">24°C</span>
-                        </div>
-                        <input type="range" min="12" max="38" value="24" class="slider" id="sim-temp">
-                        <small style="color: var(--slate); font-size: 0.8rem;">A mayor temperatura, mayor frecuencia de hidratación sugerida.</small>
-                    </div>
-
-                    <div style="background: white; padding: 14px; border-radius: 10px; border: 1px solid var(--line); margin-top: 20px;">
-                        <strong style="font-size: 0.88rem; color: var(--green-900);">Diagnóstico Automático:</strong>
-                        <div id="sim-plant-status" style="font-size: 1.05rem; font-weight: 700; margin-top: 4px; color: var(--danger);">
-                            🥀 Suelo Seco (Requiere Riego)
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tarjeta de Monitoreo de la Planta -->
-                <div class="plant-monitor-card" id="sim-monitor-card">
-                    <div>
-                        <div class="plant-avatar-visual" id="sim-plant-avatar">🥀</div>
-                        <div class="water-droplets">💧 💧 💧</div>
-                        <h4 style="margin: 0; color: var(--green-900); font-size: 1.25rem;">Monstera Deliciosa (Sala)</h4>
-                        <span style="font-size: 0.85rem; color: var(--slate);">Electroválvula Pin #4 • Maceta 3.5L</span>
-                    </div>
-
-                    <div class="gauge-row">
-                        <div class="gauge-box">
-                            <span>Consumo de Agua</span>
-                            <strong id="sim-water-dispensed">1.45 L</strong>
-                        </div>
-                        <div class="gauge-box">
-                            <span>Estado Válvula</span>
-                            <strong style="color: var(--primary);">Standby</strong>
-                        </div>
-                    </div>
-
-                    <!-- Botón de acción para habilitar riego -->
-                    <button type="button" class="btn btn-primary btn-block" id="sim-btn-water">
-                        💧 Habilitar Riego Ahora
-                    </button>
-                </div>
-            </div>
-
-            <!-- Notificación dinámica simulada -->
-            <div id="sim-notification" class="live-notification-box" style="margin-top: 24px; background: #fff8e6; border-color: #d6a71e; color: #7a5e0b;">
-                <div class="notif-icon" style="background: rgba(214, 167, 30, 0.2);">⚠️</div>
-                <div class="notif-text">
-                    <h4 style="color: #7a5e0b;">Notificación Automática del Sistema</h4>
-                    <p id="sim-notif-msg" style="color: #5c4709;">
-                        <strong>Alerta:</strong> La humedad cayó a <strong>28%</strong>. Pulsa "Habilitar Riego" para que el sistema abra la electroválvula y regule el caudal.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- ========================================================================
      KITS DISPONIBLES Y PRECIOS
      ======================================================================== -->

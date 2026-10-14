@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SIRIGO | Sistema de Riego Inteligente por Goteo para Plantas Caseras{% endblock %}</title>
     <meta name="description" content="Automatiza el riego de tus plantas de interior con electroválvulas independientes, sensores de temperatura y humedad, monitoreo de litros y alertas en tiempo real en tu celular.">
-    <link rel="stylesheet" href="{% static 'tienda/css/styles.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'tienda/css/styles.css' %}?v=1.1">
 </head>
 <body>
     <!-- Barra Superior Informativa -->
@@ -27,7 +27,7 @@
                     <ul class="nav-menu">
                         <li><a href="{% url 'index' %}#kits">Kits y Precios</a></li>
                         <li><a href="{% url 'como_funciona' %}">Hardware y Sensores</a></li>
-                        <li><a href="{% url 'index' %}#simulador">Simulador en Vivo</a></li>
+                        <li><a href="{% url 'index' %}#cotizador">Calculadora</a></li>
                         <li><a href="{% url 'index' %}#cotizador">Calculadora</a></li>
                         <li><a href="{% url 'index' %}#testimonios">Opiniones</a></li>
                         <li><a href="{% url 'index' %}#contacto">Contacto</a></li>
@@ -92,7 +92,7 @@
                         <li><a href="{% url 'como_funciona' %}">Electroválvulas Solenoides</a></li>
                         <li><a href="{% url 'como_funciona' %}">Depósito y Mangueras Capilares</a></li>
                         <li><a href="{% url 'como_funciona' %}">Sensores Humedad & Clima</a></li>
-                        <li><a href="{% url 'simulador' %}">Probar Simulador Interactivo</a></li>
+                        <li><a href="{% url 'index' %}#cotizador">Probar Calculadora de Kit</a></li>
                         <li><a href="{% url 'login' %}" target="_blank">Entrar a la App Web</a></li>
                     </ul>
                 </div>
@@ -115,7 +115,7 @@
         </div>
     </footer>
 
-    <script src="{% static 'tienda/js/main.js' %}?v=1.1"></script>
+    <script src="{% static 'tienda/js/main.js' %}?v=1.2"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
