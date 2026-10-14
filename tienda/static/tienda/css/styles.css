@@ -159,6 +159,7 @@ img {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
     height: 74px;
 }
 
@@ -169,6 +170,8 @@ img {
     font-size: 1.28rem;
     font-weight: 800;
     color: var(--green-900);
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .brand-mark {
@@ -186,7 +189,7 @@ img {
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 28px;
+    gap: 18px;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -195,9 +198,10 @@ img {
 .nav-menu a {
     color: var(--text);
     font-weight: 600;
-    font-size: 0.96rem;
+    font-size: 0.9rem;
     padding: 6px 4px;
     position: relative;
+    white-space: nowrap;
 }
 
 .nav-menu a:hover {
@@ -207,7 +211,12 @@ img {
 .nav-actions {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.nav-actions .btn {
+    white-space: nowrap;
 }
 
 /* ==========================================================================
@@ -1299,6 +1308,25 @@ details[open] .faq-question::after {
 /* ==========================================================================
    RESPONSIVE DESIGN
    ========================================================================== */
+
+@media (max-width: 1150px) {
+    .nav-menu {
+        gap: 10px;
+    }
+
+    .nav-menu a {
+        font-size: 0.82rem;
+    }
+
+    .nav-actions {
+        gap: 8px;
+    }
+
+    .nav-actions .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}
 
 @media (max-width: 1024px) {
     .hero-grid, .checkout-grid, .calc-grid, .alert-demo-inner {
