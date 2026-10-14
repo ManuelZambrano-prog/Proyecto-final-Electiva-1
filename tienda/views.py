@@ -11,52 +11,52 @@ def seed_data_if_empty():
             nombre="Kit Balcón & Ventana",
             slug="kit-balcon-ventana",
             subtitulo="Perfecto para apartamentos pequeños y macetas de ventana (1 a 3 plantas).",
-            precio=149000,
-            precio_anterior=189000,
+            precio=99000,
+            precio_anterior=None,
             plantas_recomendadas="1 - 3 plantas caseras",
             capacidad_tanque="Depósito compacto 4 Litros",
-            valvulas_incluidas=3,
+            valvulas_incluidas=1,
             manguera_metros=5,
             sensores_incluidos="1 Sensor Suelo Humedad + 1 Sensor Temp/Hum Ambiente",
             destacado=False,
             icono="🪴",
             orden=1,
             descripcion="El kit inicial perfecto para quien vive en apartamento y quiere mantener sus suculentas, pothos o aromáticas saludables sin preocuparse por regar manualmente cada día.",
-            beneficios="3 electroválvulas independientes de bajo consumo\n5 metros de microtubo flexible negro anti-algas\nDepósito de 4L translúcido con tapa hermética\nSensor de humedad de suelo capacitivo (anti-óxido)\nSensor DHT de temperatura y humedad ambiente\nAcceso a la App Web con notificaciones en vivo\nMicrogoteros ajustables gota a gota (0 a 6 L/h)\nFácil instalación en 15 minutos sin herramientas"
+            beneficios="1 electroválvula de bajo consumo\n5 metros de microtubo flexible negro anti-algas\nDepósito de 4L translúcido con tapa hermética\nSensor de humedad de suelo capacitivo (anti-óxido)\nSensor DHT de temperatura y humedad ambiente\nAcceso a la App Web con notificaciones en vivo\nMicrogoteros ajustables gota a gota (0 a 6 L/h)\nFácil instalación en 15 minutos sin herramientas"
         )
         KitRiego.objects.create(
             nombre="Kit Hogar Verde Pro",
             slug="kit-hogar-verde-pro",
             subtitulo="El sistema más completo para salas, balcones y jardines interiores (4 a 8 plantas).",
-            precio=249000,
-            precio_anterior=310000,
+            precio=169000,
+            precio_anterior=None,
             plantas_recomendadas="4 - 8 plantas caseras",
             capacidad_tanque="Depósito mediano 10 Litros",
-            valvulas_incluidas=8,
+            valvulas_incluidas=1,
             manguera_metros=12,
             sensores_incluidos="3 Sensores Suelo Humedad + Sensor Temp/Hum Ambiente",
             destacado=True,
             icono="🌿",
             orden=2,
             descripcion="Nuestra solución estrella para amantes de las plantas de interior (Monsteras, Ficus, Helechos, Palmeras). Controla de manera independiente hasta 8 macetas y recibe alertas automáticas cuando la tierra esté reseca.",
-            beneficios="8 electroválvulas solenoides con control independiente\n12 metros de microtubo capilar de silicona flexible\nTanque de agua de 10L con indicador de nivel flotante\n3 sensores de humedad de suelo para macetas clave\nSensor de precisión para temperatura y clima de la sala\nApp Web interactiva con registro de litros dosificados\nNotificaciones 'Tu planta necesita riego' con confirmación\nGoteros compensados por presión para riego uniforme\nAdaptador a corriente 12V 2A incluido + backup USB"
+            beneficios="1 electroválvula solenoide con control independiente\n12 metros de microtubo capilar de silicona flexible\nTanque de agua de 10L con indicador de nivel flotante\n3 sensores de humedad de suelo para macetas clave\nSensor de precisión para temperatura y clima de la sala\nApp Web interactiva con registro de litros dosificados\nNotificaciones 'Tu planta necesita riego' con confirmación\nGoteros compensados por presión para riego uniforme\nAdaptador a corriente 12V 2A incluido + backup USB"
         )
         KitRiego.objects.create(
             nombre="Kit Jardín Interior Smart",
             slug="kit-jardin-interior-smart",
             subtitulo="Potencia y automatización total para colecciones grandes o terrazas (hasta 16 plantas).",
-            precio=389000,
-            precio_anterior=479000,
+            precio=259000,
+            precio_anterior=None,
             plantas_recomendadas="Hasta 16 plantas",
             capacidad_tanque="Tanque 20L o conexión directa grifo",
-            valvulas_incluidas=16,
+            valvulas_incluidas=1,
             manguera_metros=25,
             sensores_incluidos="6 Sensores Suelo + Sensor Clima Completo",
             destacado=False,
             icono="🏡",
             orden=3,
             descripcion="El kit definitivo para terrazas, jardines verticales interiores o coleccionistas botánicos. Permite irrigar hasta 16 plantas con dosificación programable mililitro a mililitro.",
-            beneficios="16 electroválvulas de alta durabilidad en bloque modular\n25 metros de manguera de distribución y derivaciones\nDepósito de 20 Litros o conexión con reductor a grifo\n6 sensores de humedad para distintas especies botánicas\nEstación de monitoreo de temperatura y humedad ambiental\nPanel de administración web avanzado con gráficas y horarios\nSistema anti-obstrucción con filtro de sedimentos en línea\nSoporte técnico prioritario y garantía extendida de 2 años"
+            beneficios="1 electroválvula de alta durabilidad en bloque modular\n25 metros de manguera de distribución y derivaciones\nDepósito de 20 Litros o conexión con reductor a grifo\n6 sensores de humedad para distintas especies botánicas\nEstación de monitoreo de temperatura y humedad ambiental\nPanel de administración web avanzado con gráficas y horarios\nSistema anti-obstrucción con filtro de sedimentos en línea\nSoporte técnico prioritario y garantía extendida de 2 años"
         )
 
     if Testimonio.objects.count() == 0:

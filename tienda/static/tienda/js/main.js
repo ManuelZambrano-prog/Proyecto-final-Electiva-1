@@ -127,18 +127,18 @@ function initPlantCalculator() {
 
         if (count <= 3) {
             recKitName.textContent = 'Kit Balcón & Ventana (1 - 3 plantas)';
-            recKitDesc.textContent = 'Incluye 3 electroválvulas independientes, 5m de manguera y depósito compacto de 4L.';
-            recKitPrice.textContent = '$149.000 COP';
+            recKitDesc.textContent = 'Incluye 1 electroválvula, 5m de manguera y depósito compacto de 4L.';
+            recKitPrice.textContent = '$99.000 COP/mes';
             recKitBtn.href = '/checkout/?kit=kit-balcon-ventana';
         } else if (count <= 8) {
             recKitName.textContent = 'Kit Hogar Verde Pro (4 - 8 plantas) ⭐ Recomendado';
-            recKitDesc.textContent = 'Incluye 8 electroválvulas, 12m de microtubo, tanque de 10L y sensores de humedad y temperatura.';
-            recKitPrice.textContent = '$249.000 COP';
+            recKitDesc.textContent = 'Incluye 1 electroválvula, 12m de microtubo, tanque de 10L y sensores de humedad y temperatura.';
+            recKitPrice.textContent = '$169.000 COP/mes';
             recKitBtn.href = '/checkout/?kit=kit-hogar-verde-pro';
         } else {
             recKitName.textContent = 'Kit Jardín Interior Smart (hasta 16 plantas)';
-            recKitDesc.textContent = 'Incluye 16 electroválvulas modulares, 25m de tubería, tanque 20L o conector a grifo.';
-            recKitPrice.textContent = '$389.000 COP';
+            recKitDesc.textContent = 'Incluye 1 electroválvula modular, 25m de tubería, tanque 20L o conector a grifo.';
+            recKitPrice.textContent = '$259.000 COP/mes';
             recKitBtn.href = '/checkout/?kit=kit-jardin-interior-smart';
         }
     }
@@ -164,14 +164,14 @@ function initCheckoutCalculator() {
 
     // Precios de kits (asociados por texto o valor)
     const preciosKits = {
-        '1': { nombre: 'Kit Balcón & Ventana', precio: 149000 },
-        '2': { nombre: 'Kit Hogar Verde Pro', precio: 249000 },
-        '3': { nombre: 'Kit Jardín Interior Smart', precio: 389000 }
+        '1': { nombre: 'Kit Balcón & Ventana', precio: 99000 },
+        '2': { nombre: 'Kit Hogar Verde Pro', precio: 169000 },
+        '3': { nombre: 'Kit Jardín Interior Smart', precio: 259000 }
     };
 
     function recalculateTotal() {
         const kitId = kitSelect.value;
-        const kitInfo = preciosKits[kitId] || { nombre: 'Kit Seleccionado', precio: 249000 };
+        const kitInfo = preciosKits[kitId] || { nombre: 'Kit Seleccionado', precio: 169000 };
 
         let total = kitInfo.precio;
         if (kitNameDisplay) kitNameDisplay.textContent = kitInfo.nombre;

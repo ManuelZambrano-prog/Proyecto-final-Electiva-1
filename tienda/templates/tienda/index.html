@@ -25,19 +25,6 @@
                         <span>⚡ Probar Simulador en Vivo</span>
                     </a>
                 </div>
-
-                <div class="hero-trust">
-                    <div class="trust-avatars">
-                        <div class="trust-avatar">🌿</div>
-                        <div class="trust-avatar">🪴</div>
-                        <div class="trust-avatar">🌵</div>
-                        <div class="trust-avatar">🌺</div>
-                    </div>
-                    <div class="trust-text">
-                        <strong>+450 Hogares y Apartamentos</strong> con plantas sanas y 100% automatizadas.<br>
-                        Ahorro del 70% en agua y cero raíces ahogadas.
-                    </div>
-                </div>
             </div>
 
             <div class="hero-media">
@@ -372,12 +359,12 @@
                         <p class="kit-subtitle">{{ kit.subtitulo }}</p>
 
                         <div class="kit-price-wrap">
-                            <span class="kit-price">${{ kit.precio|floatformat:"0" }}</span>
+                            <span class="kit-price">${{ kit.precio|floatformat:"0" }}</span><small style="color: var(--slate); font-weight: 700;">/mes</small>
                             {% if kit.precio_anterior %}
                                 <span class="kit-old-price">${{ kit.precio_anterior|floatformat:"0" }}</span>
                             {% endif %}
                         </div>
-                        <small style="color: var(--slate); font-weight: 600;">Pago único • Sin mensualidades</small>
+                        <small style="color: var(--slate); font-weight: 600;">Pago mensual • Cancela cuando quieras</small>
 
                         <div class="kit-spec-pills">
                             <span class="spec-pill">🪴 {{ kit.plantas_recomendadas }}</span>
@@ -432,10 +419,10 @@
                     <span style="font-size: 0.85rem; font-weight: 700; color: var(--slate); text-transform: uppercase;">Kit Recomendado para Ti:</span>
                     <h4 id="rec-kit-name" style="font-size: 1.4rem; color: var(--green-900); margin: 8px 0;">Kit Hogar Verde Pro</h4>
                     <p id="rec-kit-desc" style="font-size: 0.9rem; color: var(--slate); margin-bottom: 16px;">
-                        Incluye 8 electroválvulas, 12m de tubería y tanque de 10L.
+                        Incluye 1 electroválvula, 12m de tubería y tanque de 10L.
                     </p>
                     <div id="rec-kit-price" style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-bottom: 18px;">
-                        $249.000 COP
+                        $169.000 COP/mes
                     </div>
                     <a id="rec-kit-btn" href="{% url 'checkout' %}?kit=kit-hogar-verde-pro" class="btn btn-primary btn-block">
                         <span>Elegir este Kit Ahora</span>
