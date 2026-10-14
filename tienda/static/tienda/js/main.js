@@ -26,17 +26,17 @@ function initPlantCalculator() {
 
         if (count <= 3) {
             recKitName.textContent = 'Kit Balcón & Ventana (1 - 3 plantas)';
-            recKitDesc.textContent = 'Incluye 1 electroválvula, 5m de manguera y depósito compacto de 4L.';
+            recKitDesc.textContent = 'Incluye 1 electroválvula, 5m de manguera y servomotor compacto.';
             recKitPrice.textContent = '$99.000 COP/mes';
             recKitBtn.href = '/checkout/?kit=kit-balcon-ventana';
         } else if (count <= 8) {
             recKitName.textContent = 'Kit Hogar Verde Pro (4 - 8 plantas) ⭐ Recomendado';
-            recKitDesc.textContent = 'Incluye 1 electroválvula, 12m de microtubo, tanque de 10L y sensores de humedad y temperatura.';
+            recKitDesc.textContent = 'Incluye 1 electroválvula, 12m de microtubo, servomotor y sensores de humedad y temperatura.';
             recKitPrice.textContent = '$169.000 COP/mes';
             recKitBtn.href = '/checkout/?kit=kit-hogar-verde-pro';
         } else {
             recKitName.textContent = 'Kit Jardín Interior Smart (hasta 16 plantas)';
-            recKitDesc.textContent = 'Incluye 1 electroválvula modular, 25m de tubería, tanque 20L o conector a grifo.';
+            recKitDesc.textContent = 'Incluye 1 electroválvula modular, 25m de tubería y servomotor de alta durabilidad.';
             recKitPrice.textContent = '$259.000 COP/mes';
             recKitBtn.href = '/checkout/?kit=kit-jardin-interior-smart';
         }
@@ -51,12 +51,12 @@ function initPlantCalculator() {
    -------------------------------------------------------------------------- */
 function initCheckoutCalculator() {
     const kitSelect = document.getElementById('id_kit');
-    const chkTanque = document.getElementById('id_tanque_extra');
+    const chkServo = document.getElementById('id_servo_extra');
     const chkSensores = document.getElementById('id_sensores_extra');
     const totalDisplay = document.getElementById('summary-total-display');
     const kitNameDisplay = document.getElementById('summary-kit-name');
     const kitPriceDisplay = document.getElementById('summary-kit-price');
-    const extraTanqueRow = document.getElementById('summary-extra-tanque');
+    const extraServoRow = document.getElementById('summary-extra-servo');
     const extraSensoresRow = document.getElementById('summary-extra-sensores');
 
     if (!kitSelect || !totalDisplay) return;
@@ -76,11 +76,11 @@ function initCheckoutCalculator() {
         if (kitNameDisplay) kitNameDisplay.textContent = kitInfo.nombre;
         if (kitPriceDisplay) kitPriceDisplay.textContent = `$${kitInfo.precio.toLocaleString('es-CO')}`;
 
-        if (chkTanque && chkTanque.checked) {
+        if (chkServo && chkServo.checked) {
             total += 35000;
-            if (extraTanqueRow) extraTanqueRow.style.display = 'flex';
+            if (extraServoRow) extraServoRow.style.display = 'flex';
         } else {
-            if (extraTanqueRow) extraTanqueRow.style.display = 'none';
+            if (extraServoRow) extraServoRow.style.display = 'none';
         }
 
         if (chkSensores && chkSensores.checked) {
@@ -94,7 +94,7 @@ function initCheckoutCalculator() {
     }
 
     kitSelect.addEventListener('change', recalculateTotal);
-    if (chkTanque) chkTanque.addEventListener('change', recalculateTotal);
+    if (chkServo) chkServo.addEventListener('change', recalculateTotal);
     if (chkSensores) chkSensores.addEventListener('change', recalculateTotal);
 
     recalculateTotal();

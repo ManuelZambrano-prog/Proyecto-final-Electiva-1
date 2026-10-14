@@ -26,6 +26,43 @@ class TiendaLandingTests(TestCase):
         self.assertNotContains(response, 'sim-humidity')
         self.assertEqual(self.client.get('/simulador/').status_code, 404)
 
+    def test_hardware_uses_photos_and_servos_without_tank(self):
+        response = self.client.get(reverse('index'))
+        content = response.content.decode()
+        self.assertNotContains(response, 'Tanque de Almacenamiento')
+        self.assertNotContains(response, 'capacidad_tanque')
+        self.assertContains(response, 'Servomotores')
+        for imagen in (
+            'componentes/electrovalvula.jpg',
+            'componentes/manguera.jpg',
+            'componentes/sensor-humedad.jpg',
+            'componentes/servos.jpg',
+        ):
+            self.assertContains(response, imagen)
+        self.assertNotContains(response, 'class="component-icon">🔌')
+        self.assertNotContains(response, 'class="component-icon">🚰')
+
+    def test_checkout_with_servo_extra(self):
+        from .models import KitRiego, Pedido
+
+        self.client.get(reverse('index'))
+        kit = KitRiego.objects.get(slug='kit-balcon-ventana')
+        response = self.client.post(reverse('checkout'), {
+            'kit': kit.pk,
+            'nombre_completo': 'Ana Gomez',
+            'email': 'ana@example.com',
+            'telefono': '3001234567',
+            'ciudad': 'Bogotá',
+            'direccion': 'Calle 1 # 2-3',
+            'plantas_en_casa': 2,
+            'servo_extra': 'on',
+            'metodo_pago': 'contraentrega',
+        })
+        self.assertEqual(response.status_code, 302)
+        pedido = Pedido.objects.get()
+        self.assertTrue(pedido.servo_extra)
+        self.assertEqual(int(pedido.total), 99000 + 35000)
+
     def test_kits_have_one_valve_and_monthly_billing(self):
         response = self.client.get(reverse('index'))
         self.assertContains(response, 'Pago mensual')

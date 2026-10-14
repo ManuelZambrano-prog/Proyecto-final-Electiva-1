@@ -35,8 +35,8 @@
 
                 <div style="margin: 20px 0;">
                     <label class="checkbox-label" style="margin-bottom: 10px;">
-                        {{ form.tanque_extra }}
-                        <span>Agregar Tanque de Mayor Capacidad (+ $35.000 COP)</span>
+                        {{ form.servo_extra }}
+                        <span>Agregar Servomotor Adicional (+ $35.000 COP)</span>
                     </label>
                     <label class="checkbox-label">
                         {{ form.sensores_extra }}
@@ -97,11 +97,11 @@
 
                 <div class="summary-line">
                     <span id="summary-kit-name">{{ kit_inicial.nombre|default:"Kit Hogar Verde Pro" }}</span>
-                    <strong id="summary-kit-price">${{ kit_inicial.precio|default:249000|floatformat:"0" }}</strong>
+                    <strong id="summary-kit-price">${{ kit_inicial.precio|default:169000|floatformat:"0" }}</strong>
                 </div>
 
-                <div id="summary-extra-tanque" class="summary-line" style="display: none;">
-                    <span>Tanque de Mayor Capacidad</span>
+                <div id="summary-extra-servo" class="summary-line" style="display: none;">
+                    <span>Servomotor Adicional</span>
                     <strong>$35.000</strong>
                 </div>
 
@@ -122,7 +122,7 @@
 
                 <div class="summary-total">
                     <span>Total Estimado:</span>
-                    <span id="summary-total-display" style="color: var(--primary);">${{ kit_inicial.precio|default:249000|floatformat:"0" }}</span>
+                    <span id="summary-total-display" style="color: var(--primary);">${{ kit_inicial.precio|default:169000|floatformat:"0" }}</span>
                 </div>
 
                 <div style="background: var(--sage-100); padding: 18px; border-radius: 12px; margin: 24px 0; border: 1px solid var(--line);">

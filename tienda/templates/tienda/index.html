@@ -14,7 +14,7 @@
                 <span class="section-tag">💧 Innovación IoT para tu Hogar</span>
                 <h1>El Cuidado Inteligente que Tus <span class="gradient-text">Plantas Caseras</span> Merecen</h1>
                 <p class="hero-desc">
-                    Un sistema automatizado de riego por goteo con electroválvulas independientes, sensores de suelo y ambiente, depósito de agua y una plataforma web que te alerta cuando tu planta tiene sed y dosifica los litros exactos.
+                    Un sistema automatizado de riego por goteo con electroválvulas independientes, sensores de suelo y ambiente, servomotores y una plataforma web que te alerta cuando tu planta tiene sed y dosifica los litros exactos.
                 </p>
 
                 <div class="hero-actions">
@@ -116,7 +116,7 @@
         <div class="components-grid">
             <!-- Componente 1: Electroválvulas -->
             <div class="component-card">
-                <div class="component-icon">🔌</div>
+                <div class="component-icon"><img class="component-photo" src="{% static 'tienda/images/componentes/electrovalvula.jpg' %}" alt="Electroválvula solenoide"></div>
                 <h3>Electroválvulas Solenoides</h3>
                 <p>
                     Válvulas eléctricas miniaturizadas de bajo consumo (12V) que abren o cierran el paso de agua de forma independiente hacia cada una de tus macetas.
@@ -126,7 +126,7 @@
 
             <!-- Componente 2: Mangueras Capilares -->
             <div class="component-card">
-                <div class="component-icon">➰</div>
+                <div class="component-icon"><img class="component-photo" src="{% static 'tienda/images/componentes/manguera.jpg' %}" alt="Manguera y goteros"></div>
                 <h3>Mangueras y Goteros</h3>
                 <p>
                     Microtubería de silicona flexible negra anti-algas con goteros de presión compensada ajustables (gota a gota o flujo continuo).
@@ -134,19 +134,19 @@
                 <span class="component-pill">Goteros Regulables 0-6 L/h</span>
             </div>
 
-            <!-- Componente 3: Almacenamiento de Agua -->
+            <!-- Componente 3: Servomotores -->
             <div class="component-card">
-                <div class="component-icon">🚰</div>
-                <h3>Tanque de Almacenamiento</h3>
+                <div class="component-icon"><img class="component-photo" src="{% static 'tienda/images/componentes/servos.jpg' %}" alt="Servomotores"></div>
+                <h3>Servomotores</h3>
                 <p>
-                    Depósito integrado de 4L, 10L o 20L con tapa hermética que suministra agua limpia y libre de cloro reposada a temperatura ambiente.
+                    Motores de precisión que regulan la apertura y la dosificación exacta del agua hacia cada una de tus macetas, controlados desde la plataforma.
                 </p>
-                <span class="component-pill">Autonomía de 15 a 30 días</span>
+                <span class="component-pill">Dosificación precisa del caudal</span>
             </div>
 
             <!-- Componente 4: Sensores IoT Duales -->
             <div class="component-card">
-                <div class="component-icon">🌡️</div>
+                <div class="component-icon"><img class="component-photo" src="{% static 'tienda/images/componentes/sensor-humedad.jpg' %}" alt="Sensor de humedad"></div>
                 <h3>Sensores de Suelo y Clima</h3>
                 <p>
                     Sonda capacitiva anticorrosión que mide la humedad real en la tierra y sensor DHT que registra la temperatura ambiental del hogar.
@@ -245,7 +245,7 @@
             <span class="section-tag">🏷️ Elige tu Solución</span>
             <h2 class="section-title">Kits de Riego Automatizado para el Hogar</h2>
             <p class="section-subtitle">
-                Todos los kits incluyen electroválvulas, mangueras, tanque, sensores y acceso inmediato a la plataforma web de monitoreo de litros.
+                Todos los kits incluyen electroválvulas, mangueras, servomotores, sensores y acceso inmediato a la plataforma web de monitoreo de litros.
             </p>
         </div>
 
@@ -272,7 +272,7 @@
                         <div class="kit-spec-pills">
                             <span class="spec-pill">🪴 {{ kit.plantas_recomendadas }}</span>
                             <span class="spec-pill">🔌 {{ kit.valvulas_incluidas }} Electroválvulas</span>
-                            <span class="spec-pill">🚰 {{ kit.capacidad_tanque }}</span>
+                            <span class="spec-pill">⚙️ {{ kit.servo }}</span>
                         </div>
                     </div>
 
@@ -322,7 +322,7 @@
                     <span style="font-size: 0.85rem; font-weight: 700; color: var(--slate); text-transform: uppercase;">Kit Recomendado para Ti:</span>
                     <h4 id="rec-kit-name" style="font-size: 1.4rem; color: var(--green-900); margin: 8px 0;">Kit Hogar Verde Pro</h4>
                     <p id="rec-kit-desc" style="font-size: 0.9rem; color: var(--slate); margin-bottom: 16px;">
-                        Incluye 1 electroválvula, 12m de tubería y tanque de 10L.
+                        Incluye 1 electroválvula, 12m de tubería y servomotor de precisión.
                     </p>
                     <div id="rec-kit-price" style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-bottom: 18px;">
                         $169.000 COP/mes
@@ -394,7 +394,7 @@
             <details class="faq-item">
                 <summary class="faq-question">¿Qué pasa si me voy de viaje o vacaciones varias semanas?</summary>
                 <div class="faq-answer">
-                    ¡Es el escenario ideal para el que fue diseñado! El depósito de agua almacena suficiente líquido para 15 a 30 días según el número de plantas. Además, puedes configurar el sistema en modo 100% autónomo o autorizar cada riego de forma remota desde la app web estés donde estés.
+                    ¡Es el escenario ideal para el que fue diseñado! Los servomotores dosifican la cantidad exacta de agua que cada planta necesita. Además, puedes configurar el sistema en modo 100% autónomo o autorizar cada riego de forma remota desde la app web estés donde estés.
                 </div>
             </details>
 
@@ -406,9 +406,9 @@
             </details>
 
             <details class="faq-item">
-                <summary class="faq-question">¿Necesito tener una toma de agua o grifo cerca de las plantas?</summary>
+                <summary class="faq-question">¿Qué hacen los servomotores del sistema?</summary>
                 <div class="faq-answer">
-                    No. Todos nuestros kits incluyen un depósito de almacenamiento de agua independiente. Solo necesitas llenar el tanque con una jarra cada dos o tres semanas. Para jardines grandes, el Kit Jardín Interior Smart también incluye adaptador opcional a grifo.
+                    Regulan con precisión la apertura y el caudal hacia cada maceta, para que cada planta reciba su dosis exacta de agua sin desperdicios.
                 </div>
             </details>
 
