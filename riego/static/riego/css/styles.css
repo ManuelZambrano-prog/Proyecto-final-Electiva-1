@@ -786,8 +786,22 @@ main:has(.auth-shell--login) {
 .brand-logo-img {
     display: block;
     margin: 0 auto;
-    max-width: 100%;
+    max-width: min(220px, 85vw);
     height: auto;
+    width: auto;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* Logo del login y registro: centrado, adaptable, sin recortarse */
+.auth-header-logo img {
+    max-width: 220px;
+    height: auto;
+    width: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(17, 42, 31, 0.12);
+    margin-bottom: 16px;
+    object-fit: contain;
 }
 
 /* Logo centrado en la parte superior del login y registro */
