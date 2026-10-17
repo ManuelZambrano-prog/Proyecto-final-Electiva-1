@@ -114,37 +114,27 @@
         </div>
 
         <div class="components-grid">
-            <!-- Componente 1: Electroválvulas -->
+            <!-- Componente 1: Servomotores -->
             <div class="component-card">
-                <div class="component-icon"><img class="component-photo" src="{% static 'tienda/images/componentes/electrovalvula.jpg' %}" alt="Electroválvula solenoide"></div>
-                <h3>Electroválvulas Solenoides</h3>
+                <div class="component-icon"><img class="component-photo" src="{% static 'tienda/images/componentes/servos.jpg' %}" alt="Servomotor"></div>
+                <h3>Servomotores Uno por Planta</h3>
                 <p>
-                    Válvulas eléctricas miniaturizadas de bajo consumo (12V) que abren o cierran el paso de agua de forma independiente hacia cada una de tus macetas.
+                    Motores de precisión que regulan la apertura y el caudal exacto del agua hacia cada maceta individualmente, controlados desde la plataforma web.
                 </p>
-                <span class="component-pill">Control Individual por Maceta</span>
+                <span class="component-pill">Un Servomotor por Planta</span>
             </div>
 
             <!-- Componente 2: Mangueras Capilares -->
             <div class="component-card">
                 <div class="component-icon"><img class="component-photo" src="{% static 'tienda/images/componentes/manguera.jpg' %}" alt="Manguera y goteros"></div>
-                <h3>Mangueras y Goteros</h3>
+                <h3>Mangueras y Goteros Transparentes</h3>
                 <p>
-                    Microtubería de silicona flexible negra anti-algas con goteros de presión compensada ajustables (gota a gota o flujo continuo).
+                    Microtubería de silicona flexible transparente con goteros de presión compensada ajustables (gota a gota o flujo continuo).
                 </p>
-                <span class="component-pill">Goteros Regulables 0-6 L/h</span>
+                <span class="component-pill">Tubo Transparente 0-6 L/h</span>
             </div>
 
-            <!-- Componente 3: Servomotores -->
-            <div class="component-card">
-                <div class="component-icon"><img class="component-photo" src="{% static 'tienda/images/componentes/servos.jpg' %}" alt="Servomotores"></div>
-                <h3>Servomotores</h3>
-                <p>
-                    Motores de precisión que regulan la apertura y la dosificación exacta del agua hacia cada una de tus macetas, controlados desde la plataforma.
-                </p>
-                <span class="component-pill">Dosificación precisa del caudal</span>
-            </div>
-
-            <!-- Componente 4: Sensores IoT Duales -->
+            <!-- Componente 3: Sensores IoT Duales -->
             <div class="component-card">
                 <div class="component-icon"><img class="component-photo" src="{% static 'tienda/images/componentes/sensor-humedad.jpg' %}" alt="Sensor de humedad"></div>
                 <h3>Sensores de Suelo y Clima</h3>
@@ -245,7 +235,7 @@
             <span class="section-tag">🏷️ Elige tu Solución</span>
             <h2 class="section-title">Kits de Riego Automatizado para el Hogar</h2>
             <p class="section-subtitle">
-                Todos los kits incluyen electroválvulas, mangueras, servomotores, sensores y acceso inmediato a la plataforma web de monitoreo de litros.
+                Todos los kits incluyen servomotores, mangueras transparentes, sensores y acceso inmediato a la plataforma web de monitoreo de litros.
             </p>
         </div>
 
@@ -271,7 +261,7 @@
 
                         <div class="kit-spec-pills">
                             <span class="spec-pill">🪴 {{ kit.plantas_recomendadas }}</span>
-                            <span class="spec-pill">🔌 {{ kit.valvulas_incluidas }} Electroválvulas</span>
+                            <span class="spec-pill">⚙️ {{ kit.valvulas_incluidas }} Servomotor{{ kit.valvulas_incluidas|pluralize:'es' }}</span>
                             <span class="spec-pill">⚙️ {{ kit.servo }}</span>
                         </div>
                     </div>
@@ -401,7 +391,7 @@
             <details class="faq-item">
                 <summary class="faq-question">¿El sistema sirve para suculentas o plantas que necesitan muy poca agua?</summary>
                 <div class="faq-answer">
-                    Sí, absolutamente. Cada electroválvula se programa individualmente. A una suculenta puedes configurarle un umbral de humedad bajo (ej: regar solo cuando baje del 15%) y una dosis de apenas 50ml, mientras que a una Monstera puedes suministrarle 300ml con umbrales más altos.
+                    Sí, absolutamente. Cada servomotor se programa individualmente. A una suculenta puedes configurarle un umbral de humedad bajo (ej: regar solo cuando baje del 15%) y una dosis de apenas 50ml, mientras que a una Monstera puedes suministrarle 300ml con umbrales más altos.
                 </div>
             </details>
 

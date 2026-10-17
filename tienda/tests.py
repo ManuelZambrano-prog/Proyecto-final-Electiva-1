@@ -31,12 +31,14 @@ class TiendaLandingTests(TestCase):
         content = response.content.decode()
         self.assertNotContains(response, 'Tanque de Almacenamiento')
         self.assertNotContains(response, 'capacidad_tanque')
+        self.assertNotContains(response, 'Depósito de')
         self.assertContains(response, 'Servomotores')
+        self.assertContains(response, 'Servomotores Uno por Planta')
+        self.assertContains(response, 'Mangueras y Goteros Transparentes')
         for imagen in (
-            'componentes/electrovalvula.jpg',
+            'componentes/servos.jpg',
             'componentes/manguera.jpg',
             'componentes/sensor-humedad.jpg',
-            'componentes/servos.jpg',
         ):
             self.assertContains(response, imagen)
         self.assertNotContains(response, 'class="component-icon">🔌')
@@ -63,11 +65,11 @@ class TiendaLandingTests(TestCase):
         self.assertTrue(pedido.servo_extra)
         self.assertEqual(int(pedido.total), 99000 + 35000)
 
-    def test_kits_have_one_valve_and_monthly_billing(self):
+    def test_kits_have_one_servo_and_monthly_billing(self):
         response = self.client.get(reverse('index'))
         self.assertContains(response, 'Pago mensual')
         self.assertNotContains(response, 'Pago único')
-        self.assertContains(response, '1 Electroválvulas')
+        self.assertContains(response, '1 Servomotor')
         kits = {kit.slug: kit for kit in KitRiego.objects.all()}
         self.assertEqual(
             {slug: kits[slug].valvulas_incluidas for slug in kits},
