@@ -781,3 +781,27 @@ main:has(.auth-shell--login) {
         padding: 18px 16px 12px;
     }
 }
+
+/* Logotipo de marca SIRIGO */
+.brand-logo-img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Logo centrado en la parte superior del login y registro */
+.auth-header-logo img {
+    max-width: 200px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(17, 42, 31, 0.12);
+    margin-bottom: 16px;
+}
+
+/* En pantallas pequeñas, ajustar el logo del login */
+@media (max-width: 480px) {
+    .auth-header-logo img {
+        max-width: 150px;
+    }
+}

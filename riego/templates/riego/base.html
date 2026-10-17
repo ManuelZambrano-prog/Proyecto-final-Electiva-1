@@ -12,8 +12,7 @@
         {% if user.is_authenticated %}
             <aside class="sidebar">
                 <div class="sidebar-brand">
-                    <span class="brand-mark">🌿</span>
-                    <span>SIRIGO</span>
+                    <img class="brand-logo-img" src="{% static 'riego/images/logo.jpeg' %}" alt="SIRIGO" style="max-width: 150px; height: auto; display: block; margin: 0 auto 10px;">
                 </div>
 
                 <nav class="sidebar-nav" aria-label="Navegación principal">
@@ -72,8 +71,9 @@
             <nav class="topbar">
                 <div class="topbar-inner">
                     <div class="brand">
-                        <span class="brand-mark">🌿</span>
-                        <span>SIRIGO</span>
+                        {% if request.resolver_match.url_name not in ['login', 'register'] %}
+                            <img class="brand-logo-img" src="{% static 'riego/images/logo.jpeg' %}" alt="SIRIGO" style="max-width: 140px; height: auto;">
+                        {% endif %}
                     </div>
 
                     <div class="navbar">
