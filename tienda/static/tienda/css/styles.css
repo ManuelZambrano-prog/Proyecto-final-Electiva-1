@@ -153,6 +153,7 @@ img {
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--line);
     transition: all 0.25s ease;
+    padding: 0;
 }
 
 .nav-wrapper {
@@ -160,7 +161,9 @@ img {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    height: 74px;
+    height: auto;
+    min-height: 64px;
+    padding: 10px 0;
 }
 
 .brand-logo {
