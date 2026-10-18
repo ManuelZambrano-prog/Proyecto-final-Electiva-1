@@ -13,7 +13,6 @@ from riego.models import Especie
 FOTOS_DIR = r'C:\Users\mszam\Desktop\Electiva 1\fotosplantas'
 
 # Mapeo: nombre del archivo -> nombre de la especie
-# Puedes agregar más entradas si tienes más fotos
 MAPEO = {
     'suculenta.jpg': 'Suculenta (Pachyphytum)',
     'suculenta.png': 'Suculenta (Pachyphytum)',
@@ -74,7 +73,6 @@ def main():
 
     print("\n✨ ¡Listo! Las fotos se han asignado a las especies.")
     print("Ahora puedes recargar la página de Mis plantas y ver las imágenes.")
-    print("Si sigues sin verlas, verifica que MEDIA_ROOT esté configurado correctamente.")
 
 
 if __name__ == '__main__':

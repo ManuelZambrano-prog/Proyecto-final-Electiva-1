@@ -836,3 +836,83 @@ main:has(.auth-shell--login) {
         max-width: 150px;
     }
 }
+
+/* ==========================================================================
+   ESTADO SERVO Y BOTONES DE RIEGO
+   ========================================================================== */
+.estado-servo {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+    min-width: 120px;
+}
+
+.estado-servo.abierto {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.estado-servo.cerrado {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.btn-riego-deshabilitado {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.advertencia-riego {
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-top: 6px;
+    display: block;
+}
+
+.advertencia-riego::before {
+    content: '⚠️ ';
+}
+
+/* ==========================================================================
+   DATOS AMBIENTALES (ZONA EXTERNA)
+   ========================================================================== */
+.datos-ambientales {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    background: linear-gradient(180deg, #edf7f1 0%, #f8fbf9 100%);
+    border: 1px solid rgba(24, 58, 46, 0.12);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(17, 42, 31, 0.06);
+}
+
+.dato-ambiente {
+    text-align: center;
+    min-width: 140px;
+}
+
+.dato-ambiente .valor {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--green-900);
+    display: block;
+    line-height: 1;
+}
+
+.dato-ambiente div:nth-child(2) {
+    font-size: 0.85rem;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+}
+

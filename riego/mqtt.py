@@ -1,4 +1,5 @@
 import json
+import threading
 import uuid
 
 import paho.mqtt.client as mqtt
@@ -7,6 +8,9 @@ from django.conf import settings
 
 class MQTTError(Exception):
     pass
+
+
+_mqtt_thread = None
 
 
 def create_mqtt_client():
@@ -77,3 +81,89 @@ def update_plant_from_telemetry(topic, payload):
         temperatura_actual=temperature,
         humedad_actual=humidity,
     ) == 1
+
+
+def procesar_mensaje_telemetry_json(topic, payload_dict):
+    """
+    Procesa JSON de HiveMQ con formato:
+    {"ManuelSuculenta1":71,"ManuelCactuscholla1":72,"temp":24.2,"hum_amb":71.3,
+     "valvula":"abierta","servo_ManuelSuculenta1":"abierto",...}
+    """
+    from .models import Planta, DatosAmbientales
+    from django.utils import timezone
+
+    datos = DatosAmbientales.get_datos()
+
+    if 'temp' in payload_dict:
+        try:
+            datos.temperatura = float(payload_dict['temp'])
+        except (ValueError, TypeError):
+            pass
+    if 'hum_amb' in payload_dict:
+        try:
+            datos.humedad_ambiente = float(payload_dict['hum_amb'])
+        except (ValueError, TypeError):
+            pass
+    datos.save()
+
+    for clave, valor in payload_dict.items():
+        if clave in ('temp', 'hum_amb', 'valvula', 'planta'):
+            continue
+
+        if clave.startswith('servo_'):
+            mqtt_id = clave.replace('servo_', '')
+            try:
+                planta = Planta.objects.get(mqtt_id=mqtt_id)
+                planta.estado_servo = str(valor).strip().lower()
+                planta.ultima_lectura_mqtt = timezone.now()
+                planta.save(update_fields=['estado_servo', 'ultima_lectura_mqtt'])
+            except Planta.DoesNotExist:
+                pass
+            continue
+
+        try:
+            planta = Planta.objects.get(mqtt_id=clave)
+            planta.humedad_actual = float(valor)
+            planta.ultima_lectura_mqtt = timezone.now()
+            planta.save(update_fields=['humedad_actual', 'ultima_lectura_mqtt'])
+        except (Planta.DoesNotExist, ValueError, TypeError):
+            pass
+
+
+def _mqtt_loop():
+    """Ejecuta el loop de MQTT en segundo plano."""
+    try:
+        client = create_mqtt_client()
+    except MQTTError as error:
+        print(f'[MQTT] No se pudo iniciar: {error}')
+        return
+
+    def on_connect(mqtt_client, userdata, flags, reason_code, properties):
+        topic_filter = settings.MQTT_SENSOR_TOPIC.format(plant_id='+')
+        mqtt_client.subscribe(topic_filter, qos=1)
+        print(f'[MQTT] Suscrito a {topic_filter}')
+
+    def on_message(mqtt_client, userdata, message):
+        try:
+            payload = json.loads(message.payload.decode('utf-8'))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            print(f'[MQTT] JSON inválido en {message.topic}')
+            return
+        procesar_mensaje_telemetry_json(message.topic, payload)
+
+    client.on_connect = on_connect
+    client.on_message = on_message
+    try:
+        client.connect(settings.MQTT_HOST, settings.MQTT_PORT, keepalive=30)
+        client.loop_forever()
+    except Exception as error:
+        print(f'[MQTT] Error: {error}')
+
+
+def iniciar_escucha_mqtt():
+    """Inicia el hilo MQTT si aún no está corriendo."""
+    global _mqtt_thread
+    if _mqtt_thread is None or not _mqtt_thread.is_alive():
+        _mqtt_thread = threading.Thread(target=_mqtt_loop, daemon=True)
+        _mqtt_thread.start()
+        print('[MQTT] Hilo de escucha iniciado en segundo plano.')

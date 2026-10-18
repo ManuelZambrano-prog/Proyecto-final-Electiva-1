@@ -4,16 +4,9 @@ from django.utils.text import slugify
 
 
 class PerfilUsuario(models.Model):
-    class Plan(models.TextChoices):
-        BASICO = 'basico', 'Básico'
-        ESTANDAR = 'estandar', 'Estándar'
-        PREMIUM = 'premium', 'Premium'
-
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
     nombre = models.CharField(max_length=120, blank=True)
     cedula = models.CharField(max_length=20, blank=True)
-    plan = models.CharField(max_length=20, choices=Plan.choices, blank=True)
-    foto = models.ImageField(upload_to='perfiles/', blank=True)
 
     def __str__(self):
         return f"{self.nombre or self.user.username} - {self.cedula or 'Sin cédula'}"
@@ -36,6 +29,11 @@ class Planta(models.Model):
     temperatura_actual = models.FloatField(default=0.0)
     riego_activo = models.BooleanField(default=False)
     fecha_agregada = models.DateTimeField(auto_now_add=True)
+
+    # --- NUEVOS CAMPOS ---
+    umbral_humedad = models.FloatField(default=40.0, help_text="Umbral de humedad para activar riego automático")
+    estado_servo = models.CharField(max_length=20, default='cerrado', help_text="Estado del servo: abierto/cerrado")
+    ultima_lectura_mqtt = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.mqtt_id and self.usuario_id:
@@ -99,3 +97,26 @@ class SolicitudPlanta(models.Model):
     def __str__(self):
         nombre = self.apodo if self.apodo else self.especie.nombre
         return f"{self.usuario.username} - {nombre} ({self.estado})"
+
+
+class DatosAmbientales(models.Model):
+    """Datos ambientales generales (singleton)"""
+    temperatura = models.FloatField(default=0.0, help_text="Temperatura ambiente en °C")
+    humedad_ambiente = models.FloatField(default=0.0, help_text="Humedad ambiente en %")
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Datos Ambientales"
+        verbose_name_plural = "Datos Ambientales"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1  # Fuerza singleton
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_datos(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return f"{self.temperatura}°C / {self.humedad_ambiente}%"

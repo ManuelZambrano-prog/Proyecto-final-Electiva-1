@@ -1,32 +1,60 @@
 {% extends 'riego/base.html' %}
+{% load static %}
 
 {% block contenido %}
     <div class="page-card">
+        <div class="page-header">
+            <div>
+                <span class="section-tag">Mis plantas</span>
+                <h2>Estado en tiempo real</h2>
+            </div>
+            <div class="page-actions">
+                <a class="btn btn-primary" href="{% url 'nueva_planta' %}">Solicitar nueva planta</a>
+            </div>
+        </div>
+
         {% if messages %}
             {% for message in messages %}
                 <p class="status-badge {% if message.tags == 'error' %}rejected{% else %}approved{% endif %}">{{ message }}</p>
             {% endfor %}
         {% endif %}
-        <div class="page-header">
-            <h2>Mis plantas</h2>
-            <div class="page-actions">
-                <a class="btn btn-primary" href="{% url 'nueva_planta' %}">Solicitar nueva planta</a>
+
+        <!-- Datos ambientales generales (zona externa) -->
+        <div class="datos-ambientales" id="datos-ambientales">
+            <div class="dato-ambiente">
+                <div class="valor" id="valor-temperatura">--</div>
+                <div>Temperatura</div>
+            </div>
+            <div class="dato-ambiente">
+                <div class="valor" id="valor-humedad">--</div>
+                <div>Humedad Ambiente</div>
+            </div>
+            <div class="dato-ambiente">
+                <div class="valor" id="valor-hora">--</div>
+                <div>Última actualización</div>
             </div>
         </div>
 
         {% if plantas %}
             <div class="plants-grid">
                 {% for planta in plantas %}
-                    <div class="plant-card">
+                    <div class="plant-card" id="planta-{{ planta.id }}">
                         {% if planta.especie.foto %}
                             <img class="plant-photo" src="{{ planta.especie.foto.url }}" alt="{{ planta.especie.nombre }}" width="148" height="148">
                         {% else %}
                             <div class="plant-photo-empty">🌱</div>
                         {% endif %}
                         <h3>{{ planta.apodo|default:planta.especie.nombre }}</h3>
+
+                        <!-- Estado del servo -->
+                        <div class="estado-servo estado-{{ planta.estado_servo }}">
+                            {% if planta.estado_servo == 'abierto' %}Servo: Abierto{% else %}Servo: Cerrado{% endif %}
+                        </div>
+
                         <div class="plant-meta">
-                            <div><strong>Humedad actual:</strong> {{ planta.humedad_actual }}%</div>
+                            <div><strong>Humedad actual:</strong> <span class="valor-humedad" id="humedad-{{ planta.id }}">{{ planta.humedad_actual }}%</span></div>
                             <div><strong>Temperatura actual:</strong> {{ planta.temperatura_actual }}°C</div>
+                            <div><strong>Umbral:</strong> {{ planta.umbral_humedad }}%</div>
                             <div><strong>Estado del riego:</strong> {% if planta.riego_activo %}Activo{% else %}Inactivo{% endif %}</div>
                         </div>
 
@@ -34,9 +62,17 @@
                             {% csrf_token %}
                             <button
                                 type="submit"
-                                class="btn btn-toggle {% if planta.riego_activo %}is-active{% else %}is-inactive{% endif %}">
+                                class="btn btn-toggle {% if planta.riego_activo %}is-active{% else %}is-inactive{% endif %}"
+                                id="btn-riego-{{ planta.id }}"
+                                {% if planta.estado_servo == 'abierto' %}disabled{% endif %}
+                            >
                                 {% if planta.riego_activo %}Desactivar riego{% else %}Activar riego{% endif %}
                             </button>
+                            {% if planta.estado_servo == 'cerrado' %}
+                                <p class="advertencia-riego">⚠️ Puedes regar más bajo riesgo de ahogar la planta.</p>
+                            {% elif planta.estado_servo == 'abierto' %}
+                                <p class="advertencia-riego">⏳ Riego en curso, espera a que termine.</p>
+                            {% endif %}
                         </form>
                     </div>
                 {% endfor %}
@@ -45,4 +81,57 @@
             <div class="empty-state">Aún no tienes plantas registradas en el sistema.</div>
         {% endif %}
     </div>
+
+    <script>
+        // Polling cada 5 segundos para actualizar datos MQTT
+        async function actualizarDatos() {
+            try {
+                const respuesta = await fetch('{% url 'api_datos_plantas' %}');
+                const datos = await respuesta.json();
+
+                // Actualizar datos ambientales
+                document.getElementById('valor-temperatura').textContent = datos.temperatura?.toFixed(1) + '°C' || '--';
+                document.getElementById('valor-humedad').textContent = datos.humedad_ambiente?.toFixed(1) + '%' || '--';
+                document.getElementById('valor-hora').textContent = datos.fecha_actualizacion ? new Date(datos.fecha_actualizacion).toLocaleTimeString() : '--';
+
+                // Actualizar cada planta
+                datos.plantas.forEach(p => {
+                    const card = document.getElementById('planta-' + p.id);
+                    if (!card) return;
+
+                    // Humedad
+                    const humedadEl = card.querySelector('.valor-humedad');
+                    if (humedadEl) humedadEl.textContent = p.humedad_actual.toFixed(1) + '%';
+
+                    // Estado del servo
+                    const servoEl = card.querySelector('.estado-servo');
+                    if (servoEl) {
+                        servoEl.textContent = p.estado_servo === 'abierto' ? 'Servo: Abierto' : 'Servo: Cerrado';
+                        servoEl.className = 'estado-servo estado-' + p.estado_servo;
+                    }
+
+                    // Botón de riego
+                    const btn = card.querySelector('button[type="submit"]');
+                    const advertencia = card.querySelector('.advertencia-riego');
+                    if (btn && advertencia) {
+                        if (p.estado_servo === 'abierto') {
+                            btn.disabled = true;
+                            btn.textContent = 'Riego en curso...';
+                            advertencia.textContent = '⏳ Riego en curso, espera a que termine.';
+                        } else if (p.estado_servo === 'cerrado') {
+                            btn.disabled = false;
+                            btn.textContent = p.riego_activo ? 'Desactivar riego' : 'Activar riego';
+                            advertencia.textContent = '⚠️ Puedes regar más bajo riesgo de ahogar la planta.';
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error al actualizar datos MQTT:', error);
+            }
+        }
+
+        // Ejecutar cada 5 segundos
+        setInterval(actualizarDatos, 5000);
+        actualizarDatos(); // Primera vez al cargar
+    </script>
 {% endblock %}

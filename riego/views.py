@@ -6,10 +6,11 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
-from .forms import AsignarPlantaForm, EspecieForm, FotoEspecieForm, HorarioDisponibleForm, NuevaPlantaForm, PerfilForm, RegistroForm, UsuarioAdminForm
+from .forms import AsignarPlantaForm, EspecieForm, FotoEspecieForm, HorarioDisponibleForm, NuevaPlantaForm, RegistroForm, UsuarioAdminForm
 from .models import Electrovalvula, Especie, HorarioDisponible, PerfilUsuario, Planta, SolicitudPlanta
 from .mqtt import MQTTError, publish_plant_command
 from tienda.models import ConsultaContacto
@@ -21,11 +22,6 @@ def home(request):
     if request.user.is_staff:
         return redirect('admin_dashboard')
     return redirect('panel')
-
-
-@never_cache
-def csrf_fallo(request, reason=''):
-    return render(request, 'riego/csrf_fallo.html', {'reason': reason}, status=403)
 
 
 @never_cache
@@ -46,40 +42,9 @@ def registro(request):
 @never_cache
 def panel_usuario(request):
     if request.user.is_staff:
-        usuarios_info = (
-            User.objects.filter(is_staff=False)
-            .select_related('perfil')
-            .annotate(
-                num_plantas=Count('planta', distinct=True),
-                num_pendientes=Count(
-                    'solicitudes_plantas',
-                    filter=Q(solicitudes_plantas__estado=SolicitudPlanta.Estado.PENDIENTE),
-                    distinct=True,
-                ),
-            )
-            .order_by('username')
-        )
-        return render(request, 'riego/panel_admin.html', {'usuarios_info': usuarios_info})
+        return redirect('admin_dashboard')
     plantas_usuario = Planta.objects.filter(usuario=request.user).select_related('especie').order_by('-fecha_agregada')
     return render(request, 'riego/panel.html', {'plantas': plantas_usuario})
-
-
-@login_required
-@never_cache
-def mi_perfil(request):
-    perfil, _ = PerfilUsuario.objects.get_or_create(
-        user=request.user,
-        defaults={'nombre': request.user.username},
-    )
-    if request.method == 'POST':
-        form = PerfilForm(request.POST, request.FILES, instance=perfil)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Tu perfil fue actualizado correctamente.')
-            return redirect('mi_perfil')
-    else:
-        form = PerfilForm(instance=perfil)
-    return render(request, 'riego/perfil.html', {'form': form, 'perfil': perfil})
 
 
 @login_required
@@ -315,4 +280,31 @@ def admin_agregar_planta(request):
         'especie_form': especie_form,
         'foto_form': foto_form,
         'especies': Especie.objects.order_by('nombre'),
+    })
+
+
+@require_GET
+def api_datos_plantas(request):
+    """Devuelve JSON con estado de plantas y datos ambientales."""
+    plantas = []
+    for planta in Planta.objects.filter(usuario__is_staff=False).select_related('especie', 'usuario', 'perfil'):
+        plantas.append({
+            'id': planta.id,
+            'nombre': planta.apodo or planta.especie.nombre,
+            'mqtt_id': planta.mqtt_id,
+            'humedad_actual': planta.humedad_actual,
+            'temperatura_actual': planta.temperatura_actual,
+            'umbral_humedad': planta.umbral_humedad,
+            'estado_servo': planta.estado_servo,
+            'riego_activo': planta.riego_activo,
+            'especie': planta.especie.nombre if planta.especie else 'Sin especie',
+            'foto_url': planta.especie.foto.url if planta.especie and planta.especie.foto else None,
+        })
+
+    datos = DatosAmbientales.get_datos()
+    return JsonResponse({
+        'plantas': plantas,
+        'temperatura': datos.temperatura,
+        'humedad_ambiente': datos.humedad_ambiente,
+        'fecha_actualizacion': datos.fecha_actualizacion.isoformat() if datos.fecha_actualizacion else None,
     })
