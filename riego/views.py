@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from .forms import AsignarPlantaForm, EspecieForm, FotoEspecieForm, HorarioDisponibleForm, NuevaPlantaForm, PerfilForm, RegistroForm, UsuarioAdminForm
 from .models import Electrovalvula, Especie, HorarioDisponible, PerfilUsuario, Planta, SolicitudPlanta
 from .mqtt import MQTTError, publish_plant_command
+from tienda.models import ConsultaContacto
 
 
 @login_required
@@ -150,6 +151,7 @@ def toggle_riego(request, planta_id):
 def admin_dashboard(request):
     usuarios = User.objects.filter(is_staff=False).order_by('username')
     solicitudes = SolicitudPlanta.objects.select_related('usuario', 'especie').order_by('-created_at')
+    consultas = ConsultaContacto.objects.all().order_by('-creado_en')
 
     usuario_filtro = request.GET.get('usuario')
     if usuario_filtro:
@@ -196,10 +198,12 @@ def admin_dashboard(request):
     return render(request, 'riego/admin_dashboard.html', {
         'usuarios': usuarios,
         'solicitudes': solicitudes,
+        'consultas': consultas,
         'usuario_filtro': usuario_filtro,
         'total_usuarios': usuarios.count(),
         'solicitudes_pendientes': SolicitudPlanta.objects.filter(estado=SolicitudPlanta.Estado.PENDIENTE).count(),
         'horarios_disponibles': HorarioDisponible.objects.filter(disponible=True).count(),
+        'consultas_count': consultas.count(),
     })
 
 

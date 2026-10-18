@@ -41,6 +41,13 @@
                     <strong>{{ horarios_disponibles }}</strong>
                 </div>
             </div>
+            <div class="stat-card stat-card-red">
+                <div class="stat-icon">📩</div>
+                <div>
+                    <small>Consultas</small>
+                    <strong>{{ consultas_count }}</strong>
+                </div>
+            </div>
         </div>
 
         <div class="metric-row">
@@ -114,6 +121,40 @@
             </table>
         {% else %}
             <div class="empty-state">No hay solicitudes registradas.</div>
+        {% endif %}
+
+        <h3 class="section-title">Consultas de clientes</h3>
+        {% if consultas %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Tipo de consulta</th>
+                        <th>Fecha</th>
+                        <th>Respondido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for consulta in consultas %}
+                        <tr>
+                            <td>{{ consulta.nombre }}</td>
+                            <td>{{ consulta.email }}</td>
+                            <td>{{ consulta.telefono }}</td>
+                            <td>{{ consulta.get_tipo_consulta_display }}</td>
+                            <td>{{ consulta.creado_en|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <span class="status-badge {% if consulta.respondido %}approved{% else %}pending{% endif %}">
+                                    {% if consulta.respondido %}Sí{% else %}No{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">No hay consultas de clientes registradas.</div>
         {% endif %}
     </div>
 {% endblock %}
