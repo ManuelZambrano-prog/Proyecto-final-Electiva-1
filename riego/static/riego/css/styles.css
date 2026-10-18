@@ -575,6 +575,20 @@ main:has(.auth-shell--login) {
     background: var(--mist);
 }
 
+.plant-photo-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 148px;
+    height: 148px;
+    border: 5px solid var(--green-800);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    background: var(--mist);
+    font-size: 48px;
+    color: var(--green-600);
+}
+
 .catalog-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

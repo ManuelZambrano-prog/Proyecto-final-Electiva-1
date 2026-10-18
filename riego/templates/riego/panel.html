@@ -20,6 +20,8 @@
                     <div class="plant-card">
                         {% if planta.especie.foto %}
                             <img class="plant-photo" src="{{ planta.especie.foto.url }}" alt="{{ planta.especie.nombre }}" width="148" height="148">
+                        {% else %}
+                            <div class="plant-photo-empty">🌱</div>
                         {% endif %}
                         <h3>{{ planta.apodo|default:planta.especie.nombre }}</h3>
                         <div class="plant-meta">
