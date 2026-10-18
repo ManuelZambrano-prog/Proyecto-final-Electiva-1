@@ -278,10 +278,12 @@
 
                     <ul class="kit-features">
                         {% for beneficio in kit.lista_beneficios %}
-                            <li>
-                                <span class="feature-check">✓</span>
-                                <span>{{ beneficio }}</span>
-                            </li>
+                            {% if beneficio != "Depósito de 4L translúcido con tapa hermética" and beneficio != "Tanque de agua de 10L con indicador de nivel flotante" and beneficio != "Depósito de 20 Litros o conexión con reductor a grifo" %}
+                                <li>
+                                    <span class="feature-check">✓</span>
+                                    <span>{{ beneficio }}</span>
+                                </li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
 
