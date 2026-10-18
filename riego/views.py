@@ -308,3 +308,8 @@ def api_datos_plantas(request):
         'humedad_ambiente': datos.humedad_ambiente,
         'fecha_actualizacion': datos.fecha_actualizacion.isoformat() if datos.fecha_actualizacion else None,
     })
+
+
+@never_cache
+def csrf_fallo(request, reason=''):
+    return render(request, 'riego/csrf_fallo.html', {'reason': reason}, status=403)
