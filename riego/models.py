@@ -13,6 +13,7 @@ class PerfilUsuario(models.Model):
     nombre = models.CharField(max_length=120, blank=True)
     cedula = models.CharField(max_length=20, blank=True)
     plan = models.CharField(max_length=20, choices=Plan.choices, blank=True)
+    foto = models.ImageField(upload_to='perfiles/', blank=True)
 
     def __str__(self):
         return f"{self.nombre or self.user.username} - {self.cedula or 'Sin cédula'}"
