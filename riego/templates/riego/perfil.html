@@ -1,29 +1,46 @@
 {% extends 'riego/base.html' %}
 
 {% block contenido %}
-    <div class="auth-shell">
-        <div class="auth-card" style="width: min(100%, 560px);">
-            <h2>Mi perfil</h2>
-
-            {% if messages %}
-                {% for message in messages %}
-                    <p class="status-badge {% if message.tags == 'error' %}rejected{% else %}approved{% endif %}">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-
-            {% if perfil.foto %}
-                <img class="plant-photo" src="{{ perfil.foto.url }}" alt="Foto de perfil de {{ user.username }}" width="148" height="148">
-            {% else %}
-                <div class="empty-state">Aún no tienes foto de perfil.</div>
-            {% endif %}
-
-            <form method="post" enctype="multipart/form-data" class="form-layout">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div class="form-actions">
-                    <button class="btn btn-primary" type="submit">Guardar perfil</button>
-                </div>
-            </form>
+    <div class="page-card">
+        <div class="page-header">
+            <div>
+                <span class="section-tag">Mi perfil</span>
+                <h2>{{ user.username }}</h2>
+            </div>
         </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="status-badge {% if message.tags == 'error' %}rejected{% else %}approved{% endif %}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="form-layout">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="nombre">Nombre completo:</label>
+                <input type="text" name="nombre" value="{{ perfil.nombre }}" required>
+            </div>
+            <div class="form-group">
+                <label for="cedula">Cédula:</label>
+                <input type="text" name="cedula" value="{{ perfil.cedula }}">
+            </div>
+            <div class="form-group">
+                <label for="plan">Plan contratado:</label>
+                <select name="plan">
+                    <option value="basico" {% if perfil.plan == 'basico' %}selected{% endif %}>Básico</option>
+                    <option value="estandar" {% if perfil.plan == 'estandar' %}selected{% endif %}>Estándar</option>
+                    <option value="premium" {% if perfil.plan == 'premium' %}selected{% endif %}>Premium</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="foto">Foto de perfil:</label>
+                <input type="file" name="foto" accept="image/*">
+                {% if perfil.foto %}
+                    <img src="{{ perfil.foto.url }}" alt="Foto de perfil" style="max-width: 150px; margin-top: 10px; border-radius: 50%;">
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </form>
     </div>
 {% endblock %}

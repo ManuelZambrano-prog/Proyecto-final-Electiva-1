@@ -313,3 +313,19 @@ def api_datos_plantas(request):
 @never_cache
 def csrf_fallo(request, reason=''):
     return render(request, 'riego/csrf_fallo.html', {'reason': reason}, status=403)
+
+
+@login_required
+@never_cache
+def mi_perfil(request):
+    perfil, created = PerfilUsuario.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        perfil.nombre = request.POST.get('nombre', perfil.nombre)
+        perfil.cedula = request.POST.get('cedula', perfil.cedula)
+        perfil.plan = request.POST.get('plan', perfil.plan)
+        if 'foto' in request.FILES:
+            perfil.foto = request.FILES['foto']
+        perfil.save()
+        messages.success(request, 'Perfil actualizado correctamente.')
+        return redirect('mi_perfil')
+    return render(request, 'riego/perfil.html', {'perfil': perfil})
