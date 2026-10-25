@@ -37,11 +37,6 @@ class Planta(models.Model):
     riego_activo = models.BooleanField(default=False)
     fecha_agregada = models.DateTimeField(auto_now_add=True)
 
-    # --- NUEVOS CAMPOS ---
-    umbral_humedad = models.FloatField(default=40.0, help_text="Umbral de humedad para activar riego automático")
-    estado_servo = models.CharField(max_length=20, default='cerrado', help_text="Estado del servo: abierto/cerrado")
-    ultima_lectura_mqtt = models.DateTimeField(null=True, blank=True)
-
     def save(self, *args, **kwargs):
         # Siempre generar mqtt_id si no existe
         if not self.mqtt_id and self.usuario_id:
