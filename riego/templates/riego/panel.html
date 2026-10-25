@@ -9,7 +9,17 @@
                 <h2>Estado en tiempo real</h2>
             </div>
             <div class="page-actions">
-                <a class="btn btn-primary" href="{% url 'nueva_planta' %}">Solicitar nueva planta</a>
+                {% if user.perfil.esta_cancelada %}
+                    <button type="button" class="btn btn-secondary" style="opacity: 0.55; cursor: not-allowed;" onclick="alert('contactarse con el administrador para solucionar el problema'); return false;" disabled>
+                        🚫 Solicitar nueva planta
+                    </button>
+                {% elif not user.perfil.puede_agregar_planta %}
+                    <a class="btn btn-warning" href="{% url 'mi_plan' %}" style="background-color: #d69e2e; color: #ffffff; border: none; font-weight: 600;" title="Has alcanzado el límite de plantas de tu plan actual.">
+                        ⚠️ Límite alcanzado ({{ user.perfil.total_plantas }}/{{ user.perfil.limite_plantas }}) • Mejorar plan
+                    </a>
+                {% else %}
+                    <a class="btn btn-primary" href="{% url 'nueva_planta' %}">Solicitar nueva planta</a>
+                {% endif %}
             </div>
         </div>
 
@@ -58,22 +68,33 @@
                             <div><strong>Estado del riego:</strong> {% if planta.riego_activo %}Activo{% else %}Inactivo{% endif %}</div>
                         </div>
 
-                        <form method="post" action="{% url 'toggle_riego' planta.id %}">
-                            {% csrf_token %}
-                            <button
-                                type="submit"
-                                class="btn btn-toggle {% if planta.riego_activo %}is-active{% else %}is-inactive{% endif %}"
-                                id="btn-riego-{{ planta.id }}"
-                                {% if planta.estado_servo == 'abierto' %}disabled{% endif %}
-                            >
-                                {% if planta.riego_activo %}Desactivar riego{% else %}Activar riego{% endif %}
-                            </button>
-                            {% if planta.estado_servo == 'cerrado' %}
-                                <p class="advertencia-riego">⚠️ Puedes regar más bajo riesgo de ahogar la planta.</p>
-                            {% elif planta.estado_servo == 'abierto' %}
-                                <p class="advertencia-riego">⏳ Riego en curso, espera a que termine.</p>
-                            {% endif %}
-                        </form>
+                        {% if user.perfil.esta_cancelada %}
+                            <div style="margin-top: 15px; padding: 10px; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 8px; text-align: center;">
+                                <button type="button" class="btn btn-toggle is-inactive" disabled style="opacity: 0.5; cursor: not-allowed; width: 100%;">
+                                    🔒 Riego deshabilitado
+                                </button>
+                                <p class="advertencia-riego" style="margin: 8px 0 0 0; font-size: 0.8rem; color: #c53030; font-weight: 600;">
+                                    contactarse con el administrador para solucionar el problema
+                                </p>
+                            </div>
+                        {% else %}
+                            <form method="post" action="{% url 'toggle_riego' planta.id %}">
+                                {% csrf_token %}
+                                <button
+                                    type="submit"
+                                    class="btn btn-toggle {% if planta.riego_activo %}is-active{% else %}is-inactive{% endif %}"
+                                    id="btn-riego-{{ planta.id }}"
+                                    {% if planta.estado_servo == 'abierto' %}disabled{% endif %}
+                                >
+                                    {% if planta.riego_activo %}Desactivar riego{% else %}Activar riego{% endif %}
+                                </button>
+                                {% if planta.estado_servo == 'cerrado' %}
+                                    <p class="advertencia-riego">⚠️ Puedes regar más bajo riesgo de ahogar la planta.</p>
+                                {% elif planta.estado_servo == 'abierto' %}
+                                    <p class="advertencia-riego">⏳ Riego en curso, espera a que termine.</p>
+                                {% endif %}
+                            </form>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
@@ -132,6 +153,7 @@
                         servoEl.className = 'estado-servo estado-' + p.estado_servo;
                     }
 
+                    {% if not user.perfil.esta_cancelada %}
                     // Botón de riego
                     const btn = card.querySelector('button[type="submit"]');
                     const advertencia = card.querySelector('.advertencia-riego');
@@ -146,6 +168,7 @@
                             advertencia.textContent = '⚠️ Puedes regar más bajo riesgo de ahogar la planta.';
                         }
                     }
+                    {% endif %}
                 });
             } catch (error) {
                 console.error('Error al actualizar datos MQTT:', error);

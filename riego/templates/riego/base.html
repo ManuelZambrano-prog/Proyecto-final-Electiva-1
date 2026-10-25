@@ -20,16 +20,50 @@
                         <span>🏠</span>
                         <span>Panel</span>
                     </a>
-                    <a class="sidebar-link {% if request.resolver_match.url_name == 'nueva_planta' or request.resolver_match.url_name == 'admin_agregar_planta' %}is-active{% endif %}" href="{% if user.is_staff %}{% url 'admin_agregar_planta' %}{% else %}{% url 'nueva_planta' %}{% endif %}">
-                        <span>🌱</span>
-                        <span>Agregar planta</span>
-                    </a>
                     {% if not user.is_staff %}
-                        <a class="sidebar-link {% if request.resolver_match.url_name == 'mi_perfil' %}is-active{% endif %}" href="{% url 'mi_perfil' %}">
-                            <span>👤</span>
-                            <span>Mi perfil</span>
+                        <a class="sidebar-link {% if request.resolver_match.url_name == 'mi_plan' %}is-active{% endif %}" href="{% url 'mi_plan' %}">
+                            <span>💳</span>
+                            <span>Plan</span>
                         </a>
                     {% endif %}
+                    {% if user.is_staff %}
+                        <a class="sidebar-link {% if request.resolver_match.url_name == 'admin_agregar_planta' %}is-active{% endif %}" href="{% url 'admin_agregar_planta' %}">
+                            <span>🌱</span>
+                            <span>Agregar planta</span>
+                        </a>
+                    {% else %}
+                        {% if user.perfil.esta_cancelada %}
+                            <a class="sidebar-link" href="javascript:void(0);" onclick="alert('contactarse con el administrador para solucionar el problema'); return false;" style="opacity: 0.45; cursor: not-allowed;" title="Suscripción cancelada">
+                                <span>🌱</span>
+                                <span style="text-decoration: line-through;">Agregar planta</span>
+                            </a>
+                        {% elif not user.perfil.puede_agregar_planta %}
+                            <a class="sidebar-link" href="{% url 'mi_plan' %}" title="Límite del plan alcanzado ({{ user.perfil.total_plantas }}/{{ user.perfil.limite_plantas }}). Mejora tu plan.">
+                                <span>🌱</span>
+                                <span>Agregar planta <small style="background: #ed8936; color: white; border-radius: 6px; padding: 1px 5px; font-size: 0.65rem; margin-left: 2px;">Límite</small></span>
+                            </a>
+                        {% else %}
+                            <a class="sidebar-link {% if request.resolver_match.url_name == 'nueva_planta' %}is-active{% endif %}" href="{% url 'nueva_planta' %}">
+                                <span>🌱</span>
+                                <span>Agregar planta</span>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if not user.is_staff %}
+                        {% if user.perfil.esta_cancelada %}
+                            <a class="sidebar-link" href="javascript:void(0);" onclick="alert('contactarse con el administrador para solucionar el problema'); return false;" style="opacity: 0.45; cursor: not-allowed;" title="Suscripción cancelada">
+                                <span>👤</span>
+                                <span style="text-decoration: line-through;">Mi perfil</span>
+                            </a>
+                        {% else %}
+                            <a class="sidebar-link {% if request.resolver_match.url_name == 'mi_perfil' %}is-active{% endif %}" href="{% url 'mi_perfil' %}">
+                                <span>👤</span>
+                                <span>Mi perfil</span>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
                     {% if user.is_staff %}
                         <a class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}is-active{% endif %}" href="{% url 'admin_dashboard' %}">
                             <span>🛠️</span>
@@ -85,6 +119,20 @@
         {% endif %}
 
         <main class="{% if user.is_authenticated %}page-content page-content--compact app-content-auth{% else %}page-content{% endif %}">
+            {% if user.is_authenticated and not user.is_staff and user.perfil.esta_cancelada %}
+                <div style="background: #fff5f5; border: 1.5px solid #feb2b2; border-left: 6px solid #e53e3e; border-radius: 12px; padding: 18px 22px; margin-bottom: 24px; box-shadow: 0 4px 14px rgba(229, 62, 62, 0.08); display: flex; align-items: center; gap: 16px;">
+                    <span style="font-size: 2.2rem; line-height: 1;">⚠️</span>
+                    <div>
+                        <h4 style="margin: 0 0 4px 0; color: #9b2c2c; font-size: 1.05rem; font-weight: 700;">Suscripción Suspendida</h4>
+                        <p style="margin: 0; color: #742a2a; font-size: 1rem; font-weight: 600;">
+                            contactarse con el administrador para solucionar el problema
+                        </p>
+                        <span style="color: #a0aec0; font-size: 0.85rem; display: block; margin-top: 4px;">
+                            Tus plantas y acciones se encuentran deshabilitadas hasta que un administrador reactive tu cuenta.
+                        </span>
+                    </div>
+                </div>
+            {% endif %}
             {% block contenido %}{% endblock %}
         </main>
 

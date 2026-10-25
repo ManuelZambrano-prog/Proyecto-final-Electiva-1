@@ -1,22 +1,95 @@
+from datetime import timedelta
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 from django.utils.text import slugify
 
 
 class PerfilUsuario(models.Model):
     class Plan(models.TextChoices):
-        BASICO = 'basico', 'Básico'
-        ESTANDAR = 'estandar', 'Estándar'
-        PREMIUM = 'premium', 'Premium'
+        BASICO = 'basico', 'Básico (1-3 plantas)'
+        ESTANDAR = 'estandar', 'Estándar (4-8 plantas)'
+        PREMIUM = 'premium', 'Premium (hasta 16 plantas)'
+
+    class EstadoSuscripcion(models.TextChoices):
+        ACTIVA = 'activa', 'Activa'
+        CANCELADA = 'cancelada', 'Cancelada'
+        PENDIENTE = 'pendiente_pago', 'Pendiente de pago'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
     nombre = models.CharField(max_length=120, blank=True)
     cedula = models.CharField(max_length=20, blank=True)
-    plan = models.CharField(max_length=20, choices=Plan.choices, blank=True)
+    plan = models.CharField(max_length=20, choices=Plan.choices, default=Plan.BASICO)
     foto = models.ImageField(upload_to='perfiles/', blank=True)
+    estado_suscripcion = models.CharField(max_length=20, choices=EstadoSuscripcion.choices, default=EstadoSuscripcion.ACTIVA)
+    fecha_proximo_pago = models.DateField(null=True, blank=True)
+
+    @property
+    def limite_plantas(self):
+        limites = {
+            self.Plan.BASICO: 3,
+            self.Plan.ESTANDAR: 8,
+            self.Plan.PREMIUM: 16,
+        }
+        return limites.get(self.plan, 3)
+
+    @property
+    def precio_plan(self):
+        precios = {
+            self.Plan.BASICO: 99000,
+            self.Plan.ESTANDAR: 169000,
+            self.Plan.PREMIUM: 279000,
+        }
+        return precios.get(self.plan, 99000)
+
+    @property
+    def esta_cancelada(self):
+        return self.estado_suscripcion == self.EstadoSuscripcion.CANCELADA
+
+    @property
+    def total_plantas(self):
+        return self.user.planta_set.count()
+
+    @property
+    def puede_agregar_planta(self):
+        if self.esta_cancelada:
+            return False
+        return self.total_plantas < self.limite_plantas
+
+    def save(self, *args, **kwargs):
+        if not self.fecha_proximo_pago:
+            self.fecha_proximo_pago = timezone.now().date() + timedelta(days=30)
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.nombre or self.user.username} - {self.cedula or 'Sin cédula'}"
+        return f"{self.nombre or self.user.username} - Plan {self.get_plan_display()} ({self.get_estado_suscripcion_display()})"
+
+
+class PagoSuscripcion(models.Model):
+    class Tipo(models.TextChoices):
+        RENOVACION = 'renovacion', 'Renovación de Plan Actual'
+        CAMBIO_PLAN = 'cambio_plan', 'Cambio de Plan'
+
+    class Estado(models.TextChoices):
+        PENDIENTE = 'pendiente', 'Pendiente de aprobación'
+        APROBADO = 'aprobado', 'Aprobado'
+        RECHAZADO = 'rechazado', 'Rechazado'
+
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pagos_suscripcion')
+    tipo = models.CharField(max_length=20, choices=Tipo.choices, default=Tipo.RENOVACION)
+    plan_solicitado = models.CharField(max_length=20, choices=PerfilUsuario.Plan.choices)
+    monto = models.DecimalField(max_digits=10, decimal_places=0)
+    metodo_pago = models.CharField(max_length=60, default='Transferencia Bancaria / PSE')
+    referencia_pago = models.CharField(max_length=120, blank=True, help_text="Código o referencia del comprobante")
+    estado = models.CharField(max_length=20, choices=Estado.choices, default=Estado.PENDIENTE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    fecha_aprobacion = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.get_tipo_display()} ({self.plan_solicitado}) - {self.estado}"
 
 
 class Especie(models.Model):

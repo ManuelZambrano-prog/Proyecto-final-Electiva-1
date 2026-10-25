@@ -27,6 +27,13 @@
                     <strong>{{ total_usuarios }}</strong>
                 </div>
             </div>
+            <div class="stat-card stat-card-blue" style="border-left: 4px solid #3182ce;">
+                <div class="stat-icon">💳</div>
+                <div>
+                    <small>Pagos Plan</small>
+                    <strong>{{ pagos_pendientes_count|default:"0" }}</strong>
+                </div>
+            </div>
             <div class="stat-card stat-card-amber">
                 <div class="stat-icon">⏳</div>
                 <div>
@@ -64,7 +71,63 @@
             </div>
         </div>
 
-        <h3 class="section-title">Usuarios</h3>
+        <h3 class="section-title">💳 Pagos de Suscripción Pendientes ({% if pagos_pendientes %}{{ pagos_pendientes.count }}{% else %}0{% endif %})</h3>
+        {% if pagos_pendientes %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Tipo</th>
+                        <th>Plan Solicitado</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Referencia</th>
+                        <th>Fecha Reporte</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pago in pagos_pendientes %}
+                        <tr>
+                            <td>
+                                <strong>{{ pago.usuario.username }}</strong><br>
+                                <small style="color: #718096;">{{ pago.usuario.perfil.nombre|default:'Sin nombre' }}</small>
+                            </td>
+                            <td>
+                                <span class="status-badge {% if pago.tipo == 'cambio_plan' %}approved{% else %}pending{% endif %}">
+                                    {{ pago.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td><strong>{{ pago.get_plan_solicitado_display }}</strong></td>
+                            <td>${{ pago.monto|floatformat:"0" }} COP</td>
+                            <td>{{ pago.metodo_pago }}</td>
+                            <td><code>{{ pago.referencia_pago }}</code></td>
+                            <td>{{ pago.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                    <form method="post" action="{% url 'admin_aprobar_pago' pago.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-primary btn-sm" type="submit" onclick="return confirm('¿Aprobar este pago y renovar/actualizar el plan de {{ pago.usuario.username }}?');">
+                                            ✓ Aprobar
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'admin_rechazar_pago' pago.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('¿Rechazar este reporte de pago?');">
+                                            ✕ Rechazar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">No hay pagos de suscripción pendientes por verificar.</div>
+        {% endif %}
+
+        <h3 class="section-title">Usuarios y Suscripciones</h3>
         {% if usuarios_info %}
             <table class="data-table">
                 <thead>
@@ -72,9 +135,10 @@
                         <th>Foto</th>
                         <th>Nombre</th>
                         <th>Usuario</th>
-                        <th>Plan</th>
-                        <th>Plantas instaladas</th>
-                        <th>Solicitudes pendientes</th>
+                        <th>Plan & Capacidad</th>
+                        <th>Estado Suscripción</th>
+                        <th>Próximo Pago</th>
+                        <th>Solicitudes</th>
                         <th>Acción</th>
                     </tr>
                 </thead>
@@ -90,20 +154,44 @@
                             </td>
                             <td>{{ usuario.perfil.nombre|default:'Sin nombre' }}</td>
                             <td>{{ usuario.username }}</td>
-                            <td>{{ usuario.perfil.get_plan_display|default:'Sin plan' }}</td>
-                            <td>{{ usuario.num_plantas }}</td>
+                            <td>
+                                <strong>{{ usuario.perfil.get_plan_display|default:'Sin plan' }}</strong><br>
+                                <small style="color: #718096;">{{ usuario.num_plantas }} / {{ usuario.perfil.limite_plantas }} plantas</small>
+                            </td>
+                            <td>
+                                <span class="status-badge {% if usuario.perfil.esta_cancelada %}rejected{% else %}approved{% endif %}">
+                                    {{ usuario.perfil.get_estado_suscripcion_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if usuario.perfil.fecha_proximo_pago %}
+                                    {{ usuario.perfil.fecha_proximo_pago|date:"d/m/Y" }}
+                                {% else %}
+                                    <span style="color: #a0aec0;">--</span>
+                                {% endif %}
+                            </td>
                             <td>{{ usuario.num_pendientes }}</td>
                             <td>
-                                {% if usuario.id != request.user.id %}
-                                    <form method="post" action="{% url 'eliminar_usuario' usuario.id %}" style="display: inline;">
-                                        {% csrf_token %}
-                                        <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('¿Estás seguro de eliminar este usuario? Se eliminarán todos sus datos.')">
-                                            Eliminar
-                                        </button>
-                                    </form>
-                                {% else %}
-                                    <span style="color: #999;">--</span>
-                                {% endif %}
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    {% if usuario.perfil.esta_cancelada %}
+                                        <form method="post" action="{% url 'admin_reactivar_usuario' usuario.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-primary btn-sm" type="submit" style="background: #2b6cb0; border-color: #2b6cb0;" onclick="return confirm('¿Reactivar la cuenta y suscripción de {{ usuario.username }}?');">
+                                                🔓 Reactivar
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    {% if usuario.id != request.user.id %}
+                                        <form method="post" action="{% url 'eliminar_usuario' usuario.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('¿Estás seguro de eliminar este usuario? Se eliminarán todos sus datos.')">
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span style="color: #999;">--</span>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}
