@@ -112,7 +112,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = "static/"
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / 'media'
 
 MQTT_HOST = os.environ.get('MQTT_HOST', '77cae45651464ec6b519132c94c7919b.s1.eu.hivemq.cloud')
