@@ -26,5 +26,11 @@
                 window.location.reload();
             }
         });
+
+        // Si el usuario ya está autenticado, redirigir al panel inmediatamente
+        // para evitar que el login se muestre sobre el panel.
+        if ('{% if user.is_authenticated %}true{% else %}false{% endif %}' === 'true') {
+            window.location.href = '{% url 'panel' %}';
+        }
     </script>
 {% endblock %}
