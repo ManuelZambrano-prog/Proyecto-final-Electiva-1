@@ -43,12 +43,13 @@ class Planta(models.Model):
     ultima_lectura_mqtt = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        # Siempre generar mqtt_id si no existe
         if not self.mqtt_id and self.usuario_id:
             try:
                 perfil = self.usuario.perfil
             except Exception:
                 perfil = None
-            nombre_visible = (perfil.nombre if perfil and perfil.nombre else self.usuario.first_name) or self.usuario.username
+            nombre_visible = (perfil.nombre if perfil and perfil.nombre else self.usuario.first_name) or self.usuario.username or 'Usuario'
             nombre_usuario = slugify(nombre_visible.split()[0]).replace('-', '')[:80].capitalize() or 'Usuario'
             nombre_especie = self.especie.nombre.split('(')[0].strip() if self.especie_id else 'Planta'
             nombre_especie = slugify(nombre_especie).replace('-', '')[:80].capitalize() or 'Planta'
@@ -57,6 +58,8 @@ class Planta(models.Model):
             while type(self).objects.filter(mqtt_id=f'{base_id}{numero}').exclude(pk=self.pk).exists():
                 numero += 1
             self.mqtt_id = f'{base_id}{numero}'
+        
+        # Asegurar que siempre se guarde
         super().save(*args, **kwargs)
 
     def __str__(self):

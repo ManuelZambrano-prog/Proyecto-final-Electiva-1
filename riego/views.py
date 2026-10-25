@@ -132,8 +132,16 @@ def admin_dashboard(request):
                 usuario=solicitud.usuario,
                 especie=solicitud.especie,
                 apodo=apodo,
-                defaults={'humedad_actual': 0.0, 'temperatura_actual': 0.0},
+                defaults={
+                    'humedad_actual': 0.0,
+                    'temperatura_actual': 0.0,
+                    'mqtt_id': '',
+                },
             )
+            # Forzar generación del mqtt_id si no existe
+            if not planta.mqtt_id:
+                planta.mqtt_id = ''
+                planta.save()
             solicitud.estado = SolicitudPlanta.Estado.APROBADA
             solicitud.save()
             if creada:
@@ -148,12 +156,19 @@ def admin_dashboard(request):
             solicitud.estado = nueva_estado
             solicitud.save()
             if nueva_estado == SolicitudPlanta.Estado.APROBADA:
-                Planta.objects.get_or_create(
+                planta, creada = Planta.objects.get_or_create(
                     usuario=solicitud.usuario,
                     especie=solicitud.especie,
                     apodo=solicitud.apodo or solicitud.especie.nombre,
-                    defaults={'humedad_actual': 0.0, 'temperatura_actual': 0.0}
+                    defaults={
+                        'humedad_actual': 0.0,
+                        'temperatura_actual': 0.0,
+                        'mqtt_id': '',
+                    },
                 )
+                if not planta.mqtt_id:
+                    planta.mqtt_id = ''
+                    planta.save()
                 messages.success(request, f'Solicitud aprobada para {solicitud.usuario.username}.')
             elif nueva_estado == SolicitudPlanta.Estado.RECHAZADA:
                 messages.warning(request, f'Solicitud rechazada para {solicitud.usuario.username}.')
