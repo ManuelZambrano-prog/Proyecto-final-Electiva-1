@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SIRIGO | Sistema de Riego Inteligente por Goteo para Plantas Caseras{% endblock %}</title>
     <meta name="description" content="Automatiza el riego de tus plantas de interior con electroválvulas independientes, sensores de temperatura y humedad, monitoreo de litros y alertas en tiempo real en tu celular.">
-    <link rel="stylesheet" href="{% static 'tienda/css/styles.css' %}?v=1.2">
+    <link rel="stylesheet" href="{% static 'tienda/css/styles.css' %}?v=1.3">
 </head>
 <body>
     <!-- Navegación Principal -->
@@ -31,10 +31,13 @@
                     <!-- Enlace directo al login de la plataforma web de gestión existente -->
                     <a href="{% url 'login' %}" target="_blank" class="btn btn-secondary btn-sm" title="Entrar a la plataforma de riego con tu usuario">
                         <span>📱</span>
-                        <span>Plataforma Web</span>
+                        <span class="btn-text-desktop">Plataforma Web</span>
+                        <span class="btn-text-mobile">Plataforma</span>
                     </a>
                     <a href="{% url 'checkout' %}" class="btn btn-primary btn-sm" id="btn-comprar-nav">
-                        <span>🛍️ Comprar Kit</span>
+                        <span>🛍️</span>
+                        <span class="btn-text-desktop">Comprar Kit</span>
+                        <span class="btn-text-mobile">Comprar</span>
                     </a>
                 </div>
             </div>

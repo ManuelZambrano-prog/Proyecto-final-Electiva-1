@@ -55,6 +55,21 @@ html, body {
         linear-gradient(180deg, #edf7f1 0%, #f8fbf9 35%, #eef3f1 100%);
     scroll-behavior: smooth;
     line-height: 1.55;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+main {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.btn-text-desktop {
+    display: inline;
+}
+
+.btn-text-mobile {
+    display: none;
 }
 
 a {
@@ -1372,20 +1387,152 @@ details[open] .faq-question::after {
 }
 
 @media (max-width: 768px) {
-    .section-title {
-        font-size: 2rem;
-    }
-
-    .hero-content h1 {
-        font-size: 2.3rem;
-    }
-
     .nav-menu {
         display: none;
     }
 
+    .nav-wrapper {
+        gap: 8px;
+        min-height: 56px;
+        padding: 8px 0;
+    }
+
+    .brand-logo-img {
+        max-width: 120px !important;
+    }
+
+    .nav-actions {
+        gap: 6px;
+    }
+
+    .nav-actions .btn {
+        padding: 7px 11px;
+        font-size: 0.82rem;
+        gap: 5px;
+        border-radius: 9px;
+    }
+
+    .hero {
+        padding: 30px 0 45px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.1rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 16px;
+    }
+
+    .hero-desc {
+        font-size: 1.05rem;
+        line-height: 1.55;
+        margin-bottom: 24px;
+    }
+
+    .hero-image-wrap {
+        height: 280px;
+    }
+
+    .floating-badge {
+        padding: 8px 12px;
+        gap: 8px;
+        border-radius: 10px;
+        max-width: calc(100% - 24px);
+    }
+
+    .badge-top-left {
+        top: 12px;
+        left: 8px;
+    }
+
+    .badge-bottom-right {
+        bottom: 12px;
+        right: 8px;
+    }
+
+    .badge-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+    }
+
+    .badge-info h4 {
+        font-size: 0.74rem;
+    }
+
+    .badge-info p {
+        font-size: 0.88rem;
+    }
+
+    .section {
+        padding: 55px 0;
+    }
+
+    .section-title {
+        font-size: 1.85rem;
+    }
+
+    .section-subtitle {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
     .banners-grid, .components-grid, .steps-row, .testimonials-grid, .footer-grid {
         grid-template-columns: 1fr;
+    }
+
+    .alert-demonstration-card {
+        padding: 24px 18px;
+    }
+
+    .alert-demo-inner {
+        gap: 24px;
+    }
+
+    .alert-demo-content h3 {
+        font-size: 1.45rem;
+    }
+
+    .live-notification-box {
+        padding: 14px 12px;
+        gap: 10px;
+    }
+
+    .notif-btn-row {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .notif-btn-row .btn {
+        width: 100%;
+    }
+
+    .calculator-card {
+        padding: 24px 16px;
+        margin-top: 30px;
+    }
+
+    .calc-grid {
+        gap: 24px;
+    }
+
+    .kit-card {
+        padding: 28px 20px;
+    }
+
+    .testimonial-card {
+        padding: 22px 18px;
+    }
+
+    .faq-question {
+        padding: 16px 18px;
+        font-size: 0.98rem;
+    }
+
+    .faq-answer {
+        padding: 0 18px 16px;
+        font-size: 0.9rem;
     }
 
     .form-row {
@@ -1398,3 +1545,153 @@ details[open] .faq-question::after {
         text-align: center;
     }
 }
+
+@media (max-width: 520px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    .brand-logo-img {
+        max-width: 95px !important;
+    }
+
+    .btn-text-desktop {
+        display: none;
+    }
+
+    .btn-text-mobile {
+        display: inline;
+    }
+
+    .nav-actions {
+        gap: 6px;
+    }
+
+    .nav-actions .btn {
+        padding: 6px 9px;
+        font-size: 0.76rem;
+        gap: 4px;
+        border-radius: 8px;
+    }
+
+    .hero {
+        padding: 20px 0 35px;
+    }
+
+    .hero-content h1 {
+        font-size: 1.75rem;
+        line-height: 1.2;
+    }
+
+    .hero-desc {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
+
+    .hero-image-wrap {
+        height: 230px;
+    }
+
+    .floating-badge {
+        padding: 6px 10px;
+        gap: 6px;
+    }
+
+    .badge-top-left {
+        top: 8px;
+        left: 6px;
+    }
+
+    .badge-bottom-right {
+        bottom: 8px;
+        right: 6px;
+    }
+
+    .badge-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+    }
+
+    .badge-info h4 {
+        font-size: 0.7rem;
+    }
+
+    .badge-info p {
+        font-size: 0.8rem;
+    }
+
+    .section {
+        padding: 40px 0;
+    }
+
+    .section-title {
+        font-size: 1.55rem;
+    }
+
+    .section-tag {
+        font-size: 0.75rem;
+        padding: 5px 10px;
+    }
+
+    .banner-card {
+        height: 210px;
+    }
+
+    .banner-overlay {
+        padding: 16px;
+    }
+
+    .banner-overlay h3 {
+        font-size: 1.1rem;
+    }
+
+    .component-card {
+        padding: 20px 16px;
+    }
+
+    .component-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+    }
+
+    .step-card {
+        padding: 22px 16px;
+    }
+
+    .kit-price {
+        font-size: 2rem;
+    }
+
+    .calc-output-box {
+        padding: 20px 14px;
+    }
+
+    .site-footer {
+        padding: 40px 0 20px;
+    }
+}
+
+@media (max-width: 360px) {
+    .brand-logo-img {
+        max-width: 80px !important;
+    }
+
+    .nav-actions .btn {
+        padding: 5px 6px;
+        font-size: 0.7rem;
+        gap: 2px;
+    }
+
+    .hero-content h1 {
+        font-size: 1.5rem;
+    }
+}
+
