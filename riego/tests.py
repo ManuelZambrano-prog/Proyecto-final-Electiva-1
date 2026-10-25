@@ -815,7 +815,7 @@ class PerfilFotoTests(TestCase):
             estado=SolicitudPlanta.Estado.PENDIENTE,
         )
         self.client.login(username='admin', password='12345678')
-        response = self.client.get(reverse('panel'))
+        response = self.client.get(reverse('admin_dashboard'))
         self.assertContains(response, 'Maria Lopez')
         self.assertContains(response, 'Premium')
         self.assertContains(response, 'class="plant-photo user-photo"')

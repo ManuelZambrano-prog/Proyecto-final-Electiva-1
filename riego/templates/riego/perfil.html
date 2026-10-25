@@ -37,7 +37,7 @@
                 <label for="foto">Foto de perfil:</label>
                 <input type="file" name="foto" accept="image/*">
                 {% if perfil.foto %}
-                    <img src="{{ perfil.foto.url }}" alt="Foto de perfil" style="max-width: 150px; margin-top: 10px; border-radius: 50%;">
+                    <img class="plant-photo" src="{{ perfil.foto.url }}" alt="Foto de perfil" style="max-width: 150px; margin-top: 10px; border-radius: 50%;">
                 {% endif %}
             </div>
             <button type="submit" class="btn btn-primary">Guardar cambios</button>

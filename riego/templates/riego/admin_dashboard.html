@@ -50,22 +50,8 @@
             </div>
         </div>
 
-        <div class="metric-row">
-            <div class="card-mini">
-                <form method="get" class="filter-box">
-                    <label for="usuario"><strong>Filtrar por usuario:</strong></label>
-                    <select name="usuario" id="usuario" onchange="this.form.submit()">
-                        <option value="">Todos</option>
-                        {% for usuario in usuarios %}
-                            <option value="{{ usuario.id }}" {% if usuario_filtro == usuario.id|stringformat:'s' %}selected{% endif %}>{{ usuario.username }}</option>
-                        {% endfor %}
-                    </select>
-                </form>
-            </div>
-        </div>
-
         <h3 class="section-title">Usuarios</h3>
-        {% if usuarios %}
+        {% if usuarios_info %}
             <table class="data-table">
                 <thead>
                     <tr>
@@ -78,13 +64,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for usuario in usuarios %}
+                    {% for usuario in usuarios_info %}
                         <tr>
                             <td>
                                 {% if usuario.perfil.foto %}
-                                    <img src="{{ usuario.perfil.foto.url }}" alt="Foto de {{ usuario.username }}" width="60" height="60" style="border-radius: 50%; object-fit: cover;">
+                                    <img class="plant-photo user-photo" src="{{ usuario.perfil.foto.url }}" alt="Foto de {{ usuario.username }}" width="96" height="96">
                                 {% else %}
-                                    <div style="width: 60px; height: 60px; background: #edf7f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">👤</div>
+                                    <div class="empty-state">Sin foto</div>
                                 {% endif %}
                             </td>
                             <td>{{ usuario.perfil.nombre|default:'Sin nombre' }}</td>
@@ -99,6 +85,20 @@
         {% else %}
             <div class="empty-state">No hay usuarios registrados.</div>
         {% endif %}
+
+        <div class="metric-row">
+            <div class="card-mini">
+                <form method="get" class="filter-box">
+                    <label for="usuario"><strong>Filtrar por usuario:</strong></label>
+                    <select name="usuario" id="usuario" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        {% for usuario in usuarios %}
+                            <option value="{{ usuario.id }}" {% if usuario_filtro == usuario.id|stringformat:'s' %}selected{% endif %}>{{ usuario.username }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </div>
 
         <h3 class="section-title">Solicitudes de usuarios</h3>
         {% if solicitudes %}
