@@ -493,4 +493,29 @@
         </div>
     </div>
 </section>
+
+<script>
+    // Anti-CSRF: recargar automáticamente si hay error 403 en el formulario de contacto
+    document.getElementById('contacto').addEventListener('submit', function(e) {
+        // No hacemos nada aquí, solo dejamos que el formulario se envíe normalmente
+    });
+    
+    // Interceptar errores 403 en formularios de contacto
+    const formContacto = document.querySelector('form[action*="contacto"]');
+    if (formContacto) {
+        const originalSubmit = formContacto.submit.bind(formContacto);
+        formContacto.submit = function() {
+            // No interceptamos el submit normal, dejamos que el navegador lo maneje
+            return originalSubmit();
+        };
+    }
+    
+    // Detectar si llegamos a una página de error 403 y recargar automáticamente
+    if (window.location.pathname.includes('/cuentas/login/') || document.querySelector('h1')?.textContent.includes('Sesión desactualizada')) {
+        // Si llegamos aquí por un error 403, recargar la página de origen
+        setTimeout(() => {
+            window.location.href = window.location.origin + '/';
+        }, 1000);
+    }
+</script>
 {% endblock %}
