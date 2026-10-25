@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIRIGO</title>
-    <link rel="stylesheet" href="{% static 'riego/css/styles.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'riego/css/styles.css' %}?v=8">
 </head>
 <body>
     <div class="app-shell {% if user.is_authenticated %}app-shell--dashboard{% endif %}">
@@ -68,22 +68,20 @@
                     </div>
                 </header>
         {% else %}
-            <nav class="topbar">
-                <div class="topbar-inner">
-                    <div class="brand">
-                        {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' %}
+            {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' %}
+                <nav class="topbar">
+                    <div class="topbar-inner">
+                        <div class="brand">
                             <img class="brand-logo-img" src="{% static 'riego/images/logo.jpeg' %}" alt="SIRIGO" style="max-width: 140px; height: auto; display: block; margin: 0 auto;">
-                        {% endif %}
-                    </div>
+                        </div>
 
-                    <div class="navbar">
-                        {% if request.resolver_match.url_name != 'login' %}
+                        <div class="navbar">
                             <a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a>
                             <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
-                        {% endif %}
+                        </div>
                     </div>
-                </div>
-            </nav>
+                </nav>
+            {% endif %}
         {% endif %}
 
         <main class="{% if user.is_authenticated %}page-content page-content--compact app-content-auth{% else %}page-content{% endif %}">

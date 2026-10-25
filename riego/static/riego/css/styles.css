@@ -460,8 +460,8 @@ main:has(.auth-shell--login) {
     overflow: hidden;
     margin: 0;
     flex: 1 0 auto;
-    min-height: calc(100vh - 78px);
-    min-height: calc(100dvh - 78px);
+    min-height: 100vh;
+    min-height: 100dvh;
 }
 
 .auth-shell--login::before {
