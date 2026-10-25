@@ -11,7 +11,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST, require_GET
 
 from .forms import AsignarPlantaForm, EspecieForm, FotoEspecieForm, HorarioDisponibleForm, NuevaPlantaForm, RegistroForm, UsuarioAdminForm
-from .models import Electrovalvula, Especie, HorarioDisponible, PerfilUsuario, Planta, SolicitudPlanta
+from .models import DatosAmbientales, Electrovalvula, Especie, HorarioDisponible, PerfilUsuario, Planta, SolicitudPlanta
 from .mqtt import MQTTError, publish_plant_command
 from tienda.models import ConsultaContacto
 
@@ -175,8 +175,23 @@ def admin_dashboard(request):
 
             return redirect('admin_dashboard')
 
+    usuarios_info = (
+        User.objects.filter(is_staff=False)
+        .select_related('perfil')
+        .annotate(
+            num_plantas=Count('planta', distinct=True),
+            num_pendientes=Count(
+                'solicitudes_plantas',
+                filter=Q(solicitudes_plantas__estado=SolicitudPlanta.Estado.PENDIENTE),
+                distinct=True,
+            ),
+        )
+        .order_by('username')
+    )
+
     return render(request, 'riego/admin_dashboard.html', {
         'usuarios': usuarios,
+        'usuarios_info': usuarios_info,
         'solicitudes': solicitudes,
         'consultas': consultas,
         'usuario_filtro': usuario_filtro,
@@ -302,7 +317,7 @@ def admin_agregar_planta(request):
 def api_datos_plantas(request):
     """Devuelve JSON con estado de plantas y datos ambientales."""
     plantas = []
-    for planta in Planta.objects.filter(usuario__is_staff=False).select_related('especie', 'usuario', 'perfil'):
+    for planta in Planta.objects.filter(usuario__is_staff=False).select_related('especie', 'usuario', 'usuario__perfil'):
         plantas.append({
             'id': planta.id,
             'nombre': planta.apodo or planta.especie.nombre,
