@@ -44,7 +44,8 @@ def panel_usuario(request):
     if request.user.is_staff:
         return redirect('admin_dashboard')
     plantas_usuario = Planta.objects.filter(usuario=request.user).select_related('especie').order_by('-fecha_agregada')
-    return render(request, 'riego/panel.html', {'plantas': plantas_usuario})
+    solicitudes = SolicitudPlanta.objects.filter(usuario=request.user).select_related('especie').order_by('-created_at')
+    return render(request, 'riego/panel.html', {'plantas': plantas_usuario, 'solicitudes': solicitudes})
 
 
 @login_required
