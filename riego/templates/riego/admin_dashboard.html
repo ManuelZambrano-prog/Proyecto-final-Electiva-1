@@ -100,6 +100,42 @@
             </div>
         </div>
 
+        <h3 class="section-title">Usuarios</h3>
+        {% if usuarios %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nombre</th>
+                        <th>Usuario</th>
+                        <th>Plan</th>
+                        <th>Plantas instaladas</th>
+                        <th>Solicitudes pendientes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                        <tr>
+                            <td>
+                                {% if usuario.perfil.foto %}
+                                    <img src="{{ usuario.perfil.foto.url }}" alt="Foto de {{ usuario.username }}" width="60" height="60" style="border-radius: 50%; object-fit: cover;">
+                                {% else %}
+                                    <div style="width: 60px; height: 60px; background: #edf7f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">👤</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ usuario.perfil.nombre|default:'Sin nombre' }}</td>
+                            <td>{{ usuario.username }}</td>
+                            <td>{{ usuario.perfil.get_plan_display|default:'Sin plan' }}</td>
+                            <td>{{ usuario.num_plantas }}</td>
+                            <td>{{ usuario.num_pendientes }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">No hay usuarios registrados.</div>
+        {% endif %}
+
         <h3 class="section-title">Solicitudes de usuarios</h3>
         {% if solicitudes %}
             <table class="data-table">
