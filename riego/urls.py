@@ -14,4 +14,6 @@ urlpatterns = [
     path('admin-crear-usuario/', views.admin_crear_usuario, name='admin_crear_usuario'),
     path('admin-horarios/', views.admin_horarios, name='admin_horarios'),
     path('admin-agregar-planta/', views.admin_agregar_planta, name='admin_agregar_planta'),
+    path('admin-toggle-respuesta/<int:consulta_id>/', views.toggle_respuesta_consulta, name='toggle_respuesta_consulta'),
+    path('admin-eliminar-usuario/<int:usuario_id>/', views.eliminar_usuario, name='eliminar_usuario'),
 ]

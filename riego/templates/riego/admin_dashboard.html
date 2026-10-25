@@ -61,6 +61,7 @@
                         <th>Plan</th>
                         <th>Plantas instaladas</th>
                         <th>Solicitudes pendientes</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,6 +79,18 @@
                             <td>{{ usuario.perfil.get_plan_display|default:'Sin plan' }}</td>
                             <td>{{ usuario.num_plantas }}</td>
                             <td>{{ usuario.num_pendientes }}</td>
+                            <td>
+                                {% if usuario.id != request.user.id %}
+                                    <form method="post" action="{% url 'eliminar_usuario' usuario.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('¿Estás seguro de eliminar este usuario? Se eliminarán todos sus datos.')">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span style="color: #999;">--</span>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -85,6 +98,122 @@
         {% else %}
             <div class="empty-state">No hay usuarios registrados.</div>
         {% endif %}
+
+        <div class="metric-row">
+            <div class="card-mini">
+                <form method="get" class="filter-box">
+                    <label for="usuario"><strong>Filtrar por usuario:</strong></label>
+                    <select name="usuario" id="usuario" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        {% for usuario in usuarios %}
+                            <option value="{{ usuario.id }}" {% if usuario_filtro == usuario.id|stringformat:'s' %}selected{% endif %}>{{ usuario.username }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </div>
+
+        <h3 class="section-title">Solicitudes de usuarios</h3>
+        {% if solicitudes %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Planta</th>
+                        <th>Especie</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for solicitud in solicitudes %}
+                        <tr>
+                            <td>
+                                {{ solicitud.usuario.username }}<br>
+                                <small>{{ solicitud.usuario.perfil.nombre|default:'Sin nombre' }} / {{ solicitud.usuario.perfil.cedula|default:'Sin cédula' }}</small>
+                            </td>
+                            <td>{{ solicitud.apodo|default:solicitud.especie.nombre }}</td>
+                            <td>{{ solicitud.especie.nombre }}</td>
+                            <td>{{ solicitud.fecha_cita|date:"Y-m-d" }}</td>
+                            <td>{{ solicitud.hora_cita|time:"H:i:s" }}</td>
+                            <td>
+                                <span class="status-badge {% if solicitud.estado == 'pendiente' %}pending{% elif solicitud.estado == 'aprobada' %}approved{% else %}rejected{% endif %}"> {{ solicitud.get_estado_display }}</span>
+                            </td>
+                            <td>
+                                <form method="post" class="form-layout">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="solicitud_id" value="{{ solicitud.id }}">
+                                    <input type="hidden" name="accion" value="cambiar_estado">
+                                    <select name="estado">
+                                        <option value="pendiente" {% if solicitud.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                        <option value="aprobada" {% if solicitud.estado == 'aprobada' %}selected{% endif %}>Aprobada</option>
+                                        <option value="rechazada" {% if solicitud.estado == 'rechazada' %}selected{% endif %}>Rechazada</option>
+                                    </select>
+                                    <div style="margin-top: 10px;">
+                                        <button class="btn btn-secondary" type="submit">Guardar estado</button>
+                                    </div>
+                                </form>
+                                <form method="post" style="margin-top: 10px;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="solicitud_id" value="{{ solicitud.id }}">
+                                    <input type="hidden" name="accion" value="asignar_planta">
+                                    <button class="btn btn-primary" type="submit">Asignar planta al cliente</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">No hay solicitudes registradas.</div>
+        {% endif %}
+
+        <h3 class="section-title">Consultas de clientes</h3>
+        {% if consultas %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Tipo de consulta</th>
+                        <th>Mensaje</th>
+                        <th>Fecha</th>
+                        <th>Respondido</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for consulta in consultas %}
+                        <tr>
+                            <td>{{ consulta.nombre }}</td>
+                            <td>{{ consulta.email }}</td>
+                            <td>{{ consulta.telefono }}</td>
+                            <td>{{ consulta.get_tipo_consulta_display }}</td>
+                            <td>{{ consulta.mensaje }}</td>
+                            <td>{{ consulta.creado_en|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <span class="status-badge {% if consulta.respondido %}approved{% else %}pending{% endif %}">{% if consulta.respondido %}Sí{% else %}No{% endif %}</span>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'toggle_respuesta_consulta' consulta.id %}" style="margin-top: 5px;">
+                                    {% csrf_token %}
+                                    <button class="btn btn-{% if consulta.respondido %}secondary{% else %}primary{% endif %} btn-sm" type="submit">
+                                        {% if consulta.respondido %}Marcar como no respondido{% else %}Marcar como respondido{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">No hay consultas de clientes registradas.</div>
+        {% endif %}
+    </div>
+{% endblock %}
 
         <div class="metric-row">
             <div class="card-mini">

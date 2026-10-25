@@ -359,3 +359,32 @@ def mi_perfil(request):
         messages.success(request, 'Perfil actualizado correctamente.')
         return redirect('mi_perfil')
     return render(request, 'riego/perfil.html', {'perfil': perfil})
+
+
+@staff_member_required
+@never_cache
+def toggle_respuesta_consulta(request, consulta_id):
+    """Marca o desmarca una consulta como respondida."""
+    consulta = get_object_or_404(ConsultaContacto, pk=consulta_id)
+    consulta.respondido = not consulta.respondido
+    consulta.save()
+    estado = 'respondida' if consulta.respondido else 'pendiente'
+    messages.success(request, f'Consulta de {consulta.nombre} marcada como {estado}.')
+    return redirect('admin_dashboard')
+
+
+@staff_member_required
+@never_cache
+def eliminar_usuario(request, usuario_id):
+    """Elimina un usuario no staff."""
+    user = get_object_or_404(User, pk=usuario_id)
+    if user.is_staff:
+        messages.error(request, 'No se puede eliminar un usuario administrador.')
+        return redirect('admin_dashboard')
+    if user == request.user:
+        messages.error(request, 'No puedes eliminarte a ti mismo.')
+        return redirect('admin_dashboard')
+    username = user.username
+    user.delete()
+    messages.success(request, f'Usuario {username} eliminado correctamente.')
+    return redirect('admin_dashboard')
