@@ -16,7 +16,7 @@ class RiegoConfig(AppConfig):
         import riego.models  # noqa: F401
 
         import sys
-        if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
+        if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv and 'test' not in sys.argv:
             try:
                 from riego.mqtt import iniciar_escucha_mqtt
                 iniciar_escucha_mqtt()

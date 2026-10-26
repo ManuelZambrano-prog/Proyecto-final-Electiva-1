@@ -183,23 +183,28 @@ class SolicitudPlanta(models.Model):
 
 
 class DatosAmbientales(models.Model):
-    """Datos ambientales generales (singleton)"""
-    temperatura = models.FloatField(default=0.0, help_text="Temperatura ambiente en °C")
-    humedad_ambiente = models.FloatField(default=0.0, help_text="Humedad ambiente en %")
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    """Datos ambientales de telemetría asociados a cada cliente."""
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='datos_ambientales', null=True, blank=True)
+    temperatura = models.FloatField(null=True, blank=True, default=None, help_text="Temperatura ambiente en °C")
+    humedad_ambiente = models.FloatField(null=True, blank=True, default=None, help_text="Humedad ambiente en %")
+    fecha_actualizacion = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Datos Ambientales"
         verbose_name_plural = "Datos Ambientales"
 
-    def save(self, *args, **kwargs):
-        self.pk = 1  # Fuerza singleton
-        super().save(*args, **kwargs)
-
     @classmethod
-    def get_datos(cls):
-        obj, created = cls.objects.get_or_create(pk=1)
+    def get_datos(cls, usuario=None):
+        if usuario:
+            obj, _ = cls.objects.get_or_create(usuario=usuario)
+            return obj
+        obj = cls.objects.filter(usuario__isnull=True).first()
+        if not obj:
+            obj = cls.objects.create(usuario=None)
         return obj
 
     def __str__(self):
-        return f"{self.temperatura}°C / {self.humedad_ambiente}%"
+        usuario_nom = self.usuario.username if self.usuario else "General"
+        t = f"{self.temperatura}°C" if self.temperatura is not None else "--"
+        h = f"{self.humedad_ambiente}%" if self.humedad_ambiente is not None else "--"
+        return f"{usuario_nom}: {t} / {h}"

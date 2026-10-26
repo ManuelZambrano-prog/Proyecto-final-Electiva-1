@@ -50,7 +50,8 @@ def publish_plant_command(plant, enabled):
 
 
 def update_plant_from_telemetry(topic, payload):
-    from .models import Planta
+    from .models import Planta, DatosAmbientales
+    from django.utils import timezone
 
     topic_parts = topic.split('/')
     topic_pattern = settings.MQTT_SENSOR_TOPIC.split('/')
@@ -70,17 +71,30 @@ def update_plant_from_telemetry(topic, payload):
     except (TypeError, ValueError, AttributeError):
         return False
 
-    plants = Planta.objects.filter(mqtt_id=mqtt_id)
+    plants = Planta.objects.filter(mqtt_id=mqtt_id).select_related('usuario')
     if not plants.exists():
         try:
-            plants = Planta.objects.filter(pk=int(mqtt_id))
+            plants = Planta.objects.filter(pk=int(mqtt_id)).select_related('usuario')
         except ValueError:
             return False
 
-    return plants.update(
-        temperatura_actual=temperature,
-        humedad_actual=humidity,
-    ) == 1
+    planta = plants.first()
+    if not planta:
+        return False
+
+    now = timezone.now()
+    planta.temperatura_actual = temperature
+    planta.humedad_actual = humidity
+    planta.ultima_lectura_mqtt = now
+    planta.save(update_fields=['temperatura_actual', 'humedad_actual', 'ultima_lectura_mqtt'])
+
+    # Solo actualizar los datos ambientales del cliente dueño de esta planta
+    datos = DatosAmbientales.get_datos(usuario=planta.usuario)
+    datos.temperatura = temperature
+    datos.humedad_ambiente = humidity
+    datos.fecha_actualizacion = now
+    datos.save()
+    return True
 
 
 def procesar_mensaje_telemetry_json(topic, payload_dict):
@@ -88,52 +102,99 @@ def procesar_mensaje_telemetry_json(topic, payload_dict):
     Procesa JSON de HiveMQ con formato:
     {"ManuelSuculenta1":71,"ManuelCactuscholla1":72,"temp":24.2,"hum_amb":71.3,
      "valvula":"abierta","servo_ManuelSuculenta1":"abierto",...}
+
+    Cada cliente publica o tiene lecturas asociadas a sus propias plantas.
+    Los datos ambientales (temperatura y humedad ambiente) se asignan
+    estrictamente al cliente al que corresponden las plantas del mensaje.
     """
     from .models import Planta, DatosAmbientales
+    from django.contrib.auth.models import User
     from django.utils import timezone
 
-    datos = DatosAmbientales.get_datos()
+    ahora = timezone.now()
+    usuario_detectado = None
 
-    if 'temp' in payload_dict:
-        try:
-            datos.temperatura = float(payload_dict['temp'])
-        except (ValueError, TypeError):
-            pass
-    if 'hum_amb' in payload_dict:
-        try:
-            datos.humedad_ambiente = float(payload_dict['hum_amb'])
-        except (ValueError, TypeError):
-            pass
-    datos.save()
+    # 1. Detectar usuario desde campos del payload si vienen explícitos
+    for k in ('usuario', 'cliente', 'user', 'username'):
+        val = payload_dict.get(k)
+        if val:
+            usuario_detectado = User.objects.filter(username__iexact=str(val).strip()).first()
+            if usuario_detectado:
+                break
 
+    # 2. Si no viene en el payload, intentar detectar por el tópico (ej: riego/manuel/datos)
+    if not usuario_detectado and topic:
+        partes = [p.strip() for p in topic.split('/') if p.strip()]
+        for parte in partes:
+            u = User.objects.filter(username__iexact=parte).first()
+            if u:
+                usuario_detectado = u
+                break
+
+    usuarios_afectados = set()
+    if usuario_detectado:
+        usuarios_afectados.add(usuario_detectado)
+
+    # 3. Procesar lecturas de cada planta y asociar su respectivo usuario
     for clave, valor in payload_dict.items():
-        if clave in ('temp', 'hum_amb', 'valvula', 'planta'):
+        if clave in ('temp', 'hum_amb', 'temperatura', 'humedad_ambiente', 'valvula', 'planta', 'usuario', 'cliente', 'user', 'username'):
             continue
 
         if clave.startswith('servo_'):
             mqtt_id = clave.replace('servo_', '').strip()
             try:
-                planta = Planta.objects.filter(mqtt_id__iexact=mqtt_id).first()
+                planta = Planta.objects.filter(mqtt_id__iexact=mqtt_id).select_related('usuario').first()
                 if planta:
+                    usuarios_afectados.add(planta.usuario)
                     planta.estado_servo = str(valor).strip().lower()
                     if planta.estado_servo == 'cerrado':
                         planta.riego_activo = False
                     elif planta.estado_servo == 'abierto':
                         planta.riego_activo = True
-                    planta.ultima_lectura_mqtt = timezone.now()
+                    planta.ultima_lectura_mqtt = ahora
                     planta.save(update_fields=['estado_servo', 'riego_activo', 'ultima_lectura_mqtt'])
             except Exception as e:
                 print(f'[MQTT] Error actualizando servo de {mqtt_id}: {e}')
             continue
 
         try:
-            planta = Planta.objects.filter(mqtt_id__iexact=clave).first()
+            planta = Planta.objects.filter(mqtt_id__iexact=clave).select_related('usuario').first()
             if planta:
+                usuarios_afectados.add(planta.usuario)
                 planta.humedad_actual = float(valor)
-                planta.ultima_lectura_mqtt = timezone.now()
+                planta.ultima_lectura_mqtt = ahora
                 planta.save(update_fields=['humedad_actual', 'ultima_lectura_mqtt'])
         except (ValueError, TypeError, Exception) as e:
             print(f'[MQTT] Error actualizando humedad de {clave}: {e}')
+
+    # 4. Actualizar datos ambientales SOLO para el/los cliente(s) a los que corresponden estas lecturas
+    temp_val = None
+    for k in ('temp', 'temperatura'):
+        if k in payload_dict:
+            try:
+                temp_val = float(payload_dict[k])
+                break
+            except (ValueError, TypeError):
+                pass
+
+    hum_amb_val = None
+    for k in ('hum_amb', 'humedad_ambiente'):
+        if k in payload_dict:
+            try:
+                hum_amb_val = float(payload_dict[k])
+                break
+            except (ValueError, TypeError):
+                pass
+
+    if temp_val is not None or hum_amb_val is not None:
+        for usr in usuarios_afectados:
+            datos = DatosAmbientales.get_datos(usuario=usr)
+            if temp_val is not None:
+                datos.temperatura = temp_val
+            if hum_amb_val is not None:
+                datos.humedad_ambiente = hum_amb_val
+            datos.fecha_actualizacion = ahora
+            datos.save()
 
 
 def _mqtt_loop():
@@ -155,12 +216,14 @@ def _mqtt_loop():
         topic_filter = settings.MQTT_SENSOR_TOPIC.format(plant_id='+')
         mqtt_client.subscribe(topic_filter, qos=1)
 
-        # 3. Tópicos adicionales comunes y de estado
+        # 3. Tópicos adicionales comunes y por cliente
         mqtt_client.subscribe('riego/sensores', qos=1)
         mqtt_client.subscribe('riego/estado', qos=1)
         mqtt_client.subscribe('riego/plantas/+/datos', qos=1)
+        mqtt_client.subscribe('riego/+/datos', qos=1)
+        mqtt_client.subscribe('riego/+/sensores', qos=1)
         mqtt_client.subscribe('riego/logs', qos=1)
-        print(f'[MQTT] Suscrito a {topico_datos}, {topic_filter} y riego/sensores')
+        print(f'[MQTT] Suscrito a {topico_datos}, {topic_filter}, tópicos por cliente y riego/sensores')
 
     def on_message(mqtt_client, userdata, message):
         try:

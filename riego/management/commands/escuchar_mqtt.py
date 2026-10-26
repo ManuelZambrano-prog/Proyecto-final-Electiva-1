@@ -22,7 +22,9 @@ class Command(BaseCommand):
             topic_filter = settings.MQTT_SENSOR_TOPIC.format(plant_id='+')
             mqtt_client.subscribe(topic_filter, qos=1)
             mqtt_client.subscribe('riego/sensores', qos=1)
-            self.stdout.write(f'Escuchando {topico_datos} y {topic_filter}')
+            mqtt_client.subscribe('riego/+/datos', qos=1)
+            mqtt_client.subscribe('riego/+/sensores', qos=1)
+            self.stdout.write(f'Escuchando {topico_datos}, {topic_filter} y tópicos por cliente')
 
         def on_message(mqtt_client, userdata, message):
             try:

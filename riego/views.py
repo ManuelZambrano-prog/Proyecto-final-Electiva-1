@@ -32,7 +32,7 @@ def registro(request):
         form = RegistroForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 'Registro completado correctamente.')
             return redirect('panel')
     else:
@@ -47,7 +47,12 @@ def panel_usuario(request):
         return redirect('admin_dashboard')
     plantas_usuario = Planta.objects.filter(usuario=request.user).select_related('especie').order_by('-fecha_agregada')
     solicitudes = SolicitudPlanta.objects.filter(usuario=request.user).select_related('especie').order_by('-created_at')
-    return render(request, 'riego/panel.html', {'plantas': plantas_usuario, 'solicitudes': solicitudes})
+    datos_ambientales = DatosAmbientales.objects.filter(usuario=request.user).first()
+    return render(request, 'riego/panel.html', {
+        'plantas': plantas_usuario,
+        'solicitudes': solicitudes,
+        'datos_ambientales': datos_ambientales,
+    })
 
 
 @login_required
@@ -339,30 +344,45 @@ def admin_agregar_planta(request):
     })
 
 
+@login_required
+@never_cache
 @require_GET
 def api_datos_plantas(request):
-    """Devuelve JSON con estado de plantas y datos ambientales."""
+    """Devuelve JSON con estado de plantas y datos ambientales SOLO del usuario autenticado."""
+    if request.user.is_staff:
+        usuario_id = request.GET.get('usuario')
+        if usuario_id:
+            user_target = User.objects.filter(pk=usuario_id).first()
+        else:
+            user_target = None
+        plantas_qs = Planta.objects.filter(usuario=user_target).select_related('especie') if user_target else Planta.objects.none()
+        datos = DatosAmbientales.objects.filter(usuario=user_target).first() if user_target else None
+    else:
+        user_target = request.user
+        plantas_qs = Planta.objects.filter(usuario=user_target).select_related('especie')
+        datos = DatosAmbientales.objects.filter(usuario=user_target).first()
+
     plantas = []
-    for planta in Planta.objects.filter(usuario__is_staff=False).select_related('especie', 'usuario'):
+    for planta in plantas_qs:
         esta_regando = (planta.estado_servo == 'abierto') or bool(planta.riego_activo)
         plantas.append({
             'id': planta.id,
-            'nombre': planta.apodo or planta.especie.nombre,
+            'nombre': planta.apodo or (planta.especie.nombre if planta.especie else 'Planta'),
             'mqtt_id': planta.mqtt_id,
             'humedad_actual': getattr(planta, 'humedad_actual', 0.0),
             'umbral_humedad': getattr(planta, 'umbral_humedad', 40.0),
             'estado_servo': 'abierto' if esta_regando else 'cerrado',
             'riego_activo': esta_regando,
+            'ultima_lectura': planta.ultima_lectura_mqtt.isoformat() if planta.ultima_lectura_mqtt else None,
             'especie': planta.especie.nombre if planta.especie else 'Sin especie',
             'foto_url': planta.especie.foto.url if planta.especie and planta.especie.foto else None,
         })
 
-    datos = DatosAmbientales.get_datos()
     return JsonResponse({
         'plantas': plantas,
-        'temperatura': datos.temperatura,
-        'humedad_ambiente': datos.humedad_ambiente,
-        'fecha_actualizacion': datos.fecha_actualizacion.isoformat() if datos.fecha_actualizacion else None,
+        'temperatura': datos.temperatura if (datos and datos.temperatura is not None) else None,
+        'humedad_ambiente': datos.humedad_ambiente if (datos and datos.humedad_ambiente is not None) else None,
+        'fecha_actualizacion': datos.fecha_actualizacion.isoformat() if (datos and datos.fecha_actualizacion) else None,
     })
 
 

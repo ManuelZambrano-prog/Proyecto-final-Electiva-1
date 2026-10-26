@@ -835,3 +835,130 @@ class PerfilFotoTests(TestCase):
         self.assertEqual(response.status_code, 302)
         user = get_user_model().objects.get(username='usuario1')
         self.assertEqual(user.perfil.plan, 'estandar')
+
+
+class LecturasClienteAislamientoTests(TestCase):
+    def setUp(self):
+        self.User = get_user_model()
+        self.manuel = self.User.objects.create_user(
+            username='manuel',
+            email='manuel@example.com',
+            password='password123',
+        )
+        self.juliana = self.User.objects.create_user(
+            username='juliana',
+            email='juliana@example.com',
+            password='password123',
+        )
+        self.especie = Especie.objects.create(nombre='Suculenta')
+        self.planta_manuel = Planta.objects.create(
+            usuario=self.manuel,
+            especie=self.especie,
+            apodo='Suculenta Manuel',
+            mqtt_id='ManuelSuculenta1',
+        )
+        self.planta_juliana = Planta.objects.create(
+            usuario=self.juliana,
+            especie=self.especie,
+            apodo='Suculenta Juliana',
+            mqtt_id='JulianaSuculenta1',
+        )
+
+    def test_procesar_telemetria_aisla_datos_por_cliente(self):
+        from .models import DatosAmbientales
+        from .mqtt import procesar_mensaje_telemetry_json
+
+        # Payload con datos exclusivos de Manuel
+        payload_manuel = {
+            'ManuelSuculenta1': 82.5,
+            'temp': 26.4,
+            'hum_amb': 68.2,
+            'servo_ManuelSuculenta1': 'abierto',
+        }
+        procesar_mensaje_telemetry_json('riego/datos', payload_manuel)
+
+        self.planta_manuel.refresh_from_db()
+        self.planta_juliana.refresh_from_db()
+
+        # Manuel recibe sus lecturas
+        self.assertEqual(self.planta_manuel.humedad_actual, 82.5)
+        self.assertEqual(self.planta_manuel.estado_servo, 'abierto')
+        self.assertTrue(self.planta_manuel.riego_activo)
+        self.assertIsNotNone(self.planta_manuel.ultima_lectura_mqtt)
+
+        datos_manuel = DatosAmbientales.objects.get(usuario=self.manuel)
+        self.assertEqual(datos_manuel.temperatura, 26.4)
+        self.assertEqual(datos_manuel.humedad_ambiente, 68.2)
+
+        # Juliana NO recibe las lecturas de Manuel (aislamiento total)
+        self.assertEqual(self.planta_juliana.humedad_actual, 0.0)
+        self.assertEqual(self.planta_juliana.estado_servo, 'cerrado')
+        self.assertFalse(self.planta_juliana.riego_activo)
+        self.assertIsNone(self.planta_juliana.ultima_lectura_mqtt)
+
+        datos_juliana = DatosAmbientales.objects.filter(usuario=self.juliana).first()
+        self.assertTrue(datos_juliana is None or datos_juliana.temperatura is None)
+
+    def test_api_datos_plantas_muestra_solo_datos_del_cliente_autenticado(self):
+        from .models import DatosAmbientales
+        from .mqtt import procesar_mensaje_telemetry_json
+
+        procesar_mensaje_telemetry_json('riego/datos', {
+            'ManuelSuculenta1': 77.0,
+            'temp': 25.0,
+            'hum_amb': 70.0,
+        })
+
+        # 1. Manuel autenticado consulta el API
+        self.client.login(username='manuel', password='password123')
+        resp_manuel = self.client.get(reverse('api_datos_plantas'))
+        self.assertEqual(resp_manuel.status_code, 200)
+        data_manuel = resp_manuel.json()
+
+        self.assertEqual(data_manuel['temperatura'], 25.0)
+        self.assertEqual(data_manuel['humedad_ambiente'], 70.0)
+        self.assertEqual(len(data_manuel['plantas']), 1)
+        self.assertEqual(data_manuel['plantas'][0]['mqtt_id'], 'ManuelSuculenta1')
+        self.client.logout()
+
+        # 2. Juliana autenticada consulta el API
+        self.client.login(username='juliana', password='password123')
+        resp_juliana = self.client.get(reverse('api_datos_plantas'))
+        self.assertEqual(resp_juliana.status_code, 200)
+        data_juliana = resp_juliana.json()
+
+        # Juliana no ve temperatura ni humedad de Manuel
+        self.assertIsNone(data_juliana['temperatura'])
+        self.assertIsNone(data_juliana['humedad_ambiente'])
+        self.assertEqual(len(data_juliana['plantas']), 1)
+        self.assertEqual(data_juliana['plantas'][0]['mqtt_id'], 'JulianaSuculenta1')
+        self.assertIsNone(data_juliana['plantas'][0]['ultima_lectura'])
+        self.client.logout()
+
+    def test_panel_html_aislado_entre_perfiles(self):
+        from .mqtt import procesar_mensaje_telemetry_json
+
+        procesar_mensaje_telemetry_json('riego/datos', {
+            'ManuelSuculenta1': 88.0,
+            'temp': 27.5,
+            'hum_amb': 65.0,
+        })
+
+        # Manuel ve sus datos
+        self.client.login(username='manuel', password='password123')
+        resp_m = self.client.get(reverse('panel'))
+        self.assertContains(resp_m, '27.5°C')
+        self.assertContains(resp_m, '65.0%')
+        self.assertContains(resp_m, 'Suculenta Manuel')
+        self.assertNotContains(resp_m, 'Suculenta Juliana')
+        self.client.logout()
+
+        # Juliana ve su panel sin los datos de Manuel
+        self.client.login(username='juliana', password='password123')
+        resp_j = self.client.get(reverse('panel'))
+        self.assertNotContains(resp_j, '27.5°C')
+        self.assertNotContains(resp_j, '65.0%')
+        self.assertNotContains(resp_j, 'Suculenta Manuel')
+        self.assertContains(resp_j, 'Suculenta Juliana')
+        self.assertContains(resp_j, 'Esperando primera lectura del sensor...')
+        self.client.logout()

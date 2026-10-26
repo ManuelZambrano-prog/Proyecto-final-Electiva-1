@@ -29,18 +29,18 @@
             {% endfor %}
         {% endif %}
 
-        <!-- Datos ambientales generales (zona externa) -->
+        <!-- Datos ambientales de tu entorno -->
         <div class="datos-ambientales" id="datos-ambientales">
             <div class="dato-ambiente">
-                <div class="valor" id="valor-temperatura">--</div>
+                <div class="valor" id="valor-temperatura">{% if datos_ambientales and datos_ambientales.temperatura is not None %}{{ datos_ambientales.temperatura|floatformat:1 }}°C{% else %}--{% endif %}</div>
                 <div>Temperatura</div>
             </div>
             <div class="dato-ambiente">
-                <div class="valor" id="valor-humedad">--</div>
+                <div class="valor" id="valor-humedad">{% if datos_ambientales and datos_ambientales.humedad_ambiente is not None %}{{ datos_ambientales.humedad_ambiente|floatformat:1 }}%{% else %}--{% endif %}</div>
                 <div>Humedad Ambiente</div>
             </div>
             <div class="dato-ambiente">
-                <div class="valor" id="valor-hora">--</div>
+                <div class="valor" id="valor-hora">{% if datos_ambientales and datos_ambientales.fecha_actualizacion %}{{ datos_ambientales.fecha_actualizacion|date:"H:i:s" }}{% else %}--{% endif %}</div>
                 <div>Última actualización</div>
             </div>
         </div>
@@ -62,7 +62,8 @@
                         </div>
 
                         <div class="plant-meta">
-                            <div><strong>Humedad actual:</strong> <span class="valor-humedad" id="humedad-{{ planta.id }}">{{ planta.humedad_actual }}%</span></div>
+                            <div><strong>Humedad actual:</strong> <span class="valor-humedad" id="humedad-{{ planta.id }}">{% if planta.ultima_lectura_mqtt or planta.humedad_actual > 0 %}{{ planta.humedad_actual }}%{% else %}--{% endif %}</span></div>
+                            <div><strong>Temperatura actual:</strong> {{ planta.temperatura_actual }}°C</div>
                             <div><strong>Umbral:</strong> {{ planta.umbral_humedad }}%</div>
                             <div><strong>Estado del riego:</strong> <span class="valor-estado-riego" style="color: {% if planta.riego_activo or planta.estado_servo == 'abierto' %}#276749; font-weight: 700{% else %}#718096; font-weight: 500{% endif %};">{% if planta.riego_activo or planta.estado_servo == 'abierto' %}Activo{% else %}Inactivo{% endif %}</span></div>
                         </div>
@@ -89,7 +90,9 @@
                                 {% if planta.riego_activo or planta.estado_servo == 'abierto' %}
                                     <p class="advertencia-riego">⏳ Riego en curso. Puedes detenerlo en cualquier momento.</p>
                                 {% else %}
-                                    {% if planta.humedad_actual >= planta.umbral_humedad %}
+                                    {% if not planta.ultima_lectura_mqtt and planta.humedad_actual == 0.0 %}
+                                        <p class="advertencia-riego">📡 Esperando primera lectura del sensor...</p>
+                                    {% elif planta.humedad_actual >= planta.umbral_humedad %}
                                         <p class="advertencia-riego">⚠️ Puedes regar más bajo riesgo de ahogar la planta.</p>
                                     {% else %}
                                         <p class="advertencia-riego">🌱 Humedad baja. Se recomienda regar.</p>
@@ -128,31 +131,37 @@
     </div>
 
     <script>
-        // Polling cada 1.5 segundos para actualizar datos MQTT en tiempo real
+        // Polling cada 1.5 segundos para actualizar datos MQTT en tiempo real SOLO del usuario autenticado
         async function actualizarDatos() {
             try {
                 const respuesta = await fetch('{% url 'api_datos_plantas' %}');
+                if (!respuesta.ok) return;
                 const datos = await respuesta.json();
 
                 // Actualizar datos ambientales
-                if (document.getElementById('valor-temperatura') && datos.temperatura != null) {
-                    document.getElementById('valor-temperatura').textContent = datos.temperatura.toFixed(1) + '°C';
+                const tempEl = document.getElementById('valor-temperatura');
+                if (tempEl) {
+                    tempEl.textContent = (datos.temperatura != null) ? (datos.temperatura.toFixed(1) + '°C') : '--';
                 }
-                if (document.getElementById('valor-humedad') && datos.humedad_ambiente != null) {
-                    document.getElementById('valor-humedad').textContent = datos.humedad_ambiente.toFixed(1) + '%';
+                const humEl = document.getElementById('valor-humedad');
+                if (humEl) {
+                    humEl.textContent = (datos.humedad_ambiente != null) ? (datos.humedad_ambiente.toFixed(1) + '%') : '--';
                 }
-                if (document.getElementById('valor-hora') && datos.fecha_actualizacion) {
-                    document.getElementById('valor-hora').textContent = new Date(datos.fecha_actualizacion).toLocaleTimeString();
+                const horaEl = document.getElementById('valor-hora');
+                if (horaEl) {
+                    horaEl.textContent = datos.fecha_actualizacion ? new Date(datos.fecha_actualizacion).toLocaleTimeString() : '--';
                 }
 
-                // Actualizar cada planta
+                // Actualizar cada planta del usuario
                 datos.plantas.forEach(p => {
                     const card = document.getElementById('planta-' + p.id);
                     if (!card) return;
 
                     // Humedad
                     const humedadEl = card.querySelector('.valor-humedad');
-                    if (humedadEl) humedadEl.textContent = p.humedad_actual.toFixed(1) + '%';
+                    if (humedadEl) {
+                        humedadEl.textContent = p.humedad_actual.toFixed(1) + '%';
+                    }
 
                     // Estado unificado de riego
                     const estaRegando = (p.estado_servo === 'abierto') || p.riego_activo;
