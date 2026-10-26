@@ -2,7 +2,7 @@
 {
   "model": "auth.user",
   "fields": {
-    "password": "pbkdf2_sha256$1500000$FUn1OkMw29vIoBQvtQlbpX$yYpwzkpm3WkFgxIju3llD+7oSP7jPJlM4GSHmrx3O4o=",
+    "password": "pbkdf2_sha256$1500000$w11o9hyBhLOHlhuW4QzMym$Imiqc926LVnsep6XogG6ZxrJkBPkvk+3cWLz+HCSSlI=",
     "last_login": "2026-10-25T21:40:45.125Z",
     "is_superuser": false,
     "username": "nuevo_usuario",
@@ -19,7 +19,7 @@
 {
   "model": "auth.user",
   "fields": {
-    "password": "pbkdf2_sha256$1500000$bp3RlZCNArrUvXfBsE06Bt$bfyOgCq1DJdlT3IXpYT7/0i4AGV5L2RJ/F4Y9gCdUvI=",
+    "password": "pbkdf2_sha256$1500000$YFznGslbzi0e9iiAexvNR1$XY5VPJCiIvi6SeB+FbbbNCjYacSi6Qv7SozMMK1J5+E=",
     "last_login": "2026-10-25T23:23:28.382Z",
     "is_superuser": true,
     "username": "admin",
@@ -36,7 +36,7 @@
 {
   "model": "auth.user",
   "fields": {
-    "password": "pbkdf2_sha256$1500000$uDmi61OZ4LGcFu5usaNpa3$7ub1ZBr+bKMLnyUeQVQGAh1xLiR5JWGKtx67cy/qRJA=",
+    "password": "pbkdf2_sha256$1500000$1noGkLrkvaNeZyoa4H8kXt$0guqjsSBV71esQwsdq2qdv9zrZYrfirCHwlmkIVtGZI=",
     "last_login": "2026-10-26T00:12:52.042Z",
     "is_superuser": false,
     "username": "manuel",
@@ -53,7 +53,7 @@
 {
   "model": "auth.user",
   "fields": {
-    "password": "pbkdf2_sha256$1500000$RrIBzZRTCMOr7016NRbbok$fWpnajtRD0tfTjdPCan8k5kkQQPI9rpyrBoz01YmcsU=",
+    "password": "pbkdf2_sha256$1500000$7WKGgFjzjKKt0lbGXIMOYi$/Vh4l0W3ec1q+KaC0y2X90ctrEreJpybDgt160rEmA4=",
     "last_login": "2026-10-10T20:11:47.889Z",
     "is_superuser": false,
     "username": "juliana",
@@ -70,7 +70,7 @@
 {
   "model": "auth.user",
   "fields": {
-    "password": "pbkdf2_sha256$1500000$Ai0WWMveuJbzTLNWRDCz0o$sBeAZTsvaiBVXYaS47DSXoook19K2xbzcZ5vqHrKhI8=",
+    "password": "pbkdf2_sha256$1500000$xfAygAP5sMjUAIRgLq9ZZ6$LD1hQr4q18TJ2v1InfiM3033vZGEtbbMnC3iErLKsCg=",
     "last_login": "2026-10-25T23:23:28.154Z",
     "is_superuser": false,
     "username": "david",
@@ -87,7 +87,7 @@
 {
   "model": "auth.user",
   "fields": {
-    "password": "pbkdf2_sha256$1500000$BUrJnTAZPKQrIcplghU26e$ea1l4kp66naLbFYFSGs8p3M80HOSKCtYYVwsulhrVEw=",
+    "password": "pbkdf2_sha256$1500000$1HrYclsOTIhw5EIjjRStlO$Y2Eyg6CGZdF2JXsZCf15/go0QgV8Gm7I1FRfeEUdGkI=",
     "last_login": "2026-10-10T21:24:39.683Z",
     "is_superuser": false,
     "username": "greison",
@@ -193,7 +193,7 @@
     "plan": "basico",
     "foto": "",
     "estado_suscripcion": "activa",
-    "fecha_proximo_pago": "2026-11-24"
+    "fecha_proximo_pago": "2026-11-25"
   }
 },
 {
@@ -208,7 +208,7 @@
     "plan": "basico",
     "foto": "perfiles/WhatsApp_Image_2026-10-12_at_3.48.40_PM.jpeg",
     "estado_suscripcion": "activa",
-    "fecha_proximo_pago": "2026-11-24"
+    "fecha_proximo_pago": "2026-11-25"
   }
 },
 {
@@ -223,7 +223,7 @@
     "plan": "basico",
     "foto": "",
     "estado_suscripcion": "activa",
-    "fecha_proximo_pago": "2026-11-24"
+    "fecha_proximo_pago": "2026-11-25"
   }
 },
 {
@@ -238,7 +238,7 @@
     "plan": "basico",
     "foto": "",
     "estado_suscripcion": "activa",
-    "fecha_proximo_pago": "2026-11-24"
+    "fecha_proximo_pago": "2026-11-25"
   }
 },
 {
@@ -253,7 +253,22 @@
     "plan": "basico",
     "foto": "",
     "estado_suscripcion": "activa",
-    "fecha_proximo_pago": "2026-11-24"
+    "fecha_proximo_pago": "2026-11-25"
+  }
+},
+{
+  "model": "riego.perfilusuario",
+  "pk": 6,
+  "fields": {
+    "user": [
+      "admin"
+    ],
+    "nombre": "Admin",
+    "cedula": "",
+    "plan": "basico",
+    "foto": "",
+    "estado_suscripcion": "activa",
+    "fecha_proximo_pago": "2026-11-25"
   }
 },
 {
@@ -313,7 +328,7 @@
     "fecha_agregada": "2026-09-29T22:17:24.640Z",
     "umbral_humedad": 40.0,
     "estado_servo": "abierto",
-    "ultima_lectura_mqtt": "2026-10-26T01:20:34.535Z"
+    "ultima_lectura_mqtt": "2026-10-26T01:47:16.542Z"
   }
 },
 {
@@ -326,13 +341,13 @@
     "especie": 2,
     "mqtt_id": "ManuelSuculenta1",
     "apodo": "Suculenta Pepita",
-    "humedad_actual": 0.0,
+    "humedad_actual": 86.0,
     "temperatura_actual": 0.0,
-    "riego_activo": true,
+    "riego_activo": false,
     "fecha_agregada": "2026-09-29T22:49:26.205Z",
     "umbral_humedad": 40.0,
-    "estado_servo": "abierto",
-    "ultima_lectura_mqtt": "2026-10-26T01:20:34.528Z"
+    "estado_servo": "cerrado",
+    "ultima_lectura_mqtt": "2026-10-26T01:47:16.534Z"
   }
 },
 {
@@ -589,9 +604,9 @@
   "model": "riego.datosambientales",
   "pk": 1,
   "fields": {
-    "temperatura": 24.6,
-    "humedad_ambiente": 69.6,
-    "fecha_actualizacion": "2026-10-26T01:20:34.462Z"
+    "temperatura": 24.4,
+    "humedad_ambiente": 69.8,
+    "fecha_actualizacion": "2026-10-26T01:47:16.359Z"
   }
 },
 {

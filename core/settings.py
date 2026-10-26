@@ -141,6 +141,11 @@ SESSION_COOKIE_AGE = 3600
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
+AUTHENTICATION_BACKENDS = [
+    'riego.backends.CedulaOrPasswordBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'https://localhost:8000',
