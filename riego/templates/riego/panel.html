@@ -63,9 +63,8 @@
 
                         <div class="plant-meta">
                             <div><strong>Humedad actual:</strong> <span class="valor-humedad" id="humedad-{{ planta.id }}">{{ planta.humedad_actual }}%</span></div>
-                            <div><strong>Temperatura actual:</strong> {{ planta.temperatura_actual }}°C</div>
                             <div><strong>Umbral:</strong> {{ planta.umbral_humedad }}%</div>
-                            <div><strong>Estado del riego:</strong> {% if planta.riego_activo %}Activo{% else %}Inactivo{% endif %}</div>
+                            <div><strong>Estado del riego:</strong> <span class="valor-estado-riego" style="color: {% if planta.riego_activo or planta.estado_servo == 'abierto' %}#276749; font-weight: 700{% else %}#718096; font-weight: 500{% endif %};">{% if planta.riego_activo or planta.estado_servo == 'abierto' %}Activo{% else %}Inactivo{% endif %}</span></div>
                         </div>
 
                         {% if user.perfil.esta_cancelada %}
@@ -82,16 +81,19 @@
                                 {% csrf_token %}
                                 <button
                                     type="submit"
-                                    class="btn btn-toggle {% if planta.riego_activo %}is-active{% else %}is-inactive{% endif %}"
+                                    class="btn btn-toggle {% if planta.riego_activo or planta.estado_servo == 'abierto' %}is-active{% else %}is-inactive{% endif %}"
                                     id="btn-riego-{{ planta.id }}"
-                                    {% if planta.estado_servo == 'abierto' %}disabled{% endif %}
                                 >
-                                    {% if planta.riego_activo %}Desactivar riego{% else %}Activar riego{% endif %}
+                                    {% if planta.riego_activo or planta.estado_servo == 'abierto' %}Detener riego{% else %}Activar riego{% endif %}
                                 </button>
-                                {% if planta.estado_servo == 'cerrado' %}
-                                    <p class="advertencia-riego">⚠️ Puedes regar más bajo riesgo de ahogar la planta.</p>
-                                {% elif planta.estado_servo == 'abierto' %}
-                                    <p class="advertencia-riego">⏳ Riego en curso, espera a que termine.</p>
+                                {% if planta.riego_activo or planta.estado_servo == 'abierto' %}
+                                    <p class="advertencia-riego">⏳ Riego en curso. Puedes detenerlo en cualquier momento.</p>
+                                {% else %}
+                                    {% if planta.humedad_actual >= planta.umbral_humedad %}
+                                        <p class="advertencia-riego">⚠️ Puedes regar más bajo riesgo de ahogar la planta.</p>
+                                    {% else %}
+                                        <p class="advertencia-riego">🌱 Humedad baja. Se recomienda regar.</p>
+                                    {% endif %}
                                 {% endif %}
                             </form>
                         {% endif %}
@@ -126,16 +128,22 @@
     </div>
 
     <script>
-        // Polling cada 5 segundos para actualizar datos MQTT
+        // Polling cada 1.5 segundos para actualizar datos MQTT en tiempo real
         async function actualizarDatos() {
             try {
                 const respuesta = await fetch('{% url 'api_datos_plantas' %}');
                 const datos = await respuesta.json();
 
                 // Actualizar datos ambientales
-                document.getElementById('valor-temperatura').textContent = datos.temperatura?.toFixed(1) + '°C' || '--';
-                document.getElementById('valor-humedad').textContent = datos.humedad_ambiente?.toFixed(1) + '%' || '--';
-                document.getElementById('valor-hora').textContent = datos.fecha_actualizacion ? new Date(datos.fecha_actualizacion).toLocaleTimeString() : '--';
+                if (document.getElementById('valor-temperatura') && datos.temperatura != null) {
+                    document.getElementById('valor-temperatura').textContent = datos.temperatura.toFixed(1) + '°C';
+                }
+                if (document.getElementById('valor-humedad') && datos.humedad_ambiente != null) {
+                    document.getElementById('valor-humedad').textContent = datos.humedad_ambiente.toFixed(1) + '%';
+                }
+                if (document.getElementById('valor-hora') && datos.fecha_actualizacion) {
+                    document.getElementById('valor-hora').textContent = new Date(datos.fecha_actualizacion).toLocaleTimeString();
+                }
 
                 // Actualizar cada planta
                 datos.plantas.forEach(p => {
@@ -146,26 +154,46 @@
                     const humedadEl = card.querySelector('.valor-humedad');
                     if (humedadEl) humedadEl.textContent = p.humedad_actual.toFixed(1) + '%';
 
+                    // Estado unificado de riego
+                    const estaRegando = (p.estado_servo === 'abierto') || p.riego_activo;
+
                     // Estado del servo
                     const servoEl = card.querySelector('.estado-servo');
                     if (servoEl) {
-                        servoEl.textContent = p.estado_servo === 'abierto' ? 'Servo: Abierto' : 'Servo: Cerrado';
-                        servoEl.className = 'estado-servo estado-' + p.estado_servo;
+                        servoEl.textContent = estaRegando ? 'Servo: Abierto' : 'Servo: Cerrado';
+                        servoEl.className = 'estado-servo estado-' + (estaRegando ? 'abierto' : 'cerrado');
+                    }
+
+                    // Estado del riego (texto coordinado)
+                    const estadoRiegoEl = card.querySelector('.valor-estado-riego');
+                    if (estadoRiegoEl) {
+                        estadoRiegoEl.textContent = estaRegando ? 'Activo' : 'Inactivo';
+                        estadoRiegoEl.style.color = estaRegando ? '#276749' : '#718096';
+                        estadoRiegoEl.style.fontWeight = estaRegando ? '700' : '500';
                     }
 
                     {% if not user.perfil.esta_cancelada %}
-                    // Botón de riego
+                    // Botón de riego (siempre interactivo para el usuario)
                     const btn = card.querySelector('button[type="submit"]');
                     const advertencia = card.querySelector('.advertencia-riego');
-                    if (btn && advertencia) {
-                        if (p.estado_servo === 'abierto') {
-                            btn.disabled = true;
-                            btn.textContent = 'Riego en curso...';
-                            advertencia.textContent = '⏳ Riego en curso, espera a que termine.';
-                        } else if (p.estado_servo === 'cerrado') {
-                            btn.disabled = false;
-                            btn.textContent = p.riego_activo ? 'Desactivar riego' : 'Activar riego';
-                            advertencia.textContent = '⚠️ Puedes regar más bajo riesgo de ahogar la planta.';
+                    if (btn) {
+                        btn.disabled = false; // Siempre clickable
+                        if (estaRegando) {
+                            btn.textContent = 'Detener riego';
+                            btn.className = 'btn btn-toggle is-active';
+                            if (advertencia) {
+                                advertencia.textContent = '⏳ Riego en curso. Puedes detenerlo en cualquier momento.';
+                            }
+                        } else {
+                            btn.textContent = 'Activar riego';
+                            btn.className = 'btn btn-toggle is-inactive';
+                            if (advertencia) {
+                                if (p.humedad_actual >= p.umbral_humedad) {
+                                    advertencia.textContent = '⚠️ Puedes regar más bajo riesgo de ahogar la planta.';
+                                } else {
+                                    advertencia.textContent = '🌱 Humedad baja. Se recomienda regar.';
+                                }
+                            }
                         }
                     }
                     {% endif %}
@@ -175,8 +203,8 @@
             }
         }
 
-        // Ejecutar cada 5 segundos
-        setInterval(actualizarDatos, 5000);
+        // Ejecutar cada 1.5 segundos
+        setInterval(actualizarDatos, 1500);
         actualizarDatos(); // Primera vez al cargar
     </script>
 {% endblock %}

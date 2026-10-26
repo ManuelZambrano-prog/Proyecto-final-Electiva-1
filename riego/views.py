@@ -108,7 +108,8 @@ def toggle_riego(request, planta_id):
         return redirect('panel')
 
     planta = get_object_or_404(Planta, pk=planta_id, usuario=request.user)
-    nuevo_estado = not planta.riego_activo
+    esta_regando = (planta.estado_servo == 'abierto') or bool(planta.riego_activo)
+    nuevo_estado = not esta_regando
     try:
         publish_plant_command(planta, nuevo_estado)
     except MQTTError as error:
@@ -116,17 +117,18 @@ def toggle_riego(request, planta_id):
         return redirect('panel')
 
     planta.riego_activo = nuevo_estado
-    planta.save(update_fields=['riego_activo'])
+    planta.estado_servo = 'abierto' if nuevo_estado else 'cerrado'
+    planta.save(update_fields=['riego_activo', 'estado_servo'])
 
     electrovalvula, created = Electrovalvula.objects.get_or_create(
         numero_pin=planta.id,
-        defaults={'planta': planta, 'esta_activa': planta.riego_activo}
+        defaults={'planta': planta, 'esta_activa': nuevo_estado}
     )
     electrovalvula.planta = planta
-    electrovalvula.esta_activa = planta.riego_activo
+    electrovalvula.esta_activa = nuevo_estado
     electrovalvula.save()
 
-    accion = 'activado' if planta.riego_activo else 'desactivado'
+    accion = 'iniciado' if nuevo_estado else 'detenido'
     messages.success(request, f'El riego de la planta fue {accion} correctamente.')
     return redirect('panel')
 
@@ -342,15 +344,15 @@ def api_datos_plantas(request):
     """Devuelve JSON con estado de plantas y datos ambientales."""
     plantas = []
     for planta in Planta.objects.filter(usuario__is_staff=False).select_related('especie', 'usuario'):
+        esta_regando = (planta.estado_servo == 'abierto') or bool(planta.riego_activo)
         plantas.append({
             'id': planta.id,
             'nombre': planta.apodo or planta.especie.nombre,
             'mqtt_id': planta.mqtt_id,
             'humedad_actual': getattr(planta, 'humedad_actual', 0.0),
-            'temperatura_actual': getattr(planta, 'temperatura_actual', 0.0),
-            'umbral_humedad': getattr(planta, 'umbral_humedad', 0.0),
-            'estado_servo': getattr(planta, 'estado_servo', 'cerrado'),
-            'riego_activo': planta.riego_activo,
+            'umbral_humedad': getattr(planta, 'umbral_humedad', 40.0),
+            'estado_servo': 'abierto' if esta_regando else 'cerrado',
+            'riego_activo': esta_regando,
             'especie': planta.especie.nombre if planta.especie else 'Sin especie',
             'foto_url': planta.especie.foto.url if planta.especie and planta.especie.foto else None,
         })
