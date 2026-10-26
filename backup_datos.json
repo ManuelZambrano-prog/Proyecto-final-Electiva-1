@@ -1,0 +1,699 @@
+[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$FUn1OkMw29vIoBQvtQlbpX$yYpwzkpm3WkFgxIju3llD+7oSP7jPJlM4GSHmrx3O4o=",
+    "last_login": "2026-10-25T21:40:45.125Z",
+    "is_superuser": false,
+    "username": "nuevo_usuario",
+    "first_name": "",
+    "last_name": "",
+    "email": "nuevo@correo.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-22T21:19:27.126Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$bp3RlZCNArrUvXfBsE06Bt$bfyOgCq1DJdlT3IXpYT7/0i4AGV5L2RJ/F4Y9gCdUvI=",
+    "last_login": "2026-10-25T23:23:28.382Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@riego.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-09-22T21:41:37.462Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$uDmi61OZ4LGcFu5usaNpa3$7ub1ZBr+bKMLnyUeQVQGAh1xLiR5JWGKtx67cy/qRJA=",
+    "last_login": "2026-10-26T00:12:52.042Z",
+    "is_superuser": false,
+    "username": "manuel",
+    "first_name": "",
+    "last_name": "",
+    "email": "mszambrano855@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-22T21:53:11.440Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$RrIBzZRTCMOr7016NRbbok$fWpnajtRD0tfTjdPCan8k5kkQQPI9rpyrBoz01YmcsU=",
+    "last_login": "2026-10-10T20:11:47.889Z",
+    "is_superuser": false,
+    "username": "juliana",
+    "first_name": "",
+    "last_name": "",
+    "email": "juliana21cruz@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-22T21:55:03.090Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$Ai0WWMveuJbzTLNWRDCz0o$sBeAZTsvaiBVXYaS47DSXoook19K2xbzcZ5vqHrKhI8=",
+    "last_login": "2026-10-25T23:23:28.154Z",
+    "is_superuser": false,
+    "username": "david",
+    "first_name": "",
+    "last_name": "",
+    "email": "davidsr@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-22T23:54:24.099Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$BUrJnTAZPKQrIcplghU26e$ea1l4kp66naLbFYFSGs8p3M80HOSKCtYYVwsulhrVEw=",
+    "last_login": "2026-10-10T21:24:39.683Z",
+    "is_superuser": false,
+    "username": "greison",
+    "first_name": "",
+    "last_name": "",
+    "email": "cualquiera@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-10T20:42:31.199Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "486w8pqlcr8fgh1neyue9v703uinzj05",
+  "fields": {
+    "session_data": ".eJxVjEEOgjAQRe_StWkKU2rr0j1naGaYGYsaSCisjHdXEha6_e-9_zIZt7XkrcqSRzYX05nT70Y4PGTaAd9xus12mKd1Gcnuij1otf3M8rwe7t9BwVq-tR8aYglBuxYbDQnIJfGgHCJH4BQ9Y0qOzuwBuCUFdaoiQBiia8m8P_lzOKE:1xL1B3:ptrwSHGWrsHtN-LStVG-Ph38G1j6FIDLhzq-R8iiIWg",
+    "expire_date": "2026-10-25T17:34:33.890Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "7v9oa0ynx7tguc26mcoam217lyqbvus6",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQRO_iGlleb7KJKelzBsv2rnEAOVI-FeLuJFIKmHLem3krH7a1-G2R2Y-srsoadfktY0hPqQfhR6j3SaeprvMY9aHoky56mFhet9P9OyhhKfs62yxdxgaJMdgGxAAKWeI9yJCAHJB0beDYYjZCuW9zjw4cGSCM6vMFDOQ31Q:1xL7Ym:vlEPvi_qQSe8Mbxmu5dZ0ZHqAD3CySuA5vdxUskDM_0",
+    "expire_date": "2026-10-26T00:23:28.162Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "8o9g22alh4s3rdnljmv41p2q8vv6fdau",
+  "fields": {
+    "session_data": ".eJxVjEEOgjAQRe_StWkKU2rr0j1naGaYGYsaSCisjHdXEha6_e-9_zIZt7XkrcqSRzYX05nT70Y4PGTaAd9xus12mKd1Gcnuij1otf3M8rwe7t9BwVq-tR8aYglBuxYbDQnIJfGgHCJH4BQ9Y0qOzuwBuCUFdaoiQBiia8m8P_lzOKE:1xL60S:FDuuK4YKParqF8M0B2P-VV6s1PHr4Zm3Z3QosikHH94",
+    "expire_date": "2026-10-25T22:43:56.984Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "amjtrzrja7hcmjhf3jyczz2yo90ahem0",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQRO_iGlnrfLxeSvqcwfL6gwPIluKkQtydREoB5cx7M29h3bZmu7W42DmIq-jF5bdj55-xHCA8XLlX6WtZl5nlociTNjnVEF-30_07yK7lfc0eKSSDJnLEtKeBfHAcNRrleqV1l2AEPRIPpA0Yw9ARJE3ICJ6V-HwB_mA3ww:1xL5xN:0ujiPGUtpHZ2Msj5e20lwQGCKP6SaSAzKEGPI7vh72w",
+    "expire_date": "2026-10-25T22:40:45.131Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "atvde0cbkd2l3gq3ldmrnwdozuak0hyv",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQRO_iGlleb7KJKelzBsv2rnEAOVI-FeLuJFIKmHLem3krH7a1-G2R2Y-srsoadfktY0hPqQfhR6j3SaeprvMY9aHoky56mFhet9P9OyhhKfs62yxdxgaJMdgGxAAKWeI9yJCAHJB0beDYYjZCuW9zjw4cGSCM6vMFDOQ31Q:1xL7V3:2StJh7p3dlhBJ2UrGhFFBsn8MVy0s6bvYfS_D3mNx7Q",
+    "expire_date": "2026-10-26T00:19:37.481Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "eft36rmb0cpnnggc9vvhbfvyqp1f6jk0",
+  "fields": {
+    "session_data": ".eJxVjEEOgjAQRe_StWkKU2rr0j1naGaYGYsaSCisjHdXEha6_e-9_zIZt7XkrcqSRzYX05nT70Y4PGTaAd9xus12mKd1Gcnuij1otf3M8rwe7t9BwVq-tR8aYglBuxYbDQnIJfGgHCJH4BQ9Y0qOzuwBuCUFdaoiQBiia8m8P_lzOKE:1xL8Ka:CmyR2faf2fvguUzIoB0h89gllDQJqdzVldz-gqyOzaM",
+    "expire_date": "2026-10-26T01:12:52.052Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "ep7vcqtjpz091ehfhfmtnpat4r81rjk2",
+  "fields": {
+    "session_data": ".eJxVjEEOgjAQRe_StWkKU2rr0j1naGaYGYsaSCisjHdXEha6_e-9_zIZt7XkrcqSRzYX05nT70Y4PGTaAd9xus12mKd1Gcnuij1otf3M8rwe7t9BwVq-tR8aYglBuxYbDQnIJfGgHCJH4BQ9Y0qOzuwBuCUFdaoiQBiia8m8P_lzOKE:1xL2As:PtxraCLPIRGxpWxGSWDHhO80FXUJGFWZXQx-F-5Bw7I",
+    "expire_date": "2026-10-25T18:38:26.318Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "ljjihrwfjobrwwwio11fki8wb0fqvk71",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQRO_iGlleb7KJKelzBsv2rnEAOVI-FeLuJFIKmHLem3krH7a1-G2R2Y-srsoadfktY0hPqQfhR6j3SaeprvMY9aHoky56mFhet9P9OyhhKfs62yxdxgaJMdgGxAAKWeI9yJCAHJB0beDYYjZCuW9zjw4cGSCM6vMFDOQ31Q:1xL7YV:XaIlxWc4t8_YQUpwsVAkQndDYeQ03LtNGOqvKQutWqY",
+    "expire_date": "2026-10-26T00:23:11.571Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "m57s1g45roh2s2t8kkbqogd9u2lonac0",
+  "fields": {
+    "session_data": ".eJxVjMsOwiAQRf-FtSHQdhhw6d5vIDM8pGogKe3K-O_apAvd3nPOfQlP21r81tPi5yjOYhKn340pPFLdQbxTvTUZWl2XmeWuyIN2eW0xPS-H-3dQqJdvPTgmxJCiMhDsaCwkN2mds4YRGLRhHpTK2jFgNESYg9IGLKGLGRyK9wfYEDeE:1xL7Ym:dhyD9XKCw86h_-0ip2T6YXF5xnPQs_IwxYKiAKNpGQ4",
+    "expire_date": "2026-10-26T00:23:28.391Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "pbklp8719wt4xt2x068ehm87w2r8a7j9",
+  "fields": {
+    "session_data": ".eJxVjMsOwiAQRf-FtSHQdhhw6d5vIDM8pGogKe3K-O_apAvd3nPOfQlP21r81tPi5yjOYhKn340pPFLdQbxTvTUZWl2XmeWuyIN2eW0xPS-H-3dQqJdvPTgmxJCiMhDsaCwkN2mds4YRGLRhHpTK2jFgNESYg9IGLKGLGRyK9wfYEDeE:1xL5bG:oY0m8kuDec-R4DkQZUMfQ67zx89h3kukonAaQaOthT4",
+    "expire_date": "2026-10-25T22:17:54.987Z"
+  }
+},
+{
+  "model": "riego.perfilusuario",
+  "pk": 1,
+  "fields": {
+    "user": [
+      "nuevo_usuario"
+    ],
+    "nombre": "Nuevo Usuario",
+    "cedula": "1234",
+    "plan": "basico",
+    "foto": "",
+    "estado_suscripcion": "activa",
+    "fecha_proximo_pago": "2026-11-24"
+  }
+},
+{
+  "model": "riego.perfilusuario",
+  "pk": 2,
+  "fields": {
+    "user": [
+      "manuel"
+    ],
+    "nombre": "Manuel",
+    "cedula": "1005814855",
+    "plan": "basico",
+    "foto": "perfiles/WhatsApp_Image_2026-10-12_at_3.48.40_PM.jpeg",
+    "estado_suscripcion": "activa",
+    "fecha_proximo_pago": "2026-11-24"
+  }
+},
+{
+  "model": "riego.perfilusuario",
+  "pk": 3,
+  "fields": {
+    "user": [
+      "juliana"
+    ],
+    "nombre": "juliana",
+    "cedula": "1005815773",
+    "plan": "basico",
+    "foto": "",
+    "estado_suscripcion": "activa",
+    "fecha_proximo_pago": "2026-11-24"
+  }
+},
+{
+  "model": "riego.perfilusuario",
+  "pk": 4,
+  "fields": {
+    "user": [
+      "david"
+    ],
+    "nombre": "david",
+    "cedula": "1110232804",
+    "plan": "basico",
+    "foto": "",
+    "estado_suscripcion": "activa",
+    "fecha_proximo_pago": "2026-11-24"
+  }
+},
+{
+  "model": "riego.perfilusuario",
+  "pk": 5,
+  "fields": {
+    "user": [
+      "greison"
+    ],
+    "nombre": "Greison",
+    "cedula": "123456789",
+    "plan": "basico",
+    "foto": "",
+    "estado_suscripcion": "activa",
+    "fecha_proximo_pago": "2026-11-24"
+  }
+},
+{
+  "model": "riego.pagosuscripcion",
+  "pk": 1,
+  "fields": {
+    "usuario": [
+      "david"
+    ],
+    "tipo": "cambio_plan",
+    "plan_solicitado": "estandar",
+    "monto": "169000",
+    "metodo_pago": "Nequi",
+    "referencia_pago": "NQ-TEST-1234",
+    "estado": "aprobado",
+    "created_at": "2026-10-25T23:19:15.970Z",
+    "fecha_aprobacion": "2026-10-25T23:19:16.050Z"
+  }
+},
+{
+  "model": "riego.especie",
+  "pk": 2,
+  "fields": {
+    "nombre": "Suculenta (Pachyphytum)",
+    "foto": "especies/suculenta.jpg"
+  }
+},
+{
+  "model": "riego.especie",
+  "pk": 3,
+  "fields": {
+    "nombre": "Cactus Cholla (Cylindropuntia)",
+    "foto": "especies/Cactus_Cholla_Cylindropuntia.jpg"
+  }
+},
+{
+  "model": "riego.especie",
+  "pk": 5,
+  "fields": {
+    "nombre": "Millonaria (Plectranthus verticillatus)",
+    "foto": "especies/millonaria.jpeg"
+  }
+},
+{
+  "model": "riego.planta",
+  "pk": 1,
+  "fields": {
+    "usuario": [
+      "manuel"
+    ],
+    "especie": 3,
+    "mqtt_id": "ManuelCactuscholla1",
+    "apodo": "Cactus pequeño",
+    "humedad_actual": 0.0,
+    "temperatura_actual": 0.0,
+    "riego_activo": true,
+    "fecha_agregada": "2026-09-29T22:17:24.640Z",
+    "umbral_humedad": 40.0,
+    "estado_servo": "abierto",
+    "ultima_lectura_mqtt": "2026-10-26T01:20:34.535Z"
+  }
+},
+{
+  "model": "riego.planta",
+  "pk": 2,
+  "fields": {
+    "usuario": [
+      "manuel"
+    ],
+    "especie": 2,
+    "mqtt_id": "ManuelSuculenta1",
+    "apodo": "Suculenta Pepita",
+    "humedad_actual": 0.0,
+    "temperatura_actual": 0.0,
+    "riego_activo": true,
+    "fecha_agregada": "2026-09-29T22:49:26.205Z",
+    "umbral_humedad": 40.0,
+    "estado_servo": "abierto",
+    "ultima_lectura_mqtt": "2026-10-26T01:20:34.528Z"
+  }
+},
+{
+  "model": "riego.planta",
+  "pk": 3,
+  "fields": {
+    "usuario": [
+      "juliana"
+    ],
+    "especie": 2,
+    "mqtt_id": "JulianaSuculenta1",
+    "apodo": "Copito",
+    "humedad_actual": 0.0,
+    "temperatura_actual": 0.0,
+    "riego_activo": false,
+    "fecha_agregada": "2026-09-29T23:46:39.488Z",
+    "umbral_humedad": 40.0,
+    "estado_servo": "cerrado",
+    "ultima_lectura_mqtt": null
+  }
+},
+{
+  "model": "riego.planta",
+  "pk": 4,
+  "fields": {
+    "usuario": [
+      "david"
+    ],
+    "especie": 3,
+    "mqtt_id": "DavidCactuscholla1",
+    "apodo": "Espinita",
+    "humedad_actual": 0.0,
+    "temperatura_actual": 0.0,
+    "riego_activo": false,
+    "fecha_agregada": "2026-09-30T00:53:35.363Z",
+    "umbral_humedad": 40.0,
+    "estado_servo": "cerrado",
+    "ultima_lectura_mqtt": null
+  }
+},
+{
+  "model": "riego.planta",
+  "pk": 5,
+  "fields": {
+    "usuario": [
+      "david"
+    ],
+    "especie": 3,
+    "mqtt_id": "DavidCactuscholla2",
+    "apodo": "Cosia",
+    "humedad_actual": 0.0,
+    "temperatura_actual": 0.0,
+    "riego_activo": false,
+    "fecha_agregada": "2026-10-11T01:29:18.632Z",
+    "umbral_humedad": 40.0,
+    "estado_servo": "cerrado",
+    "ultima_lectura_mqtt": null
+  }
+},
+{
+  "model": "riego.planta",
+  "pk": 6,
+  "fields": {
+    "usuario": [
+      "david"
+    ],
+    "especie": 2,
+    "mqtt_id": "DavidSuculenta1",
+    "apodo": "Celular",
+    "humedad_actual": 0.0,
+    "temperatura_actual": 0.0,
+    "riego_activo": false,
+    "fecha_agregada": "2026-10-11T01:34:38.023Z",
+    "umbral_humedad": 40.0,
+    "estado_servo": "cerrado",
+    "ultima_lectura_mqtt": null
+  }
+},
+{
+  "model": "riego.electrovalvula",
+  "pk": 1,
+  "fields": {
+    "numero_pin": 2,
+    "planta": 2,
+    "esta_activa": false
+  }
+},
+{
+  "model": "riego.electrovalvula",
+  "pk": 2,
+  "fields": {
+    "numero_pin": 1,
+    "planta": 1,
+    "esta_activa": false
+  }
+},
+{
+  "model": "riego.electrovalvula",
+  "pk": 3,
+  "fields": {
+    "numero_pin": 3,
+    "planta": 3,
+    "esta_activa": false
+  }
+},
+{
+  "model": "riego.electrovalvula",
+  "pk": 4,
+  "fields": {
+    "numero_pin": 4,
+    "planta": 4,
+    "esta_activa": false
+  }
+},
+{
+  "model": "riego.electrovalvula",
+  "pk": 5,
+  "fields": {
+    "numero_pin": 5,
+    "planta": 5,
+    "esta_activa": false
+  }
+},
+{
+  "model": "riego.electrovalvula",
+  "pk": 6,
+  "fields": {
+    "numero_pin": 6,
+    "planta": 6,
+    "esta_activa": false
+  }
+},
+{
+  "model": "riego.horariodisponible",
+  "pk": 1,
+  "fields": {
+    "fecha": "2026-09-30",
+    "hora": "19:30:00",
+    "disponible": false
+  }
+},
+{
+  "model": "riego.horariodisponible",
+  "pk": 2,
+  "fields": {
+    "fecha": "2026-09-30",
+    "hora": "21:30:00",
+    "disponible": false
+  }
+},
+{
+  "model": "riego.horariodisponible",
+  "pk": 3,
+  "fields": {
+    "fecha": "2026-10-01",
+    "hora": "17:00:00",
+    "disponible": false
+  }
+},
+{
+  "model": "riego.horariodisponible",
+  "pk": 4,
+  "fields": {
+    "fecha": "2026-10-28",
+    "hora": "21:50:00",
+    "disponible": false
+  }
+},
+{
+  "model": "riego.horariodisponible",
+  "pk": 5,
+  "fields": {
+    "fecha": "2026-10-12",
+    "hora": "16:35:00",
+    "disponible": false
+  }
+},
+{
+  "model": "riego.solicitudplanta",
+  "pk": 1,
+  "fields": {
+    "usuario": [
+      "manuel"
+    ],
+    "especie": 2,
+    "apodo": "Suculenta Pepita",
+    "fecha_cita": "2026-09-30",
+    "hora_cita": "19:30:00",
+    "estado": "aprobada",
+    "created_at": "2026-09-29T22:40:04.768Z"
+  }
+},
+{
+  "model": "riego.solicitudplanta",
+  "pk": 2,
+  "fields": {
+    "usuario": [
+      "juliana"
+    ],
+    "especie": 2,
+    "apodo": "Copito",
+    "fecha_cita": "2026-09-30",
+    "hora_cita": "21:30:00",
+    "estado": "aprobada",
+    "created_at": "2026-09-29T23:36:47.092Z"
+  }
+},
+{
+  "model": "riego.solicitudplanta",
+  "pk": 3,
+  "fields": {
+    "usuario": [
+      "david"
+    ],
+    "especie": 3,
+    "apodo": "Espinita",
+    "fecha_cita": "2026-10-01",
+    "hora_cita": "17:00:00",
+    "estado": "aprobada",
+    "created_at": "2026-09-30T00:53:08.147Z"
+  }
+},
+{
+  "model": "riego.solicitudplanta",
+  "pk": 4,
+  "fields": {
+    "usuario": [
+      "manuel"
+    ],
+    "especie": 2,
+    "apodo": "",
+    "fecha_cita": "2026-10-28",
+    "hora_cita": "21:50:00",
+    "estado": "rechazada",
+    "created_at": "2026-10-06T01:02:10.326Z"
+  }
+},
+{
+  "model": "riego.solicitudplanta",
+  "pk": 5,
+  "fields": {
+    "usuario": [
+      "david"
+    ],
+    "especie": 2,
+    "apodo": "Celular",
+    "fecha_cita": "2026-10-12",
+    "hora_cita": "16:35:00",
+    "estado": "aprobada",
+    "created_at": "2026-10-11T01:33:40.101Z"
+  }
+},
+{
+  "model": "riego.datosambientales",
+  "pk": 1,
+  "fields": {
+    "temperatura": 24.6,
+    "humedad_ambiente": 69.6,
+    "fecha_actualizacion": "2026-10-26T01:20:34.462Z"
+  }
+},
+{
+  "model": "tienda.kitriego",
+  "pk": 1,
+  "fields": {
+    "nombre": "Kit Balcón & Ventana",
+    "slug": "kit-balcon-ventana",
+    "subtitulo": "Perfecto para apartamentos pequeños y macetas de ventana (1 a 3 plantas).",
+    "precio": "99000",
+    "precio_anterior": null,
+    "plantas_recomendadas": "1 - 3 plantas caseras",
+    "servo": "Servomotor compacto de precisión",
+    "valvulas_incluidas": 1,
+    "manguera_metros": 5,
+    "sensores_incluidos": "1 Sensor Suelo Humedad + 1 Sensor Temp/Hum Ambiente",
+    "destacado": false,
+    "descripcion": "El kit inicial perfecto para quien vive en apartamento y quiere mantener sus suculentas, pothos o aromáticas saludables sin preocuparse por regar manualmente cada día.",
+    "beneficios": "1 electroválvula independientes de bajo consumo\n5 metros de microtubo flexible negro anti-algas\nDepósito de 4L translúcido con tapa hermética\nSensor de humedad de suelo capacitivo (anti-óxido)\nSensor DHT de temperatura y humedad ambiente\nAcceso a la App Web con notificaciones en vivo\nMicrogoteros ajustables gota a gota (0 a 6 L/h)\nFácil instalación en 15 minutos sin herramientas",
+    "icono": "🪴",
+    "orden": 1
+  }
+},
+{
+  "model": "tienda.kitriego",
+  "pk": 2,
+  "fields": {
+    "nombre": "Kit Hogar Verde Pro",
+    "slug": "kit-hogar-verde-pro",
+    "subtitulo": "El sistema más completo para salas, balcones y jardines interiores (4 a 8 plantas).",
+    "precio": "169000",
+    "precio_anterior": null,
+    "plantas_recomendadas": "4 - 8 plantas caseras",
+    "servo": "Servomotor de precisión con control de caudal",
+    "valvulas_incluidas": 1,
+    "manguera_metros": 12,
+    "sensores_incluidos": "3 Sensores Suelo Humedad + Sensor Temp/Hum Ambiente",
+    "destacado": true,
+    "descripcion": "Nuestra solución estrella para amantes de las plantas de interior (Monsteras, Ficus, Helechos, Palmeras). Controla de manera independiente hasta 8 macetas y recibe alertas automáticas cuando la tierra esté reseca.",
+    "beneficios": "1 electroválvula solenoides con control independiente\n12 metros de microtubo capilar de silicona flexible\nTanque de agua de 10L con indicador de nivel flotante\n3 sensores de humedad de suelo para macetas clave\nSensor de precisión para temperatura y clima de la sala\nApp Web interactiva con registro de litros dosificados\nNotificaciones 'Tu planta necesita riego' con confirmación\nGoteros compensados por presión para riego uniforme\nAdaptador a corriente 12V 2A incluido + backup USB",
+    "icono": "🌿",
+    "orden": 2
+  }
+},
+{
+  "model": "tienda.kitriego",
+  "pk": 3,
+  "fields": {
+    "nombre": "Kit Jardín Interior Smart",
+    "slug": "kit-jardin-interior-smart",
+    "subtitulo": "Potencia y automatización total para colecciones grandes o terrazas (hasta 16 plantas).",
+    "precio": "259000",
+    "precio_anterior": null,
+    "plantas_recomendadas": "Hasta 16 plantas",
+    "servo": "Servomotor de alta durabilidad con control de caudal",
+    "valvulas_incluidas": 1,
+    "manguera_metros": 25,
+    "sensores_incluidos": "6 Sensores Suelo + Sensor Clima Completo",
+    "destacado": false,
+    "descripcion": "El kit definitivo para terrazas, jardines verticales interiores o coleccionistas botánicos. Permite irrigar hasta 16 plantas con dosificación programable mililitro a mililitro.",
+    "beneficios": "1 electroválvula de alta durabilidad en bloque modular\n25 metros de manguera de distribución y derivaciones\nDepósito de 20 Litros o conexión con reductor a grifo\n6 sensores de humedad para distintas especies botánicas\nEstación de monitoreo de temperatura y humedad ambiental\nPanel de administración web avanzado con gráficas y horarios\nSistema anti-obstrucción con filtro de sedimentos en línea\nSoporte técnico prioritario y garantía extendida de 2 años",
+    "icono": "🏡",
+    "orden": 3
+  }
+},
+{
+  "model": "tienda.testimonio",
+  "pk": 1,
+  "fields": {
+    "nombre": "Carolina Mendoza",
+    "ubicacion": "Medellín • Apartamento El Poblado",
+    "plantas": "Monstera Deliciosa, Pothos y Ficus Lyrata",
+    "comentario": "Estuve 3 semanas fuera por vacaciones y regresé encontrando mis plantas más verdes y hermosas que nunca. Poder ver en el celular la humedad y autorizar el riego con un toque es genial.",
+    "estrellas": 5,
+    "activo": true,
+    "fecha": "2026-10-10"
+  }
+},
+{
+  "model": "tienda.testimonio",
+  "pk": 2,
+  "fields": {
+    "nombre": "Andrés Felipe Gómez",
+    "ubicacion": "Bogotá • Apartamento Cedritos",
+    "plantas": "Suculentas, Helechos y Romero",
+    "comentario": "En Bogotá el frío y la sequedad a veces engañan con la tierra. La alerta de que la humedad bajó al 25% y que la temperatura estaba en 18°C me evita ahogar las raíces. Sistema 10/10.",
+    "estrellas": 5,
+    "activo": true,
+    "fecha": "2026-10-10"
+  }
+},
+{
+  "model": "tienda.testimonio",
+  "pk": 3,
+  "fields": {
+    "nombre": "Valentina Ríos",
+    "ubicacion": "Cali • Casa con jardín interior",
+    "plantas": "Orquídeas, Calatheas y Anturios",
+    "comentario": "Las electroválvulas son silenciosas y la manguera negra se esconde perfecto entre las macetas. La app web es súper intuitiva y el cálculo de litros me ayudó a no desperdiciar agua.",
+    "estrellas": 5,
+    "activo": true,
+    "fecha": "2026-10-10"
+  }
+}
+]

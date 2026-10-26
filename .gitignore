@@ -4,6 +4,4 @@ __pycache__/
 *.py[cod]
 *$py.class
 /staticfiles/
-/db.sqlite3
-/db.sqlite3-journal
 default_*.sqlite3
