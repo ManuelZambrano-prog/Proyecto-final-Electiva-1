@@ -121,6 +121,7 @@ MQTT_USERNAME = os.environ.get('MQTT_USERNAME', 'hivemq.webclient.1790473602786'
 MQTT_PASSWORD = os.environ.get('MQTT_PASSWORD', 'NMvW3TkclA@DeK71x#yLBr2QC!MyBtFD')
 MQTT_COMMAND_TOPIC = os.environ.get('MQTT_COMMAND_TOPIC', 'riego/plantas/{plant_id}/comandos')
 MQTT_SENSOR_TOPIC = os.environ.get('MQTT_SENSOR_TOPIC', 'riego/plantas/{plant_id}/sensores')
+MQTT_DATA_TOPIC = os.environ.get('MQTT_DATA_TOPIC', 'riego/datos')
 
 
 # Email

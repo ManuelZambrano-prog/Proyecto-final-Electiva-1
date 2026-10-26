@@ -111,27 +111,35 @@ def procesar_mensaje_telemetry_json(topic, payload_dict):
             continue
 
         if clave.startswith('servo_'):
-            mqtt_id = clave.replace('servo_', '')
+            mqtt_id = clave.replace('servo_', '').strip()
             try:
-                planta = Planta.objects.get(mqtt_id=mqtt_id)
-                planta.estado_servo = str(valor).strip().lower()
-                planta.ultima_lectura_mqtt = timezone.now()
-                planta.save(update_fields=['estado_servo', 'ultima_lectura_mqtt'])
-            except Planta.DoesNotExist:
-                pass
+                planta = Planta.objects.filter(mqtt_id__iexact=mqtt_id).first()
+                if planta:
+                    planta.estado_servo = str(valor).strip().lower()
+                    if planta.estado_servo == 'cerrado':
+                        planta.riego_activo = False
+                    elif planta.estado_servo == 'abierto':
+                        planta.riego_activo = True
+                    planta.ultima_lectura_mqtt = timezone.now()
+                    planta.save(update_fields=['estado_servo', 'riego_activo', 'ultima_lectura_mqtt'])
+            except Exception as e:
+                print(f'[MQTT] Error actualizando servo de {mqtt_id}: {e}')
             continue
 
         try:
-            planta = Planta.objects.get(mqtt_id=clave)
-            planta.humedad_actual = float(valor)
-            planta.ultima_lectura_mqtt = timezone.now()
-            planta.save(update_fields=['humedad_actual', 'ultima_lectura_mqtt'])
-        except (Planta.DoesNotExist, ValueError, TypeError):
-            pass
+            planta = Planta.objects.filter(mqtt_id__iexact=clave).first()
+            if planta:
+                planta.humedad_actual = float(valor)
+                planta.ultima_lectura_mqtt = timezone.now()
+                planta.save(update_fields=['humedad_actual', 'ultima_lectura_mqtt'])
+        except (ValueError, TypeError, Exception) as e:
+            print(f'[MQTT] Error actualizando humedad de {clave}: {e}')
 
 
 def _mqtt_loop():
     """Ejecuta el loop de MQTT en segundo plano."""
+    from .models import Planta
+
     try:
         client = create_mqtt_client()
     except MQTTError as error:
@@ -139,17 +147,43 @@ def _mqtt_loop():
         return
 
     def on_connect(mqtt_client, userdata, flags, reason_code, properties):
+        # 1. Tópico principal donde el ESP32 publica la telemetría (riego/datos)
+        topico_datos = getattr(settings, 'MQTT_DATA_TOPIC', 'riego/datos')
+        mqtt_client.subscribe(topico_datos, qos=1)
+
+        # 2. Tópico por planta (riego/plantas/+/sensores)
         topic_filter = settings.MQTT_SENSOR_TOPIC.format(plant_id='+')
         mqtt_client.subscribe(topic_filter, qos=1)
-        print(f'[MQTT] Suscrito a {topic_filter}')
+
+        # 3. Tópicos adicionales comunes y de estado
+        mqtt_client.subscribe('riego/sensores', qos=1)
+        mqtt_client.subscribe('riego/estado', qos=1)
+        mqtt_client.subscribe('riego/plantas/+/datos', qos=1)
+        mqtt_client.subscribe('riego/logs', qos=1)
+        print(f'[MQTT] Suscrito a {topico_datos}, {topic_filter} y riego/sensores')
 
     def on_message(mqtt_client, userdata, message):
         try:
-            payload = json.loads(message.payload.decode('utf-8'))
+            payload_raw = message.payload.decode('utf-8').strip()
+            payload = json.loads(payload_raw)
         except (UnicodeDecodeError, json.JSONDecodeError):
-            print(f'[MQTT] JSON inválido en {message.topic}')
+            texto = message.payload.decode('utf-8', errors='replace').strip()
+            # Mensajes de texto del ESP32 como "Planta ManuelSuculenta1: riego terminado"
+            for p in Planta.objects.all():
+                if p.mqtt_id and p.mqtt_id.lower() in texto.lower():
+                    if 'terminado' in texto.lower() or 'cerrando' in texto.lower():
+                        p.estado_servo = 'cerrado'
+                        p.riego_activo = False
+                        p.save(update_fields=['estado_servo', 'riego_activo'])
+                    elif 'iniciado' in texto.lower():
+                        p.estado_servo = 'abierto'
+                        p.riego_activo = True
+                        p.save(update_fields=['estado_servo', 'riego_activo'])
             return
-        procesar_mensaje_telemetry_json(message.topic, payload)
+
+        if isinstance(payload, dict):
+            procesar_mensaje_telemetry_json(message.topic, payload)
+            update_plant_from_telemetry(message.topic, payload)
 
     client.on_connect = on_connect
     client.on_message = on_message
