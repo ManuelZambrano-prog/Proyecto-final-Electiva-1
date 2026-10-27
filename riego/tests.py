@@ -962,3 +962,56 @@ class LecturasClienteAislamientoTests(TestCase):
         self.assertContains(resp_j, 'Suculenta Juliana')
         self.assertContains(resp_j, 'Esperando primera lectura del sensor...')
         self.client.logout()
+
+    def test_procesar_telemetria_formato_esp32_con_prefijos_de_usuario(self):
+        from .models import DatosAmbientales
+        from .mqtt import procesar_mensaje_telemetry_json
+
+        # Payload real de HiveMQ enviado por el usuario
+        payload = {
+            'ManuelSuculenta1': 0,
+            'Manuel_temp': 24.9,
+            'Manuel_hum_amb': 72.2,
+            'Manuel_valvula': 'abierta',
+            'servo_ManuelSuculenta1': 'abierto',
+            'min_ManuelSuculenta1': 30,
+            'max_ManuelSuculenta1': 80,
+        }
+        procesar_mensaje_telemetry_json('riego/datos', payload)
+
+        self.planta_manuel.refresh_from_db()
+        self.planta_juliana.refresh_from_db()
+
+        # Verificar datos de planta de Manuel
+        self.assertEqual(self.planta_manuel.humedad_actual, 0.0)
+        self.assertEqual(self.planta_manuel.temperatura_actual, 24.9)
+        self.assertEqual(self.planta_manuel.estado_servo, 'abierto')
+        self.assertTrue(self.planta_manuel.riego_activo)
+        self.assertEqual(self.planta_manuel.umbral_humedad, 30.0)
+
+        # Verificar datos ambientales de Manuel
+        datos_m = DatosAmbientales.objects.get(usuario=self.manuel)
+        self.assertEqual(datos_m.temperatura, 24.9)
+        self.assertEqual(datos_m.humedad_ambiente, 72.2)
+        self.assertEqual(datos_m.estado_valvula, 'abierta')
+
+        # Verificar API para Manuel
+        self.client.login(username='manuel', password='password123')
+        resp = self.client.get(reverse('api_datos_plantas'))
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data['temperatura'], 24.9)
+        self.assertEqual(data['humedad_ambiente'], 72.2)
+        self.assertEqual(data['valvula'], 'abierta')
+        self.assertEqual(data['plantas'][0]['temperatura_actual'], 24.9)
+        self.assertEqual(data['plantas'][0]['estado_servo'], 'abierto')
+        self.client.logout()
+
+        # Verificar aislamiento de Juliana
+        self.assertEqual(self.planta_juliana.humedad_actual, 0.0)
+        self.assertEqual(self.planta_juliana.temperatura_actual, 0.0)
+        self.assertEqual(self.planta_juliana.estado_servo, 'cerrado')
+        self.assertFalse(self.planta_juliana.riego_activo)
+        datos_j = DatosAmbientales.objects.filter(usuario=self.juliana).first()
+        self.assertTrue(datos_j is None or datos_j.temperatura is None)
+

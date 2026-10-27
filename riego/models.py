@@ -187,6 +187,7 @@ class DatosAmbientales(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='datos_ambientales', null=True, blank=True)
     temperatura = models.FloatField(null=True, blank=True, default=None, help_text="Temperatura ambiente en °C")
     humedad_ambiente = models.FloatField(null=True, blank=True, default=None, help_text="Humedad ambiente en %")
+    estado_valvula = models.CharField(max_length=20, default='cerrada', blank=True, help_text="Estado de la válvula general (abierta/cerrada)")
     fecha_actualizacion = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -207,4 +208,5 @@ class DatosAmbientales(models.Model):
         usuario_nom = self.usuario.username if self.usuario else "General"
         t = f"{self.temperatura}°C" if self.temperatura is not None else "--"
         h = f"{self.humedad_ambiente}%" if self.humedad_ambiente is not None else "--"
-        return f"{usuario_nom}: {t} / {h}"
+        v = f"Válvula: {self.estado_valvula}" if self.estado_valvula else ""
+        return f"{usuario_nom}: {t} / {h} {v}".strip()

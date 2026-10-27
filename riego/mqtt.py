@@ -97,24 +97,79 @@ def update_plant_from_telemetry(topic, payload):
     return True
 
 
+def _parse_float(val):
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return None
+
+
+def _normalize_servo_state(val):
+    if val is None:
+        return None
+    s = str(val).strip().lower()
+    if s in ('abierto', 'abierta', 'open', 'true', '1', 'on', 'activo', 'activa'):
+        return 'abierto'
+    if s in ('cerrado', 'cerrada', 'close', 'closed', 'false', '0', 'off', 'inactivo', 'inactiva'):
+        return 'cerrado'
+    return s
+
+
+def _find_user_from_string(text):
+    if not text:
+        return None
+    from django.contrib.auth.models import User
+
+    clean = str(text).strip()
+    # 1. Búsqueda exacta de username
+    u = User.objects.filter(username__iexact=clean).first()
+    if u:
+        return u
+
+    # 2. Si contiene guiones bajos (ej: Manuel_temp, servo_Manuel)
+    if '_' in clean:
+        partes = clean.split('_')
+        for parte in partes:
+            if parte:
+                u = User.objects.filter(username__iexact=parte).first()
+                if u:
+                    return u
+
+    # 3. Revisar si algún username es prefijo del texto (ej: ManuelSuculenta1 -> Manuel)
+    clean_lower = clean.lower()
+    for u in User.objects.all():
+        uname = u.username.lower()
+        if uname and clean_lower.startswith(uname):
+            return u
+
+    return None
+
+
 def procesar_mensaje_telemetry_json(topic, payload_dict):
     """
-    Procesa JSON de HiveMQ con formato:
-    {"ManuelSuculenta1":71,"ManuelCactuscholla1":72,"temp":24.2,"hum_amb":71.3,
-     "valvula":"abierta","servo_ManuelSuculenta1":"abierto",...}
+    Procesa JSON de HiveMQ con formato completo:
+    {
+      "ManuelSuculenta1": 0,
+      "ManuelCactuscholla1": 0,
+      "Manuel_temp": 24.9,
+      "Manuel_hum_amb": 72.2,
+      "Manuel_valvula": "abierta",
+      "servo_ManuelSuculenta1": "abierto",
+      "min_ManuelSuculenta1": 30,
+      "max_ManuelSuculenta1": 80, ...
+    }
 
-    Cada cliente publica o tiene lecturas asociadas a sus propias plantas.
-    Los datos ambientales (temperatura y humedad ambiente) se asignan
-    estrictamente al cliente al que corresponden las plantas del mensaje.
+    Asigna lecturas, temperatura, humedad ambiental y estado de servo/válvula
+    estrictamente según el usuario correspondiente.
     """
-    from .models import Planta, DatosAmbientales
+    from .models import Planta, DatosAmbientales, Electrovalvula
     from django.contrib.auth.models import User
     from django.utils import timezone
 
     ahora = timezone.now()
     usuario_detectado = None
 
-    # 1. Detectar usuario desde campos del payload si vienen explícitos
+    # 1. Detectar usuario explícito desde campos del payload
     for k in ('usuario', 'cliente', 'user', 'username'):
         val = payload_dict.get(k)
         if val:
@@ -122,7 +177,7 @@ def procesar_mensaje_telemetry_json(topic, payload_dict):
             if usuario_detectado:
                 break
 
-    # 2. Si no viene en el payload, intentar detectar por el tópico (ej: riego/manuel/datos)
+    # 2. Si no viene en el payload, detectar por tópico (ej: riego/manuel/datos)
     if not usuario_detectado and topic:
         partes = [p.strip() for p in topic.split('/') if p.strip()]
         for parte in partes:
@@ -135,66 +190,189 @@ def procesar_mensaje_telemetry_json(topic, payload_dict):
     if usuario_detectado:
         usuarios_afectados.add(usuario_detectado)
 
-    # 3. Procesar lecturas de cada planta y asociar su respectivo usuario
+    temp_por_usuario = {}
+    hum_amb_por_usuario = {}
+    valvula_por_usuario = {}
+    temp_global = None
+    hum_amb_global = None
+    valvula_global = None
+
+    # 3. Iterar y categorizar cada clave/valor del payload
     for clave, valor in payload_dict.items():
-        if clave in ('temp', 'hum_amb', 'temperatura', 'humedad_ambiente', 'valvula', 'planta', 'usuario', 'cliente', 'user', 'username'):
+        if not clave:
             continue
+        clave_str = str(clave).strip()
+        clave_lower = clave_str.lower()
 
-        if clave.startswith('servo_'):
-            mqtt_id = clave.replace('servo_', '').strip()
-            try:
-                planta = Planta.objects.filter(mqtt_id__iexact=mqtt_id).select_related('usuario').first()
-                if planta:
-                    usuarios_afectados.add(planta.usuario)
-                    planta.estado_servo = str(valor).strip().lower()
-                    if planta.estado_servo == 'cerrado':
-                        planta.riego_activo = False
-                    elif planta.estado_servo == 'abierto':
-                        planta.riego_activo = True
-                    planta.ultima_lectura_mqtt = ahora
-                    planta.save(update_fields=['estado_servo', 'riego_activo', 'ultima_lectura_mqtt'])
-            except Exception as e:
-                print(f'[MQTT] Error actualizando servo de {mqtt_id}: {e}')
-            continue
+        # A. Servos de planta (ej: servo_ManuelSuculenta1 o ManuelSuculenta1_servo)
+        if clave_lower.startswith('servo_') or clave_lower.endswith('_servo'):
+            if clave_lower.startswith('servo_'):
+                candidato = clave_str[6:].strip()
+            else:
+                candidato = clave_str[:-6].strip()
 
-        try:
-            planta = Planta.objects.filter(mqtt_id__iexact=clave).select_related('usuario').first()
+            estado_norm = _normalize_servo_state(valor)
+
+            # Verificar si corresponde a una planta registrada
+            planta = Planta.objects.filter(mqtt_id__iexact=candidato).select_related('usuario').first()
             if planta:
                 usuarios_afectados.add(planta.usuario)
-                planta.humedad_actual = float(valor)
+                planta.estado_servo = estado_norm or 'cerrado'
+                planta.riego_activo = (planta.estado_servo == 'abierto')
                 planta.ultima_lectura_mqtt = ahora
-                planta.save(update_fields=['humedad_actual', 'ultima_lectura_mqtt'])
-        except (ValueError, TypeError, Exception) as e:
-            print(f'[MQTT] Error actualizando humedad de {clave}: {e}')
+                planta.save(update_fields=['estado_servo', 'riego_activo', 'ultima_lectura_mqtt'])
+                Electrovalvula.objects.filter(planta=planta).update(esta_activa=planta.riego_activo)
+                continue
 
-    # 4. Actualizar datos ambientales SOLO para el/los cliente(s) a los que corresponden estas lecturas
-    temp_val = None
-    for k in ('temp', 'temperatura'):
-        if k in payload_dict:
-            try:
-                temp_val = float(payload_dict[k])
-                break
-            except (ValueError, TypeError):
-                pass
+            # Si no es planta, verificar si es servo general de un usuario (ej: servo_Manuel)
+            usr = _find_user_from_string(candidato)
+            if usr:
+                usuarios_afectados.add(usr)
+                valvula_por_usuario[usr] = 'abierta' if estado_norm == 'abierto' else 'cerrada'
+                continue
 
-    hum_amb_val = None
-    for k in ('hum_amb', 'humedad_ambiente'):
-        if k in payload_dict:
-            try:
-                hum_amb_val = float(payload_dict[k])
-                break
-            except (ValueError, TypeError):
-                pass
+            # O servo global
+            valvula_global = 'abierta' if estado_norm == 'abierto' else 'cerrada'
+            continue
 
-    if temp_val is not None or hum_amb_val is not None:
-        for usr in usuarios_afectados:
-            datos = DatosAmbientales.get_datos(usuario=usr)
-            if temp_val is not None:
-                datos.temperatura = temp_val
-            if hum_amb_val is not None:
-                datos.humedad_ambiente = hum_amb_val
+        # B. Válvula / Electrovalvula general (ej: Manuel_valvula, valvula_Manuel, valvula)
+        if any(clave_lower.endswith(sfx) for sfx in ('_valvula', '_valve')) or any(clave_lower.startswith(pfx) for pfx in ('valvula_', 'valve_')):
+            estado_norm = _normalize_servo_state(valor)
+            usr = _find_user_from_string(clave_str)
+            if usr:
+                usuarios_afectados.add(usr)
+                valvula_por_usuario[usr] = 'abierta' if estado_norm == 'abierto' else 'cerrada'
+            else:
+                valvula_global = 'abierta' if estado_norm == 'abierto' else 'cerrada'
+            continue
+
+        if clave_lower in ('valvula', 'valve', 'electrovalvula'):
+            estado_norm = _normalize_servo_state(valor)
+            valvula_global = 'abierta' if estado_norm == 'abierto' else 'cerrada'
+            continue
+
+        # C. Temperatura (ej: Manuel_temp, temp, temperatura, Manuel_temperatura)
+        if clave_lower in ('temp', 'temperatura', 'temperature'):
+            fval = _parse_float(valor)
+            if fval is not None:
+                temp_global = fval
+            continue
+
+        if any(clave_lower.endswith(sfx) for sfx in ('_temp', '_temperatura', '_temperature')) or any(clave_lower.startswith(pfx) for pfx in ('temp_', 'temperatura_')):
+            fval = _parse_float(valor)
+            if fval is not None:
+                # Comprobar si es para una planta específica (ej: temp_ManuelSuculenta1)
+                plant_cand = None
+                for pfx in ('temp_', 'temperatura_'):
+                    if clave_lower.startswith(pfx):
+                        plant_cand = clave_str[len(pfx):].strip()
+                        break
+                p = Planta.objects.filter(mqtt_id__iexact=plant_cand).select_related('usuario').first() if plant_cand else None
+                if p:
+                    usuarios_afectados.add(p.usuario)
+                    p.temperatura_actual = fval
+                    p.ultima_lectura_mqtt = ahora
+                    p.save(update_fields=['temperatura_actual', 'ultima_lectura_mqtt'])
+                else:
+                    usr = _find_user_from_string(clave_str)
+                    if usr:
+                        usuarios_afectados.add(usr)
+                        temp_por_usuario[usr] = fval
+                    else:
+                        temp_global = fval
+            continue
+
+        # D. Humedad ambiental (ej: Manuel_hum_amb, hum_amb, humedad_ambiente, Manuel_humedad_ambiente)
+        if clave_lower in ('hum_amb', 'humedad_ambiente', 'hum_ambiente', 'humedad_amb', 'humidity_ambient', 'ambient_humidity'):
+            fval = _parse_float(valor)
+            if fval is not None:
+                hum_amb_global = fval
+            continue
+
+        if any(clave_lower.endswith(sfx) for sfx in ('_hum_amb', '_humedad_ambiente', '_hum_ambiente', '_humedad_amb')) or any(clave_lower.startswith(pfx) for pfx in ('hum_amb_', 'humedad_ambiente_')):
+            fval = _parse_float(valor)
+            if fval is not None:
+                usr = _find_user_from_string(clave_str)
+                if usr:
+                    usuarios_afectados.add(usr)
+                    hum_amb_por_usuario[usr] = fval
+                else:
+                    hum_amb_global = fval
+            continue
+
+        # E. Umbrales de humedad (ej: min_ManuelSuculenta1, max_ManuelSuculenta1)
+        if clave_lower.startswith('min_') or clave_lower.startswith('minimo_') or clave_lower.startswith('umbral_'):
+            cand = clave_str.split('_', 1)[1].strip()
+            p = Planta.objects.filter(mqtt_id__iexact=cand).first()
+            if p:
+                fval = _parse_float(valor)
+                if fval is not None:
+                    p.umbral_humedad = fval
+                    p.save(update_fields=['umbral_humedad'])
+            continue
+
+        if clave_lower.startswith('max_') or clave_lower.startswith('maximo_'):
+            continue
+
+        # F. Metadatos de nombres de plantas o usuarios (ej: Manuel_planta)
+        if any(clave_lower.endswith(sfx) for sfx in ('_planta', '_plantas')) or clave_lower in ('planta', 'plantas', 'usuario', 'cliente', 'user', 'username', 'topic'):
+            usr = _find_user_from_string(clave_str)
+            if usr:
+                usuarios_afectados.add(usr)
+            continue
+
+        # G. Humedad de cada planta por su mqtt_id directo (ej: ManuelSuculenta1: 71)
+        try:
+            planta = Planta.objects.filter(mqtt_id__iexact=clave_str).select_related('usuario').first()
+            if planta:
+                usuarios_afectados.add(planta.usuario)
+                fval = _parse_float(valor)
+                if fval is not None:
+                    planta.humedad_actual = fval
+                    planta.ultima_lectura_mqtt = ahora
+                    planta.save(update_fields=['humedad_actual', 'ultima_lectura_mqtt'])
+                continue
+        except Exception as e:
+            print(f'[MQTT] Error actualizando humedad de {clave_str}: {e}')
+
+    # 4. Actualizar datos ambientales y temperatura de plantas estrictamente por usuario
+    for usr in usuarios_afectados:
+        datos = DatosAmbientales.get_datos(usuario=usr)
+        hay_cambios = False
+
+        t = temp_por_usuario.get(usr, temp_global)
+        if t is not None:
+            datos.temperatura = t
+            hay_cambios = True
+            # Actualizar también temperatura_actual en las plantas del usuario
+            Planta.objects.filter(usuario=usr).update(temperatura_actual=t, ultima_lectura_mqtt=ahora)
+
+        h = hum_amb_por_usuario.get(usr, hum_amb_global)
+        if h is not None:
+            datos.humedad_ambiente = h
+            hay_cambios = True
+
+        v = valvula_por_usuario.get(usr, valvula_global)
+        if v is not None:
+            datos.estado_valvula = v
+            hay_cambios = True
+            Electrovalvula.objects.filter(planta__usuario=usr).update(esta_activa=(v == 'abierta'))
+
+        if hay_cambios:
             datos.fecha_actualizacion = ahora
             datos.save()
+
+    # Si llegaron datos ambientales globales y no hay usuario específico identificado
+    if not usuarios_afectados and (temp_global is not None or hum_amb_global is not None or valvula_global is not None):
+        datos_gen = DatosAmbientales.get_datos(usuario=None)
+        if temp_global is not None:
+            datos_gen.temperatura = temp_global
+        if hum_amb_global is not None:
+            datos_gen.humedad_ambiente = hum_amb_global
+        if valvula_global is not None:
+            datos_gen.estado_valvula = valvula_global
+        datos_gen.fecha_actualizacion = ahora
+        datos_gen.save()
 
 
 def _mqtt_loop():

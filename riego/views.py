@@ -371,6 +371,7 @@ def api_datos_plantas(request):
             'mqtt_id': planta.mqtt_id,
             'humedad_actual': getattr(planta, 'humedad_actual', 0.0),
             'umbral_humedad': getattr(planta, 'umbral_humedad', 40.0),
+            'temperatura_actual': getattr(planta, 'temperatura_actual', 0.0),
             'estado_servo': 'abierto' if esta_regando else 'cerrado',
             'riego_activo': esta_regando,
             'ultima_lectura': planta.ultima_lectura_mqtt.isoformat() if planta.ultima_lectura_mqtt else None,
@@ -382,6 +383,7 @@ def api_datos_plantas(request):
         'plantas': plantas,
         'temperatura': datos.temperatura if (datos and datos.temperatura is not None) else None,
         'humedad_ambiente': datos.humedad_ambiente if (datos and datos.humedad_ambiente is not None) else None,
+        'valvula': getattr(datos, 'estado_valvula', 'cerrada') if datos else 'cerrada',
         'fecha_actualizacion': datos.fecha_actualizacion.isoformat() if (datos and datos.fecha_actualizacion) else None,
     })
 

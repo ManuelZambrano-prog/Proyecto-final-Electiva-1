@@ -40,6 +40,10 @@
                 <div>Humedad Ambiente</div>
             </div>
             <div class="dato-ambiente">
+                <div class="valor" id="valor-valvula">{% if datos_ambientales and datos_ambientales.estado_valvula %}{{ datos_ambientales.estado_valvula|capfirst }}{% else %}--{% endif %}</div>
+                <div>Válvula General</div>
+            </div>
+            <div class="dato-ambiente">
                 <div class="valor" id="valor-hora">{% if datos_ambientales and datos_ambientales.fecha_actualizacion %}{{ datos_ambientales.fecha_actualizacion|date:"H:i:s" }}{% else %}--{% endif %}</div>
                 <div>Última actualización</div>
             </div>
@@ -57,14 +61,14 @@
                         <h3>{{ planta.apodo|default:planta.especie.nombre }}</h3>
 
                         <!-- Estado del servo -->
-                        <div class="estado-servo estado-{{ planta.estado_servo }}">
-                            {% if planta.estado_servo == 'abierto' %}Servo: Abierto{% else %}Servo: Cerrado{% endif %}
+                        <div class="estado-servo {% if planta.estado_servo == 'abierto' or planta.riego_activo %}abierto estado-abierto{% else %}cerrado estado-cerrado{% endif %}">
+                            {% if planta.estado_servo == 'abierto' or planta.riego_activo %}Servo: Abierto{% else %}Servo: Cerrado{% endif %}
                         </div>
 
                         <div class="plant-meta">
-                            <div><strong>Humedad actual:</strong> <span class="valor-humedad" id="humedad-{{ planta.id }}">{% if planta.ultima_lectura_mqtt or planta.humedad_actual > 0 %}{{ planta.humedad_actual }}%{% else %}--{% endif %}</span></div>
-                            <div><strong>Temperatura actual:</strong> {{ planta.temperatura_actual }}°C</div>
-                            <div><strong>Umbral:</strong> {{ planta.umbral_humedad }}%</div>
+                            <div><strong>Humedad actual:</strong> <span class="valor-humedad" id="humedad-{{ planta.id }}">{% if planta.ultima_lectura_mqtt or planta.humedad_actual > 0 %}{{ planta.humedad_actual|floatformat:1 }}%{% else %}--{% endif %}</span></div>
+                            <div><strong>Temperatura actual:</strong> <span class="valor-temperatura-planta" id="temperatura-{{ planta.id }}">{% if planta.ultima_lectura_mqtt or planta.temperatura_actual > 0 %}{{ planta.temperatura_actual|floatformat:1 }}°C{% elif datos_ambientales and datos_ambientales.temperatura is not None %}{{ datos_ambientales.temperatura|floatformat:1 }}°C{% else %}--{% endif %}</span></div>
+                            <div><strong>Umbral:</strong> <span class="valor-umbral" id="umbral-{{ planta.id }}">{{ planta.umbral_humedad|floatformat:0 }}%</span></div>
                             <div><strong>Estado del riego:</strong> <span class="valor-estado-riego" style="color: {% if planta.riego_activo or planta.estado_servo == 'abierto' %}#276749; font-weight: 700{% else %}#718096; font-weight: 500{% endif %};">{% if planta.riego_activo or planta.estado_servo == 'abierto' %}Activo{% else %}Inactivo{% endif %}</span></div>
                         </div>
 
@@ -147,6 +151,10 @@
                 if (humEl) {
                     humEl.textContent = (datos.humedad_ambiente != null) ? (datos.humedad_ambiente.toFixed(1) + '%') : '--';
                 }
+                const valvulaEl = document.getElementById('valor-valvula');
+                if (valvulaEl && datos.valvula) {
+                    valvulaEl.textContent = datos.valvula.charAt(0).toUpperCase() + datos.valvula.slice(1);
+                }
                 const horaEl = document.getElementById('valor-hora');
                 if (horaEl) {
                     horaEl.textContent = datos.fecha_actualizacion ? new Date(datos.fecha_actualizacion).toLocaleTimeString() : '--';
@@ -160,7 +168,25 @@
                     // Humedad
                     const humedadEl = card.querySelector('.valor-humedad');
                     if (humedadEl) {
-                        humedadEl.textContent = p.humedad_actual.toFixed(1) + '%';
+                        humedadEl.textContent = (p.humedad_actual != null) ? (p.humedad_actual.toFixed(1) + '%') : '--';
+                    }
+
+                    // Temperatura de la planta
+                    const tempPlantaEl = card.querySelector('.valor-temperatura-planta');
+                    if (tempPlantaEl) {
+                        if (p.temperatura_actual != null && p.temperatura_actual > 0) {
+                            tempPlantaEl.textContent = p.temperatura_actual.toFixed(1) + '°C';
+                        } else if (datos.temperatura != null) {
+                            tempPlantaEl.textContent = datos.temperatura.toFixed(1) + '°C';
+                        } else {
+                            tempPlantaEl.textContent = '--';
+                        }
+                    }
+
+                    // Umbral
+                    const umbralEl = card.querySelector('.valor-umbral');
+                    if (umbralEl && p.umbral_humedad != null) {
+                        umbralEl.textContent = p.umbral_humedad.toFixed(0) + '%';
                     }
 
                     // Estado unificado de riego
@@ -170,7 +196,7 @@
                     const servoEl = card.querySelector('.estado-servo');
                     if (servoEl) {
                         servoEl.textContent = estaRegando ? 'Servo: Abierto' : 'Servo: Cerrado';
-                        servoEl.className = 'estado-servo estado-' + (estaRegando ? 'abierto' : 'cerrado');
+                        servoEl.className = 'estado-servo ' + (estaRegando ? 'abierto estado-abierto' : 'cerrado estado-cerrado');
                     }
 
                     // Estado del riego (texto coordinado)
